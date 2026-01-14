@@ -1,0 +1,30 @@
+{
+  "category": "feature",
+  "description": "Allow users to create Kanban items with name, description, importance (low/medium/high), effort (small/medium/big), and tags. Items can be moved between columns and boards.",
+  "title": "Create and manage Kanban items",
+  "dependencies": [
+    "create-and-manage-multiple-kanban-boards"
+  ],
+  "priority": 1,
+  "status": "verified",
+  "branchName": "main",
+  "id": "feature-1768382934241-p5xi0m5kp",
+  "descriptionHistory": [
+    {
+      "description": "Allow users to create Kanban items with name, description, importance (low/medium/high), effort (small/medium/big), and tags. Items can be moved between columns and boards.",
+      "timestamp": "2026-01-14T09:28:54.241Z",
+      "source": "initial"
+    }
+  ],
+  "startedAt": "2026-01-14T16:33:34.411Z",
+  "updatedAt": "2026-01-14T16:33:35.458Z",
+  "skipTests": false,
+  "model": "composer-1",
+  "thinkingLevel": "none",
+  "reasoningEffort": "none",
+  "imagePaths": [],
+  "textFilePaths": [],
+  "planningMode": "skip",
+  "requirePlanApproval": false,
+  "workMode": "custom"
+}

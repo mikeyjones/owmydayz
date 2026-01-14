@@ -1,0 +1,35 @@
+{
+  "category": "feature",
+  "description": "When a user marks a 'Now' item as completed (via checkbox in the unified Now view), trigger a confetti animation and display a positive 'Well done' celebration message. The item is then automatically moved to the 'Completed' column.",
+  "title": "Confetti celebration animation on task completion",
+  "dependencies": [
+    "unified-now-view-across-all-boards"
+  ],
+  "priority": 3,
+  "status": "verified",
+  "branchName": "main",
+  "id": "feature-1768382934243-chadjbq1m",
+  "descriptionHistory": [
+    {
+      "description": "When a user marks a 'Now' item as completed (via checkbox), trigger a confetti animation and display a positive 'Well done' celebration message.",
+      "timestamp": "2026-01-14T09:28:54.243Z",
+      "source": "initial"
+    },
+    {
+      "description": "When a user marks a 'Now' item as completed (via checkbox in the unified Now view), trigger a confetti animation and display a positive 'Well done' celebration message. The item is then automatically moved to the 'Completed' column.",
+      "timestamp": "2026-01-14T16:45:40.149Z",
+      "source": "edit"
+    }
+  ],
+  "skipTests": false,
+  "model": "composer-1",
+  "thinkingLevel": "none",
+  "reasoningEffort": "none",
+  "imagePaths": [],
+  "textFilePaths": [],
+  "planningMode": "skip",
+  "requirePlanApproval": false,
+  "workMode": "custom",
+  "startedAt": "2026-01-14T16:35:37.808Z",
+  "updatedAt": "2026-01-14T16:35:38.587Z"
+}

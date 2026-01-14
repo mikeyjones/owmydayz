@@ -1,0 +1,31 @@
+{
+  "category": "feature",
+  "description": "Display all columns in collapsed state by default showing column name and ticket count. The 'Now' column should always be expanded. Clicking a collapsed column expands it and collapses any other expanded columns (except 'Now'). Maximum two columns expanded at any time.",
+  "title": "Column collapse/expand with ticket count display",
+  "dependencies": [
+    "custom-column-management-for-kanban-boards",
+    "create-and-manage-kanban-items"
+  ],
+  "priority": 2,
+  "status": "verified",
+  "branchName": "main",
+  "id": "feature-1768382934241-i88akbcv4",
+  "descriptionHistory": [
+    {
+      "description": "Display all columns in collapsed state by default showing column name and ticket count. The 'Now' column should always be expanded. Clicking a collapsed column expands it and collapses any other expanded columns (except 'Now'). Maximum two columns expanded at any time.",
+      "timestamp": "2026-01-14T09:28:54.242Z",
+      "source": "initial"
+    }
+  ],
+  "skipTests": false,
+  "model": "composer-1",
+  "thinkingLevel": "none",
+  "reasoningEffort": "none",
+  "imagePaths": [],
+  "textFilePaths": [],
+  "planningMode": "skip",
+  "requirePlanApproval": false,
+  "workMode": "custom",
+  "startedAt": "2026-01-14T16:34:39.918Z",
+  "updatedAt": "2026-01-14T16:34:40.824Z"
+}

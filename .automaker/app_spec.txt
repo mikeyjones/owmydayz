@@ -1,0 +1,35 @@
+<project_specification>
+  <project_name>todooz</project_name>
+
+  <overview>
+    This project was created from the "Automaker Starter Kit" starter template.
+    An online community and training platform template for aspiring full stack engineers. Master frontend and backend development, build real-world projects, and launch your software engineering career.
+  </overview>
+
+  <technology_stack>
+    <technology>TanStack Start</technology>
+    <technology>PostgreSQL</technology>
+    <technology>Drizzle ORM</technology>
+    <technology>Better Auth</technology>
+    <technology>Tailwind CSS</technology>
+    <technology>Radix UI</technology>
+    <technology>Stripe</technology>
+    <technology>AWS S3/R2</technology>
+  </technology_stack>
+
+  <core_capabilities>
+    <capability>Community posts with comments and reactions</capability>
+    <capability>User profiles and portfolios</capability>
+    <capability>Calendar event management</capability>
+    <capability>Direct messaging</capability>
+    <capability>Member discovery directory</capability>
+    <capability>Real-time notifications</capability>
+    <capability>Classroom modules for learning</capability>
+    <capability>Tiered subscriptions (free/basic/pro)</capability>
+    <capability>File uploads with presigned URLs</capability>
+  </core_capabilities>
+
+  <implemented_features>
+    <!-- The AI agent will populate this based on code analysis -->
+  </implemented_features>
+</project_specification>

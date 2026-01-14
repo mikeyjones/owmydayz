@@ -1,0 +1,28 @@
+{
+  "category": "feature",
+  "description": "Allow users to create, view, edit, and delete multiple Kanban boards. Each board should have a name and can contain multiple columns and items.",
+  "title": "Create and manage multiple Kanban boards",
+  "dependencies": [],
+  "priority": 1,
+  "status": "verified",
+  "branchName": "main",
+  "id": "feature-1768382934237-2ry4chz2r",
+  "descriptionHistory": [
+    {
+      "description": "Allow users to create, view, edit, and delete multiple Kanban boards. Each board should have a name and can contain multiple columns and items.",
+      "timestamp": "2026-01-14T09:28:54.238Z",
+      "source": "initial"
+    }
+  ],
+  "startedAt": "2026-01-14T13:54:53.412Z",
+  "updatedAt": "2026-01-14T13:54:54.365Z",
+  "skipTests": false,
+  "model": "composer-1",
+  "thinkingLevel": "none",
+  "reasoningEffort": "none",
+  "imagePaths": [],
+  "textFilePaths": [],
+  "planningMode": "skip",
+  "requirePlanApproval": false,
+  "workMode": "custom"
+}

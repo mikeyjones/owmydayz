@@ -1,0 +1,31 @@
+{
+  "category": "feature",
+  "description": "Automatically create and maintain 'Now' and 'Completed' columns at the end of every Kanban board. These columns cannot be deleted, renamed, or reordered by users.",
+  "title": "Enforce mandatory 'Now' and 'Completed' columns",
+  "dependencies": [
+    "create-and-manage-multiple-kanban-boards",
+    "custom-column-management-for-kanban-boards"
+  ],
+  "priority": 1,
+  "status": "verified",
+  "branchName": "main",
+  "id": "feature-1768382934240-lffjhpypt",
+  "descriptionHistory": [
+    {
+      "description": "Automatically create and maintain 'Now' and 'Completed' columns at the end of every Kanban board. These columns cannot be deleted, renamed, or reordered by users.",
+      "timestamp": "2026-01-14T09:28:54.241Z",
+      "source": "initial"
+    }
+  ],
+  "startedAt": "2026-01-14T13:55:49.816Z",
+  "updatedAt": "2026-01-14T13:55:50.723Z",
+  "skipTests": false,
+  "model": "composer-1",
+  "thinkingLevel": "none",
+  "reasoningEffort": "none",
+  "imagePaths": [],
+  "textFilePaths": [],
+  "planningMode": "skip",
+  "requirePlanApproval": false,
+  "workMode": "custom"
+}
