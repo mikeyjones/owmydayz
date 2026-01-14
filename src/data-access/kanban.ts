@@ -408,6 +408,7 @@ export async function findAllNowItems(userId: string): Promise<NowItemWithBoard[
       effort: kanbanItem.effort,
       tags: kanbanItem.tags,
       position: kanbanItem.position,
+      completedAt: kanbanItem.completedAt,
       createdAt: kanbanItem.createdAt,
       updatedAt: kanbanItem.updatedAt,
       boardName: kanbanBoard.name,

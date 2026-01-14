@@ -5,7 +5,7 @@ import {
   useRouterState,
 } from "@tanstack/react-router";
 import { cn } from "~/lib/utils";
-import { LayoutDashboard, ChevronLeft, ChevronRight, Kanban, Target, Trophy } from "lucide-react";
+import { LayoutDashboard, ChevronLeft, ChevronRight, Kanban, Target, Trophy, Users } from "lucide-react";
 import { authClient } from "~/lib/auth-client";
 import { redirect } from "@tanstack/react-router";
 import { DashboardBackground } from "~/components/DashboardBackground";
@@ -46,6 +46,11 @@ const navItems: NavItem[] = [
     title: "Boards",
     href: "/dashboard/kanban",
     icon: Kanban,
+  },
+  {
+    title: "Teams",
+    href: "/dashboard/teams",
+    icon: Users,
   },
   {
     title: "Review",

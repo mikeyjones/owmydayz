@@ -12,6 +12,16 @@ export async function findUserById(id: string): Promise<User | null> {
   return result || null;
 }
 
+export async function findUserByEmail(email: string): Promise<User | null> {
+  const [result] = await database
+    .select()
+    .from(user)
+    .where(eq(user.email, email.toLowerCase()))
+    .limit(1);
+
+  return result || null;
+}
+
 export async function isUserAdmin(userId: string): Promise<boolean> {
   const userData = await findUserById(userId);
   if (!userData) return false;
