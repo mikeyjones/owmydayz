@@ -1,8 +1,5 @@
-import { useDroppable } from "@dnd-kit/core";
-import {
-  SortableContext,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
+import { useRef, useState, useEffect } from "react";
+import { dropTargetForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
 import { Plus, MoreHorizontal, Pencil, Trash2, ChevronRight } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import {
@@ -40,29 +37,61 @@ export function KanbanColumnComponent({
   onUnfold,
   columnColor,
 }: KanbanColumnProps) {
-  const { setNodeRef, isOver } = useDroppable({
-    id: column.id,
-    data: {
-      type: "column",
-      column,
-    },
-  });
+  const ref = useRef<HTMLDivElement>(null);
+  const foldedRef = useRef<HTMLButtonElement>(null);
+  const [isOver, setIsOver] = useState(false);
 
   const isSystemColumn = column.isSystem;
+
+  // Set up drop target for expanded column
+  useEffect(() => {
+    const element = ref.current;
+    if (!element || isFolded) return;
+
+    return dropTargetForElements({
+      element,
+      getData: () => ({
+        type: "column",
+        columnId: column.id,
+      }),
+      canDrop: ({ source }) => source.data.type === "item",
+      onDragEnter: () => setIsOver(true),
+      onDragLeave: () => setIsOver(false),
+      onDrop: () => setIsOver(false),
+    });
+  }, [column.id, isFolded]);
+
+  // Set up drop target for folded column
+  useEffect(() => {
+    const element = foldedRef.current;
+    if (!element || !isFolded) return;
+
+    return dropTargetForElements({
+      element,
+      getData: () => ({
+        type: "column",
+        columnId: column.id,
+      }),
+      canDrop: ({ source }) => source.data.type === "item",
+      onDragEnter: () => setIsOver(true),
+      onDragLeave: () => setIsOver(false),
+      onDrop: () => setIsOver(false),
+    });
+  }, [column.id, isFolded]);
 
   // Render folded/collapsed column
   if (isFolded) {
     return (
       <Tooltip content={`Click to expand ${column.name}`}>
         <button
-          ref={setNodeRef as React.Ref<HTMLButtonElement>}
+          ref={foldedRef}
           type="button"
           onClick={() => onUnfold?.(column.id)}
           className={cn(
             "flex flex-col w-12 min-w-12 max-w-12 rounded-lg border cursor-pointer transition-all hover:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/50",
             columnColor?.bg || "bg-muted/30",
             columnColor?.border,
-            isOver && "ring-2 ring-primary/50"
+            isOver && "ring-2 ring-primary/50 bg-primary/10"
           )}
         >
           {/* Folded Header */}
@@ -165,26 +194,27 @@ export function KanbanColumnComponent({
 
       {/* Items Container */}
       <div
-        ref={setNodeRef}
-        className="flex-1 p-2 space-y-2 overflow-y-auto min-h-[100px] max-h-[calc(100vh-300px)]"
+        ref={ref}
+        className={cn(
+          "flex-1 p-2 space-y-2 overflow-y-auto min-h-[100px] max-h-[calc(100vh-300px)]",
+          isOver && "bg-primary/5"
+        )}
       >
-        <SortableContext
-          items={column.items.map((item) => item.id)}
-          strategy={verticalListSortingStrategy}
-        >
-          {column.items.map((item) => (
-            <KanbanItemCard
-              key={item.id}
-              item={item}
-              onEdit={onEditItem}
-              onDelete={onDeleteItem}
-              columnColor={columnColor}
-            />
-          ))}
-        </SortableContext>
+        {column.items.map((item) => (
+          <KanbanItemCard
+            key={item.id}
+            item={item}
+            onEdit={onEditItem}
+            onDelete={onDeleteItem}
+            columnColor={columnColor}
+          />
+        ))}
 
         {column.items.length === 0 && (
-          <div className="flex items-center justify-center h-20 text-muted-foreground text-sm border-2 border-dashed rounded-lg">
+          <div className={cn(
+            "flex items-center justify-center h-20 text-muted-foreground text-sm border-2 border-dashed rounded-lg transition-colors",
+            isOver && "border-primary bg-primary/10"
+          )}>
             Drop items here
           </div>
         )}

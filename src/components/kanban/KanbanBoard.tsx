@@ -1,20 +1,9 @@
 import { useState, useCallback, useMemo, useEffect } from "react";
-import {
-  DndContext,
-  DragOverlay,
-  closestCorners,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  type DragStartEvent,
-  type DragEndEvent,
-} from "@dnd-kit/core";
-import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
+import { monitorForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
+import { extractClosestEdge } from "@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge";
 import { Plus, Settings, Loader2 } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { KanbanColumnComponent } from "./KanbanColumn";
-import { KanbanItemCard } from "./KanbanItem";
 import { CreateItemDialog } from "./CreateItemDialog";
 import { EditItemDialog } from "./EditItemDialog";
 import { CreateColumnDialog } from "./CreateColumnDialog";
@@ -42,7 +31,6 @@ export function KanbanBoard({ boardId }: KanbanBoardProps) {
   const deleteItemMutation = useDeleteItem();
   const deleteColumnMutation = useDeleteColumn();
 
-  const [activeItem, setActiveItem] = useState<KanbanItem | null>(null);
   const [createItemDialog, setCreateItemDialog] = useState<{
     open: boolean;
     columnId: string;
@@ -73,6 +61,76 @@ export function KanbanBoard({ boardId }: KanbanBoardProps) {
     }
   }, [board?.focusMode, expandedColumnId, defaultExpandedColumn]);
 
+  // Monitor for drag and drop events
+  useEffect(() => {
+    return monitorForElements({
+      onDrop: ({ source, location }) => {
+        const destination = location.current.dropTargets[0];
+        if (!destination || !board) return;
+
+        const sourceData = source.data;
+        const destData = destination.data;
+
+        // Only handle item drops
+        if (sourceData.type !== "item") return;
+
+        const sourceItem = sourceData.item as KanbanItem;
+        let targetColumnId: string;
+        let newPosition: number;
+
+        if (destData.type === "column") {
+          // Dropped directly on a column (empty area)
+          targetColumnId = destData.columnId as string;
+          const targetColumn = board.columns.find((c) => c.id === targetColumnId);
+          newPosition = targetColumn?.items.length || 0;
+        } else if (destData.type === "item") {
+          // Dropped on another item
+          targetColumnId = destData.columnId as string;
+          const targetColumn = board.columns.find((c) => c.id === targetColumnId);
+          const targetItemId = destData.itemId as string;
+          const targetIndex = targetColumn?.items.findIndex(
+            (i) => i.id === targetItemId
+          ) ?? -1;
+
+          // Determine position based on closest edge
+          const closestEdge = extractClosestEdge(destData);
+          
+          if (targetIndex >= 0) {
+            // If dropping below, add 1 to position
+            newPosition = closestEdge === "bottom" ? targetIndex + 1 : targetIndex;
+            
+            // Adjust if moving within the same column and from above
+            if (sourceItem.columnId === targetColumnId) {
+              const sourceIndex = targetColumn?.items.findIndex(
+                (i) => i.id === sourceItem.id
+              ) ?? -1;
+              if (sourceIndex >= 0 && sourceIndex < newPosition) {
+                newPosition -= 1;
+              }
+            }
+          } else {
+            newPosition = 0;
+          }
+        } else {
+          return;
+        }
+
+        // Only update if something changed
+        if (
+          sourceItem.columnId !== targetColumnId ||
+          sourceItem.position !== newPosition
+        ) {
+          moveItemMutation.mutate({
+            itemId: sourceItem.id,
+            newColumnId: targetColumnId,
+            newPosition,
+            boardId,
+          });
+        }
+      },
+    });
+  }, [board, boardId, moveItemMutation]);
+
   // Handler for unfolding a column in focus mode
   const handleUnfoldColumn = useCallback((columnId: string) => {
     setExpandedColumnId(columnId);
@@ -93,76 +151,6 @@ export function KanbanBoard({ boardId }: KanbanBoardProps) {
       return true;
     },
     [board?.focusMode, expandedColumnId]
-  );
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 8,
-      },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
-
-  const handleDragStart = useCallback((event: DragStartEvent) => {
-    const { active } = event;
-    const activeData = active.data.current;
-
-    if (activeData?.type === "item") {
-      setActiveItem(activeData.item);
-    }
-  }, []);
-
-  const handleDragEnd = useCallback(
-    (event: DragEndEvent) => {
-      const { active, over } = event;
-      setActiveItem(null);
-
-      if (!over || !board) return;
-
-      const activeData = active.data.current;
-      const overData = over.data.current;
-
-      if (!activeData || activeData.type !== "item") return;
-
-      const activeItem = activeData.item as KanbanItem;
-      let targetColumnId: string;
-      let newPosition: number;
-
-      if (overData?.type === "column") {
-        // Dropped directly on a column
-        targetColumnId = over.id as string;
-        const targetColumn = board.columns.find((c) => c.id === targetColumnId);
-        newPosition = targetColumn?.items.length || 0;
-      } else if (overData?.type === "item") {
-        // Dropped on another item
-        const overItem = overData.item as KanbanItem;
-        targetColumnId = overItem.columnId;
-        const targetColumn = board.columns.find((c) => c.id === targetColumnId);
-        const overIndex = targetColumn?.items.findIndex(
-          (i) => i.id === overItem.id
-        );
-        newPosition = overIndex !== undefined && overIndex >= 0 ? overIndex : 0;
-      } else {
-        return;
-      }
-
-      // Only update if something changed
-      if (
-        activeItem.columnId !== targetColumnId ||
-        activeItem.position !== newPosition
-      ) {
-        moveItemMutation.mutate({
-          itemId: activeItem.id,
-          newColumnId: targetColumnId,
-          newPosition,
-          boardId,
-        });
-      }
-    },
-    [board, boardId, moveItemMutation]
   );
 
   const handleAddItem = useCallback((columnId: string, columnName: string) => {
@@ -233,61 +221,41 @@ export function KanbanBoard({ boardId }: KanbanBoardProps) {
       </div>
 
       {/* Kanban Columns */}
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCorners}
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
-      >
-        <div className="flex-1 overflow-x-auto pb-4">
-          <div className="flex gap-4 h-full min-h-[400px]">
-            {board.columns.map((column, index) => (
-              <KanbanColumnComponent
-                key={column.id}
-                column={column}
-                onAddItem={handleAddItem}
-                onEditItem={handleEditItem}
-                onDeleteItem={handleDeleteItem}
-                onDeleteColumn={handleDeleteColumn}
-                isFolded={isColumnFolded(column)}
-                onUnfold={handleUnfoldColumn}
-                columnColor={getColumnColor(index)}
-              />
-            ))}
+      <div className="flex-1 overflow-x-auto pb-4">
+        <div className="flex gap-4 h-full min-h-[400px]">
+          {board.columns.map((column, index) => (
+            <KanbanColumnComponent
+              key={column.id}
+              column={column}
+              onAddItem={handleAddItem}
+              onEditItem={handleEditItem}
+              onDeleteItem={handleDeleteItem}
+              onDeleteColumn={handleDeleteColumn}
+              isFolded={isColumnFolded(column)}
+              onUnfold={handleUnfoldColumn}
+              columnColor={getColumnColor(index)}
+            />
+          ))}
 
-            {board.columns.length === 0 && (
-              <div className="flex items-center justify-center w-full h-64 border-2 border-dashed rounded-lg">
-                <div className="text-center">
-                  <p className="text-muted-foreground mb-2">
-                    No columns yet
-                  </p>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setCreateColumnDialog(true)}
-                  >
-                    <Plus className="h-4 w-4 mr-1" />
-                    Add Column
-                  </Button>
-                </div>
+          {board.columns.length === 0 && (
+            <div className="flex items-center justify-center w-full h-64 border-2 border-dashed rounded-lg">
+              <div className="text-center">
+                <p className="text-muted-foreground mb-2">
+                  No columns yet
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCreateColumnDialog(true)}
+                >
+                  <Plus className="h-4 w-4 mr-1" />
+                  Add Column
+                </Button>
               </div>
-            )}
-          </div>
-        </div>
-
-        <DragOverlay>
-          {activeItem ? (
-            <div className="w-72">
-              <KanbanItemCard
-                item={activeItem}
-                onEdit={() => {}}
-                onDelete={() => {}}
-                isDragging
-              />
             </div>
-          ) : null}
-        </DragOverlay>
-      </DndContext>
+          )}
+        </div>
+      </div>
 
       {/* Dialogs */}
       <CreateItemDialog

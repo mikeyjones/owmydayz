@@ -1,5 +1,7 @@
-import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+import { useRef, useState, useEffect } from "react";
+import { draggable, dropTargetForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
+import { combine } from "@atlaskit/pragmatic-drag-and-drop/combine";
+import { attachClosestEdge, extractClosestEdge, type Edge } from "@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge";
 import { GripVertical, MoreHorizontal, Pencil, Trash2, MessageSquare } from "lucide-react";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
@@ -11,6 +13,7 @@ import {
 } from "~/components/ui/dropdown-menu";
 import { cn } from "~/lib/utils";
 import { useTeamItemCommentCount } from "~/hooks/useItemComments";
+import { DropIndicator } from "~/components/kanban/DropIndicator";
 import type { TeamItem as TeamItemType, KanbanImportance, KanbanEffort } from "~/db/schema";
 import type { ColumnColor } from "~/utils/columnColors";
 
@@ -38,30 +41,63 @@ export function TeamKanbanItemCard({
   item,
   onEdit,
   onDelete,
-  isDragging = false,
+  isDragging: isDraggingProp = false,
   columnColor,
 }: TeamKanbanItemProps) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging: isSortableDragging,
-  } = useSortable({
-    id: item.id,
-    data: {
-      type: "item",
-      item,
-    },
-  });
+  const ref = useRef<HTMLDivElement>(null);
+  const dragHandleRef = useRef<HTMLButtonElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [closestEdge, setClosestEdge] = useState<Edge | null>(null);
 
   const { data: commentCount } = useTeamItemCommentCount(item.id);
 
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
+  useEffect(() => {
+    const element = ref.current;
+    const dragHandle = dragHandleRef.current;
+    if (!element || !dragHandle) return;
+
+    return combine(
+      draggable({
+        element,
+        dragHandle,
+        getInitialData: () => ({
+          type: "item",
+          itemId: item.id,
+          item,
+          columnId: item.columnId,
+        }),
+        onDragStart: () => setIsDragging(true),
+        onDrop: () => setIsDragging(false),
+      }),
+      dropTargetForElements({
+        element,
+        getData: ({ input, element }) => {
+          return attachClosestEdge(
+            { type: "item", itemId: item.id, columnId: item.columnId },
+            { input, element, allowedEdges: ["top", "bottom"] }
+          );
+        },
+        canDrop: ({ source }) => {
+          // Don't allow dropping on itself
+          return source.data.type === "item" && source.data.itemId !== item.id;
+        },
+        onDragEnter: ({ self }) => {
+          const edge = extractClosestEdge(self.data);
+          setClosestEdge(edge);
+        },
+        onDrag: ({ self }) => {
+          const edge = extractClosestEdge(self.data);
+          setClosestEdge(edge);
+        },
+        onDragLeave: () => {
+          setClosestEdge(null);
+        },
+        onDrop: () => {
+          setClosestEdge(null);
+        },
+      })
+    );
+  }, [item.id, item.columnId, item]);
 
   const importance = (item.importance || "medium") as KanbanImportance;
   const effort = (item.effort || "medium") as KanbanEffort;
@@ -69,19 +105,19 @@ export function TeamKanbanItemCard({
 
   return (
     <div
-      ref={setNodeRef}
-      style={style}
+      ref={ref}
       className={cn(
-        "bg-card border rounded-lg p-3 shadow-sm transition-all border-l-4",
+        "relative bg-card border rounded-lg p-3 shadow-sm transition-all border-l-4",
         columnColor?.accent || "border-l-transparent",
         "hover:shadow-md hover:border-primary/30",
-        (isDragging || isSortableDragging) && "opacity-50 shadow-lg ring-2 ring-primary/50"
+        (isDragging || isDraggingProp) && "opacity-50 shadow-lg ring-2 ring-primary/50"
       )}
     >
+      <DropIndicator edge={closestEdge} />
       <div className="flex items-start gap-2">
         <button
-          {...attributes}
-          {...listeners}
+          ref={dragHandleRef}
+          type="button"
           className="mt-0.5 p-1 -ml-1 rounded hover:bg-muted cursor-grab active:cursor-grabbing"
         >
           <GripVertical className="h-4 w-4 text-muted-foreground" />
