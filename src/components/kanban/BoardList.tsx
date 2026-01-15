@@ -34,7 +34,7 @@ export function BoardList() {
 
   const confirmDelete = () => {
     if (deletingBoard) {
-      deleteBoardMutation.mutate(deletingBoard.id, {
+      deleteBoardMutation.mutate(deletingBoard._id, {
         onSettled: () => setDeletingBoard(null),
       });
     }
@@ -77,7 +77,7 @@ export function BoardList() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {boards.map((board) => (
             <BoardCard
-              key={board.id}
+              key={board._id}
               board={board}
               onEdit={handleEdit}
               onDelete={handleDelete}

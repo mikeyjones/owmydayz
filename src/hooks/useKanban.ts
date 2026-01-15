@@ -32,10 +32,14 @@ export function useBoard(boardId: string, enabled = true) {
       ? { id: boardId as Id<"kanbanBoards">, userId }
       : "skip"
   );
+  const normalizedBoard =
+    board && typeof board === "object"
+      ? { ...board, id: board._id }
+      : board;
 
   return {
-    data: board,
-    isLoading: board === undefined && enabled && !!boardId && !!userId,
+    data: normalizedBoard,
+    isLoading: normalizedBoard === undefined && enabled && !!boardId && !!userId,
     error: null,
   };
 }
@@ -49,10 +53,25 @@ export function useBoardWithColumns(boardId: string, enabled = true) {
       ? { id: boardId as Id<"kanbanBoards">, userId }
       : "skip"
   );
+  const normalizedBoard =
+    board && typeof board === "object"
+      ? {
+          ...board,
+          id: board._id,
+          columns: board.columns?.map((column) => ({
+            ...column,
+            id: column._id,
+            items: column.items?.map((item) => ({
+              ...item,
+              id: item._id,
+            })),
+          })),
+        }
+      : board;
 
   return {
-    data: board,
-    isLoading: board === undefined && enabled && !!boardId && !!userId,
+    data: normalizedBoard,
+    isLoading: normalizedBoard === undefined && enabled && !!boardId && !!userId,
     error: null,
   };
 }
@@ -62,18 +81,24 @@ interface CreateBoardData {
   description?: string;
 }
 
+interface MutationCallbacks<T> {
+  onSuccess?: (data: T) => void;
+  onError?: (error: Error) => void;
+}
+
 export function useCreateBoard() {
   const { userId } = useCurrentUser();
   const createBoard = useMutation(api.kanban.createBoard);
 
   return {
-    mutate: async (data: CreateBoardData) => {
+    mutate: async (data: CreateBoardData, callbacks?: MutationCallbacks<{ id: string }>) => {
       if (!userId) {
         toast.error("You must be logged in to create a board");
+        callbacks?.onError?.(new Error("You must be logged in to create a board"));
         return;
       }
       try {
-        await createBoard({
+        const result = await createBoard({
           name: data.name,
           description: data.description,
           userId,
@@ -81,11 +106,13 @@ export function useCreateBoard() {
         toast.success("Board created successfully!", {
           description: "Your new board is ready.",
         });
+        callbacks?.onSuccess?.({ id: result });
       } catch (error) {
+        const err = error instanceof Error ? error : new Error("Unknown error");
         toast.error("Failed to create board", {
-          description: error instanceof Error ? error.message : "Unknown error",
+          description: err.message,
         });
-        throw error;
+        callbacks?.onError?.(err);
       }
     },
     mutateAsync: async (data: CreateBoardData) => {
@@ -100,7 +127,7 @@ export function useCreateBoard() {
       toast.success("Board created successfully!", {
         description: "Your new board is ready.",
       });
-      return result;
+      return { id: result };
     },
     isPending: false,
   };
@@ -118,9 +145,10 @@ export function useUpdateBoard() {
   const updateBoard = useMutation(api.kanban.updateBoard);
 
   return {
-    mutate: async (data: UpdateBoardData) => {
+    mutate: async (data: UpdateBoardData, callbacks?: MutationCallbacks<void>) => {
       if (!userId) {
         toast.error("You must be logged in to update a board");
+        callbacks?.onError?.(new Error("You must be logged in to update a board"));
         return;
       }
       try {
@@ -132,11 +160,13 @@ export function useUpdateBoard() {
           userId,
         });
         toast.success("Board updated successfully!");
+        callbacks?.onSuccess?.();
       } catch (error) {
+        const err = error instanceof Error ? error : new Error("Unknown error");
         toast.error("Failed to update board", {
-          description: error instanceof Error ? error.message : "Unknown error",
+          description: err.message,
         });
-        throw error;
+        callbacks?.onError?.(err);
       }
     },
     isPending: false,

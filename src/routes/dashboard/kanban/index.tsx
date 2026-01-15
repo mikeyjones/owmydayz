@@ -50,7 +50,7 @@ function KanbanIndex() {
         ) : teamBoards && teamBoards.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {teamBoards.map((board) => (
-              <Card key={board.id} className="group hover:shadow-md transition-shadow">
+              <Card key={board._id} className="group hover:shadow-md transition-shadow">
                 <CardHeader className="pb-2">
                   <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
                     <Users className="h-3 w-3" />
@@ -68,7 +68,7 @@ function KanbanIndex() {
                 <CardContent>
                   <Link
                     to="/dashboard/teams/$teamId/boards/$boardId"
-                    params={{ teamId: board.teamId, boardId: board.id }}
+                    params={{ teamId: board.teamId, boardId: String(board._id) }}
                   >
                     <Button variant="outline" className="w-full">
                       <LayoutDashboard className="mr-2 h-4 w-4" />

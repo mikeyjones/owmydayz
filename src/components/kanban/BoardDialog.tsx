@@ -38,7 +38,7 @@ export function BoardDialog({
   const handleSubmit = async (data: BoardFormData) => {
     if (isEditMode) {
       updateBoardMutation.mutate(
-        { id: board.id, ...data },
+        { id: board._id, ...data },
         { onSuccess: () => onOpenChange(false) }
       );
     } else {
@@ -60,7 +60,7 @@ export function BoardDialog({
           </DialogDescription>
         </DialogHeader>
         <BoardForm
-          key={isEditMode ? board.id : "create"}
+          key={isEditMode ? board._id : "create"}
           defaultValues={defaultValues}
           onSubmit={handleSubmit}
           isPending={mutation.isPending}
