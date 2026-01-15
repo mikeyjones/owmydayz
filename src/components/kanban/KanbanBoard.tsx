@@ -175,7 +175,7 @@ export function KanbanBoard({ boardId }: KanbanBoardProps) {
     [boardId, deleteColumnMutation]
   );
 
-  if (isLoading) {
+  if (isLoading || board === undefined) {
     return (
       <div className="flex items-center justify-center h-64">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -183,10 +183,18 @@ export function KanbanBoard({ boardId }: KanbanBoardProps) {
     );
   }
 
-  if (error || !board) {
+  if (error) {
     return (
       <div className="flex items-center justify-center h-64">
         <p className="text-destructive">Failed to load board</p>
+      </div>
+    );
+  }
+
+  if (board === null) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p className="text-destructive">Board not found</p>
       </div>
     );
   }

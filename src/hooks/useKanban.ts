@@ -214,9 +214,10 @@ export function useCreateColumn() {
   const createColumn = useMutation(api.kanban.createColumn);
 
   return {
-    mutate: async (data: CreateColumnData) => {
+    mutate: async (data: CreateColumnData, callbacks?: MutationCallbacks<void>) => {
       if (!userId) {
         toast.error("You must be logged in to create a column");
+        callbacks?.onError?.(new Error("You must be logged in to create a column"));
         return;
       }
       try {
@@ -226,11 +227,13 @@ export function useCreateColumn() {
           userId,
         });
         toast.success("Column created successfully!");
+        callbacks?.onSuccess?.();
       } catch (error) {
+        const err = error instanceof Error ? error : new Error("Unknown error");
         toast.error("Failed to create column", {
-          description: error instanceof Error ? error.message : "Unknown error",
+          description: err.message,
         });
-        throw error;
+        callbacks?.onError?.(err);
       }
     },
     isPending: false,
@@ -357,9 +360,10 @@ export function useCreateItem() {
   const createItem = useMutation(api.kanban.createItem);
 
   return {
-    mutate: async (data: CreateItemData) => {
+    mutate: async (data: CreateItemData, callbacks?: MutationCallbacks<void>) => {
       if (!userId) {
         toast.error("You must be logged in to create an item");
+        callbacks?.onError?.(new Error("You must be logged in to create an item"));
         return;
       }
       try {
@@ -374,11 +378,13 @@ export function useCreateItem() {
           userId,
         });
         toast.success("Item created successfully!");
+        callbacks?.onSuccess?.();
       } catch (error) {
+        const err = error instanceof Error ? error : new Error("Unknown error");
         toast.error("Failed to create item", {
-          description: error instanceof Error ? error.message : "Unknown error",
+          description: err.message,
         });
-        throw error;
+        callbacks?.onError?.(err);
       }
     },
     isPending: false,
