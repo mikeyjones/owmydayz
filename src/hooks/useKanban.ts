@@ -3,6 +3,86 @@ import { api } from "../../convex/_generated/api";
 import { useCurrentUser } from "./useCurrentUser";
 import { toast } from "sonner";
 import type { Id } from "../../convex/_generated/dataModel";
+import type { KanbanItem, KanbanColumnWithItems } from "~/types";
+
+// =====================================================
+// Optimistic Update Utilities
+// =====================================================
+
+export interface PendingMove {
+  itemId: string;
+  fromColumnId: string;
+  toColumnId: string;
+  newPosition: number;
+  item: KanbanItem;
+}
+
+/**
+ * Applies optimistic moves to columns by moving items from their original
+ * positions to their target positions before the server confirms.
+ */
+export function applyOptimisticMoves(
+  columns: KanbanColumnWithItems[],
+  pendingMoves: Map<string, PendingMove>
+): KanbanColumnWithItems[] {
+  if (pendingMoves.size === 0) {
+    return columns;
+  }
+
+  // Create a map of columns for easy lookup
+  const columnMap = new Map(columns.map((col) => [col.id, { ...col }]));
+  
+  // Process each pending move
+  pendingMoves.forEach((move) => {
+    const fromColumn = columnMap.get(move.fromColumnId);
+    const toColumn = columnMap.get(move.toColumnId);
+    
+    if (!fromColumn || !toColumn) return;
+    
+    // Remove item from source column
+    const sourceItems = fromColumn.items.filter((item) => item.id !== move.itemId);
+    
+    // Update positions in source column (shift items up)
+    const updatedSourceItems = sourceItems.map((item, index) => ({
+      ...item,
+      position: index,
+    }));
+    
+    // Insert item into target column at new position
+    const targetItems = [...toColumn.items];
+    const updatedItem = {
+      ...move.item,
+      columnId: move.toColumnId,
+      position: move.newPosition,
+    };
+    
+    // Remove item if it already exists in target column (for same-column moves)
+    const filteredTargetItems = targetItems.filter((item) => item.id !== move.itemId);
+    
+    // Insert at the correct position
+    filteredTargetItems.splice(move.newPosition, 0, updatedItem);
+    
+    // Update positions in target column
+    const updatedTargetItems = filteredTargetItems.map((item, index) => ({
+      ...item,
+      position: index,
+    }));
+    
+    // Update column map
+    columnMap.set(move.fromColumnId, {
+      ...fromColumn,
+      items: updatedSourceItems,
+    });
+    
+    columnMap.set(move.toColumnId, {
+      ...toColumn,
+      items: updatedTargetItems,
+    });
+  });
+  
+  // Return columns in original order with updated items
+  return columns.map((col) => columnMap.get(col.id) || col);
+}
 
 // =====================================================
 // Board Hooks

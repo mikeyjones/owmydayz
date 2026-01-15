@@ -13,6 +13,8 @@ import {
   useMoveTeamItem,
   useDeleteTeamItem,
   useDeleteTeamColumn,
+  applyOptimisticTeamMoves,
+  type PendingTeamMove,
 } from "~/hooks/useTeamBoards";
 import { getColumnColor } from "~/utils/columnColors";
 import type { TeamItem } from "~/types";
@@ -44,6 +46,11 @@ export function TeamKanbanBoard({ boardId, teamId }: TeamKanbanBoardProps) {
   const [createColumnDialog, setCreateColumnDialog] = useState(false);
   const [boardSettingsDialog, setBoardSettingsDialog] = useState(false);
 
+  // Optimistic state: track pending moves
+  const [pendingMoves, setPendingMoves] = useState<Map<string, PendingTeamMove>>(
+    new Map()
+  );
+
   // Focus mode state: track which non-"Now" column is currently expanded
   const [expandedColumnId, setExpandedColumnId] = useState<string | null>(null);
 
@@ -62,18 +69,65 @@ export function TeamKanbanBoard({ boardId, teamId }: TeamKanbanBoardProps) {
     }
   }, [board?.focusMode, expandedColumnId, defaultExpandedColumn]);
 
+  // Apply optimistic updates to board columns
+  const optimisticBoard = useMemo(() => {
+    if (!board?.columns) return board;
+    const optimisticColumns = applyOptimisticTeamMoves(board.columns, pendingMoves);
+    return {
+      ...board,
+      columns: optimisticColumns,
+    };
+  }, [board, pendingMoves]);
+
+  // Clear pending moves when Convex data reflects the change
+  useEffect(() => {
+    if (!board || pendingMoves.size === 0) return;
+
+    const movesToClear: string[] = [];
+    pendingMoves.forEach((move, itemId) => {
+      const item = board.columns
+        .flatMap((col) => col.items)
+        .find((i) => i.id === itemId);
+      
+      // Clear if item is in the expected position
+      if (
+        item &&
+        item.columnId === move.toColumnId &&
+        item.position === move.newPosition
+      ) {
+        movesToClear.push(itemId);
+      }
+    });
+
+    if (movesToClear.length > 0) {
+      setPendingMoves((prev) => {
+        const next = new Map(prev);
+        movesToClear.forEach((id) => next.delete(id));
+        return next;
+      });
+    }
+  }, [board, pendingMoves]);
+
   // Monitor for drag and drop events
   useEffect(() => {
     return monitorForElements({
       onDrop: ({ source, location }) => {
         const destination = location.current.dropTargets[0];
-        if (!destination || !board) return;
+        if (!destination || !optimisticBoard) return;
 
         const sourceData = source.data;
         const destData = destination.data;
 
         // Only handle item drops
         if (sourceData.type !== "item") return;
+
+        const sourceItemId = sourceData.itemId as string;
+        // Get current item position from optimistic board (accounts for previous optimistic moves)
+        const currentItem = optimisticBoard.columns
+          .flatMap((col) => col.items)
+          .find((item) => item.id === sourceItemId);
+        
+        if (!currentItem) return;
 
         const sourceItem = sourceData.item as TeamItem;
         let targetColumnId: string;
@@ -82,12 +136,12 @@ export function TeamKanbanBoard({ boardId, teamId }: TeamKanbanBoardProps) {
         if (destData.type === "column") {
           // Dropped directly on a column (empty area)
           targetColumnId = destData.columnId as string;
-          const targetColumn = board.columns.find((c) => c.id === targetColumnId);
+          const targetColumn = optimisticBoard.columns.find((c) => c.id === targetColumnId);
           newPosition = targetColumn?.items.length || 0;
         } else if (destData.type === "item") {
           // Dropped on another item
           targetColumnId = destData.columnId as string;
-          const targetColumn = board.columns.find((c) => c.id === targetColumnId);
+          const targetColumn = optimisticBoard.columns.find((c) => c.id === targetColumnId);
           const targetItemId = destData.itemId as string;
           const targetIndex = targetColumn?.items.findIndex(
             (i) => i.id === targetItemId
@@ -101,9 +155,10 @@ export function TeamKanbanBoard({ boardId, teamId }: TeamKanbanBoardProps) {
             newPosition = closestEdge === "bottom" ? targetIndex + 1 : targetIndex;
             
             // Adjust if moving within the same column and from above
-            if (sourceItem.columnId === targetColumnId) {
+            // Use currentItem.columnId (from optimistic board) not sourceItem.columnId
+            if (currentItem.columnId === targetColumnId) {
               const sourceIndex = targetColumn?.items.findIndex(
-                (i) => i.id === sourceItem.id
+                (i) => i.id === sourceItemId
               ) ?? -1;
               if (sourceIndex >= 0 && sourceIndex < newPosition) {
                 newPosition -= 1;
@@ -117,10 +172,25 @@ export function TeamKanbanBoard({ boardId, teamId }: TeamKanbanBoardProps) {
         }
 
         // Only update if something changed
+        // Compare against current optimistic position, not original
         if (
-          sourceItem.columnId !== targetColumnId ||
-          sourceItem.position !== newPosition
+          currentItem.columnId !== targetColumnId ||
+          currentItem.position !== newPosition
         ) {
+          // Apply optimistic update immediately
+          setPendingMoves((prev) => {
+            const next = new Map(prev);
+            next.set(sourceItemId, {
+              itemId: sourceItemId,
+              fromColumnId: currentItem.columnId,
+              toColumnId: targetColumnId,
+              newPosition,
+              item: currentItem, // Use current item from optimistic board
+            });
+            return next;
+          });
+
+          // Fire mutation
           moveItemMutation.mutate({
             itemId: sourceItem.id,
             newColumnId: targetColumnId,
@@ -130,7 +200,7 @@ export function TeamKanbanBoard({ boardId, teamId }: TeamKanbanBoardProps) {
         }
       },
     });
-  }, [board, boardId, moveItemMutation]);
+  }, [optimisticBoard, boardId, moveItemMutation]);
 
   // Handler for unfolding a column in focus mode
   const handleUnfoldColumn = useCallback((columnId: string) => {
@@ -192,14 +262,17 @@ export function TeamKanbanBoard({ boardId, teamId }: TeamKanbanBoardProps) {
     );
   }
 
+  // Use optimistic board for rendering
+  const displayBoard = optimisticBoard || board;
+
   return (
     <div className="h-full flex flex-col">
       {/* Board Header */}
       <div className="flex items-center justify-between mb-4 px-1">
         <div>
-          <h2 className="text-xl font-bold">{board.name}</h2>
-          {board.description && (
-            <p className="text-sm text-muted-foreground">{board.description}</p>
+          <h2 className="text-xl font-bold">{displayBoard.name}</h2>
+          {displayBoard.description && (
+            <p className="text-sm text-muted-foreground">{displayBoard.description}</p>
           )}
         </div>
         <div className="flex items-center gap-2">
@@ -224,7 +297,7 @@ export function TeamKanbanBoard({ boardId, teamId }: TeamKanbanBoardProps) {
       {/* Kanban Columns */}
       <div className="flex-1 overflow-x-auto pb-4">
         <div className="flex gap-4 h-full min-h-[400px]">
-          {board.columns.map((column, index) => (
+          {displayBoard.columns.map((column, index) => (
             <TeamKanbanColumn
               key={column.id}
               column={column}
@@ -238,7 +311,7 @@ export function TeamKanbanBoard({ boardId, teamId }: TeamKanbanBoardProps) {
             />
           ))}
 
-          {board.columns.length === 0 && (
+          {displayBoard.columns.length === 0 && (
             <div className="flex items-center justify-center w-full h-64 border-2 border-dashed rounded-lg">
               <div className="text-center">
                 <p className="text-muted-foreground mb-2">No columns yet</p>
@@ -284,7 +357,7 @@ export function TeamKanbanBoard({ boardId, teamId }: TeamKanbanBoardProps) {
         open={boardSettingsDialog}
         onOpenChange={setBoardSettingsDialog}
         teamId={teamId}
-        board={board}
+        board={displayBoard}
       />
     </div>
   );
