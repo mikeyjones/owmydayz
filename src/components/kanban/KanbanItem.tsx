@@ -1,6 +1,6 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { GripVertical, MoreHorizontal, Pencil, Trash2, MessageSquare } from "lucide-react";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import {
@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { cn } from "~/lib/utils";
+import { useKanbanItemCommentCount } from "~/hooks/useItemComments";
 import type { KanbanItem as KanbanItemType, KanbanImportance, KanbanEffort } from "~/db/schema";
 
 interface KanbanItemProps {
@@ -51,6 +52,8 @@ export function KanbanItemCard({
       item,
     },
   });
+
+  const { data: commentCount } = useKanbanItemCommentCount(item.id);
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -154,6 +157,13 @@ export function KanbanItemCard({
                   </span>
                 )}
               </>
+            )}
+
+            {commentCount !== undefined && commentCount > 0 && (
+              <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground ml-auto">
+                <MessageSquare className="h-3 w-3" />
+                {commentCount}
+              </span>
             )}
           </div>
         </div>

@@ -207,6 +207,34 @@ export const kanbanItem = pgTable(
   ]
 );
 
+// Kanban Item Comment - Comments on kanban items (personal boards)
+export const kanbanItemComment = pgTable(
+  "kanban_item_comment",
+  {
+    id: text("id").primaryKey(),
+    itemId: text("item_id")
+      .notNull()
+      .references(() => kanbanItem.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    content: text("content").notNull(),
+    parentCommentId: text("parent_comment_id"),
+    createdAt: timestamp("created_at")
+      .$defaultFn(() => new Date())
+      .notNull(),
+    updatedAt: timestamp("updated_at")
+      .$defaultFn(() => new Date())
+      .notNull(),
+    deletedAt: timestamp("deleted_at"),
+  },
+  (table) => [
+    index("idx_kanban_item_comment_item_id").on(table.itemId),
+    index("idx_kanban_item_comment_user_id").on(table.userId),
+    index("idx_kanban_item_comment_parent_id").on(table.parentCommentId),
+  ]
+);
+
 // Kanban Relations
 export const kanbanBoardRelations = relations(kanbanBoard, ({ one, many }) => ({
   user: one(user, {
@@ -224,7 +252,7 @@ export const kanbanColumnRelations = relations(kanbanColumn, ({ one, many }) => 
   items: many(kanbanItem),
 }));
 
-export const kanbanItemRelations = relations(kanbanItem, ({ one }) => ({
+export const kanbanItemRelations = relations(kanbanItem, ({ one, many }) => ({
   column: one(kanbanColumn, {
     fields: [kanbanItem.columnId],
     references: [kanbanColumn.id],
@@ -232,6 +260,26 @@ export const kanbanItemRelations = relations(kanbanItem, ({ one }) => ({
   board: one(kanbanBoard, {
     fields: [kanbanItem.boardId],
     references: [kanbanBoard.id],
+  }),
+  comments: many(kanbanItemComment),
+}));
+
+export const kanbanItemCommentRelations = relations(kanbanItemComment, ({ one, many }) => ({
+  item: one(kanbanItem, {
+    fields: [kanbanItemComment.itemId],
+    references: [kanbanItem.id],
+  }),
+  user: one(user, {
+    fields: [kanbanItemComment.userId],
+    references: [user.id],
+  }),
+  parentComment: one(kanbanItemComment, {
+    fields: [kanbanItemComment.parentCommentId],
+    references: [kanbanItemComment.id],
+    relationName: "kanbanCommentReplies",
+  }),
+  replies: many(kanbanItemComment, {
+    relationName: "kanbanCommentReplies",
   }),
 }));
 
@@ -423,6 +471,34 @@ export const teamItem = pgTable(
   ]
 );
 
+// Team Item Comment - Comments on team board items
+export const teamItemComment = pgTable(
+  "team_item_comment",
+  {
+    id: text("id").primaryKey(),
+    itemId: text("item_id")
+      .notNull()
+      .references(() => teamItem.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    content: text("content").notNull(),
+    parentCommentId: text("parent_comment_id"),
+    createdAt: timestamp("created_at")
+      .$defaultFn(() => new Date())
+      .notNull(),
+    updatedAt: timestamp("updated_at")
+      .$defaultFn(() => new Date())
+      .notNull(),
+    deletedAt: timestamp("deleted_at"),
+  },
+  (table) => [
+    index("idx_team_item_comment_item_id").on(table.itemId),
+    index("idx_team_item_comment_user_id").on(table.userId),
+    index("idx_team_item_comment_parent_id").on(table.parentCommentId),
+  ]
+);
+
 // Team Relations
 export const teamRelations = relations(team, ({ one, many }) => ({
   owner: one(user, {
@@ -476,7 +552,7 @@ export const teamColumnRelations = relations(teamColumn, ({ one, many }) => ({
   items: many(teamItem),
 }));
 
-export const teamItemRelations = relations(teamItem, ({ one }) => ({
+export const teamItemRelations = relations(teamItem, ({ one, many }) => ({
   column: one(teamColumn, {
     fields: [teamItem.columnId],
     references: [teamColumn.id],
@@ -488,6 +564,26 @@ export const teamItemRelations = relations(teamItem, ({ one }) => ({
   creator: one(user, {
     fields: [teamItem.createdBy],
     references: [user.id],
+  }),
+  comments: many(teamItemComment),
+}));
+
+export const teamItemCommentRelations = relations(teamItemComment, ({ one, many }) => ({
+  item: one(teamItem, {
+    fields: [teamItemComment.itemId],
+    references: [teamItem.id],
+  }),
+  user: one(user, {
+    fields: [teamItemComment.userId],
+    references: [user.id],
+  }),
+  parentComment: one(teamItemComment, {
+    fields: [teamItemComment.parentCommentId],
+    references: [teamItemComment.id],
+    relationName: "teamCommentReplies",
+  }),
+  replies: many(teamItemComment, {
+    relationName: "teamCommentReplies",
   }),
 }));
 
@@ -513,3 +609,15 @@ export type UpdateTeamColumnData = Partial<Omit<CreateTeamColumnData, "id" | "cr
 export type TeamItem = typeof teamItem.$inferSelect;
 export type CreateTeamItemData = typeof teamItem.$inferInsert;
 export type UpdateTeamItemData = Partial<Omit<CreateTeamItemData, "id" | "createdAt" | "columnId" | "boardId" | "createdBy">>;
+
+// =====================================================
+// Item Comment Types
+// =====================================================
+
+export type KanbanItemComment = typeof kanbanItemComment.$inferSelect;
+export type CreateKanbanItemCommentData = typeof kanbanItemComment.$inferInsert;
+export type UpdateKanbanItemCommentData = Partial<Omit<CreateKanbanItemCommentData, "id" | "createdAt" | "itemId" | "userId" | "parentCommentId">>;
+
+export type TeamItemComment = typeof teamItemComment.$inferSelect;
+export type CreateTeamItemCommentData = typeof teamItemComment.$inferInsert;
+export type UpdateTeamItemCommentData = Partial<Omit<CreateTeamItemCommentData, "id" | "createdAt" | "itemId" | "userId" | "parentCommentId">>;
