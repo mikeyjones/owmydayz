@@ -144,6 +144,7 @@ const updateBoardSchema = z.object({
     .max(500, "Description must be less than 500 characters")
     .optional()
     .or(z.literal("")),
+  focusMode: z.boolean().optional(),
 });
 
 export const updateTeamBoardFn = createServerFn({
@@ -168,6 +169,7 @@ export const updateTeamBoardFn = createServerFn({
     const updatedBoard = await updateTeamBoard(data.id, {
       name: data.name,
       description: data.description || null,
+      focusMode: data.focusMode,
     });
     return updatedBoard;
   });

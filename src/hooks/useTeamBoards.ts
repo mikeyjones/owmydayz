@@ -86,6 +86,7 @@ interface UpdateTeamBoardData {
   id: string;
   name: string;
   description?: string;
+  focusMode?: boolean;
   teamId: string; // For query invalidation
 }
 
@@ -94,7 +95,7 @@ export function useUpdateTeamBoard() {
 
   return useMutation({
     mutationFn: (data: UpdateTeamBoardData) =>
-      updateTeamBoardFn({ data: { id: data.id, name: data.name, description: data.description } }),
+      updateTeamBoardFn({ data: { id: data.id, name: data.name, description: data.description, focusMode: data.focusMode } }),
     onSuccess: (_, variables) => {
       toast.success("Board updated successfully!");
       queryClient.invalidateQueries({ queryKey: ["team-boards", variables.teamId] });

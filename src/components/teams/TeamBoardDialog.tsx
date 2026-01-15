@@ -33,6 +33,7 @@ export function TeamBoardDialog({
     ? {
         name: board.name,
         description: board.description || "",
+        focusMode: board.focusMode,
       }
     : undefined;
 

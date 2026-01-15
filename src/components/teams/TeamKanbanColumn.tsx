@@ -3,7 +3,7 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { Plus, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { Plus, MoreHorizontal, Pencil, Trash2, ChevronRight } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import {
   DropdownMenu,
@@ -11,6 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
+import { Tooltip } from "~/components/ui/tooltip";
 import { cn } from "~/lib/utils";
 import { TeamKanbanItemCard } from "./TeamKanbanItem";
 import type { TeamColumn as TeamColumnType, TeamItem } from "~/db/schema";
@@ -22,6 +23,8 @@ interface TeamKanbanColumnProps {
   onDeleteItem: (itemId: string) => void;
   onEditColumn?: (column: TeamColumnType) => void;
   onDeleteColumn?: (columnId: string) => void;
+  isFolded?: boolean;
+  onUnfold?: (columnId: string) => void;
 }
 
 export function TeamKanbanColumn({
@@ -31,6 +34,8 @@ export function TeamKanbanColumn({
   onDeleteItem,
   onEditColumn,
   onDeleteColumn,
+  isFolded = false,
+  onUnfold,
 }: TeamKanbanColumnProps) {
   const { setNodeRef, isOver } = useDroppable({
     id: column.id,
@@ -41,6 +46,45 @@ export function TeamKanbanColumn({
   });
 
   const isSystemColumn = column.isSystem;
+
+  // Render folded/collapsed column
+  if (isFolded) {
+    return (
+      <Tooltip content={`Click to expand ${column.name}`}>
+        <button
+          ref={setNodeRef as React.Ref<HTMLButtonElement>}
+          type="button"
+          onClick={() => onUnfold?.(column.id)}
+          className={cn(
+            "flex flex-col w-12 min-w-12 max-w-12 bg-muted/30 rounded-lg border cursor-pointer transition-all hover:bg-muted/50 hover:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/50",
+            isOver && "ring-2 ring-primary/50 bg-muted/50"
+          )}
+        >
+          {/* Folded Header */}
+          <div className="flex flex-col items-center gap-2 p-2 border-b bg-muted/50 rounded-t-lg w-full">
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full">
+              {column.items.length}
+            </span>
+          </div>
+
+          {/* Vertical Column Name */}
+          <div className="flex-1 flex items-center justify-center p-2 min-h-[100px]">
+            <span
+              className="font-semibold text-sm text-muted-foreground whitespace-nowrap"
+              style={{
+                writingMode: "vertical-rl",
+                textOrientation: "mixed",
+                transform: "rotate(180deg)",
+              }}
+            >
+              {column.name}
+            </span>
+          </div>
+        </button>
+      </Tooltip>
+    );
+  }
 
   return (
     <div

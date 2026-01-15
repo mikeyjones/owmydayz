@@ -5,6 +5,7 @@ import { Loader2, LayoutDashboard } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
+import { Switch } from "~/components/ui/switch";
 import {
   Form,
   FormControl,
@@ -25,6 +26,7 @@ export const teamBoardFormSchema = z.object({
     .max(500, "Description must be less than 500 characters")
     .optional()
     .or(z.literal("")),
+  focusMode: z.boolean().optional(),
 });
 
 export type TeamBoardFormData = z.infer<typeof teamBoardFormSchema>;
@@ -51,6 +53,7 @@ export function TeamBoardForm({
     defaultValues: {
       name: "",
       description: "",
+      focusMode: false,
       ...defaultValues,
     },
   });
@@ -103,6 +106,30 @@ export function TeamBoardForm({
                 {field.value?.length || 0}/500 characters
               </FormDescription>
               <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="focusMode"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+              <div className="space-y-0.5">
+                <FormLabel className="text-base font-medium">
+                  Focus Mode
+                </FormLabel>
+                <FormDescription>
+                  Show only 2 columns at a time: the Now column and one other expandable column.
+                </FormDescription>
+              </div>
+              <FormControl>
+                <Switch
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                  disabled={isPending}
+                />
+              </FormControl>
             </FormItem>
           )}
         />

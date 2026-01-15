@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -11,20 +11,25 @@ import {
   type DragEndEvent,
 } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
-import { Plus, Loader2 } from "lucide-react";
+import { Plus, Loader2, Settings } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { TeamKanbanColumn } from "./TeamKanbanColumn";
 import { TeamKanbanItemCard } from "./TeamKanbanItem";
 import { TeamCreateItemDialog } from "./TeamCreateItemDialog";
 import { TeamEditItemDialog } from "./TeamEditItemDialog";
 import { TeamCreateColumnDialog } from "./TeamCreateColumnDialog";
+import { TeamBoardDialog } from "./TeamBoardDialog";
 import {
   useTeamBoardWithColumns,
   useMoveTeamItem,
   useDeleteTeamItem,
   useDeleteTeamColumn,
 } from "~/hooks/useTeamBoards";
-import type { TeamItem, TeamColumn } from "~/db/schema";
+import type { TeamItem } from "~/db/schema";
+import type { TeamColumnWithItems } from "~/data-access/team-boards";
+
+// System column name constant
+const SYSTEM_COLUMN_NOW = "Now";
 
 interface TeamKanbanBoardProps {
   boardId: string;
@@ -48,6 +53,47 @@ export function TeamKanbanBoard({ boardId, teamId }: TeamKanbanBoardProps) {
     item: TeamItem | null;
   }>({ open: false, item: null });
   const [createColumnDialog, setCreateColumnDialog] = useState(false);
+  const [boardSettingsDialog, setBoardSettingsDialog] = useState(false);
+
+  // Focus mode state: track which non-"Now" column is currently expanded
+  const [expandedColumnId, setExpandedColumnId] = useState<string | null>(null);
+
+  // Get first non-system, non-"Now" column as default expanded
+  const defaultExpandedColumn = useMemo(() => {
+    if (!board?.columns) return null;
+    return board.columns.find(
+      (col) => !col.isSystem || col.name !== SYSTEM_COLUMN_NOW
+    );
+  }, [board?.columns]);
+
+  // Initialize expanded column when board loads or focus mode changes
+  useEffect(() => {
+    if (board?.focusMode && !expandedColumnId && defaultExpandedColumn) {
+      setExpandedColumnId(defaultExpandedColumn.id);
+    }
+  }, [board?.focusMode, expandedColumnId, defaultExpandedColumn]);
+
+  // Handler for unfolding a column in focus mode
+  const handleUnfoldColumn = useCallback((columnId: string) => {
+    setExpandedColumnId(columnId);
+  }, []);
+
+  // Determine if a column should be folded
+  const isColumnFolded = useCallback(
+    (column: TeamColumnWithItems) => {
+      if (!board?.focusMode) return false;
+
+      // "Now" column is never folded
+      if (column.isSystem && column.name === SYSTEM_COLUMN_NOW) return false;
+
+      // The currently expanded column is not folded
+      if (column.id === expandedColumnId) return false;
+
+      // All other columns are folded in focus mode
+      return true;
+    },
+    [board?.focusMode, expandedColumnId]
+  );
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -164,14 +210,23 @@ export function TeamKanbanBoard({ boardId, teamId }: TeamKanbanBoardProps) {
             <p className="text-sm text-muted-foreground">{board.description}</p>
           )}
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setCreateColumnDialog(true)}
-        >
-          <Plus className="h-4 w-4 mr-1" />
-          Add Column
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCreateColumnDialog(true)}
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            Add Column
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setBoardSettingsDialog(true)}
+          >
+            <Settings className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
 
       {/* Kanban Columns */}
@@ -191,6 +246,8 @@ export function TeamKanbanBoard({ boardId, teamId }: TeamKanbanBoardProps) {
                 onEditItem={handleEditItem}
                 onDeleteItem={handleDeleteItem}
                 onDeleteColumn={handleDeleteColumn}
+                isFolded={isColumnFolded(column)}
+                onUnfold={handleUnfoldColumn}
               />
             ))}
 
@@ -248,6 +305,13 @@ export function TeamKanbanBoard({ boardId, teamId }: TeamKanbanBoardProps) {
         open={createColumnDialog}
         onOpenChange={setCreateColumnDialog}
         boardId={boardId}
+      />
+
+      <TeamBoardDialog
+        open={boardSettingsDialog}
+        onOpenChange={setBoardSettingsDialog}
+        teamId={teamId}
+        board={board}
       />
     </div>
   );

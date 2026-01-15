@@ -31,6 +31,7 @@ export function BoardDialog({
     ? {
         name: board.name,
         description: board.description || "",
+        focusMode: board.focusMode,
       }
     : undefined;
 

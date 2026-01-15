@@ -141,6 +141,9 @@ export const kanbanBoard = pgTable(
     userId: text("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
+    focusMode: boolean("focus_mode")
+      .$default(() => false)
+      .notNull(),
     createdAt: timestamp("created_at")
       .$defaultFn(() => new Date())
       .notNull(),
@@ -400,6 +403,9 @@ export const teamBoard = pgTable(
     createdBy: text("created_by")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
+    focusMode: boolean("focus_mode")
+      .$default(() => false)
+      .notNull(),
     createdAt: timestamp("created_at")
       .$defaultFn(() => new Date())
       .notNull(),

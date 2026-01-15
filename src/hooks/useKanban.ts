@@ -77,6 +77,7 @@ interface UpdateBoardData {
   id: string;
   name: string;
   description?: string;
+  focusMode?: boolean;
 }
 
 export function useUpdateBoard() {
