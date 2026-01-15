@@ -12,7 +12,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { useCompletedItems, useCompletionStats, useMonthlyBreakdown } from "~/hooks/useReview";
-import type { PeriodType, CompletedItemWithBoard } from "~/data-access/review";
+import type { PeriodType, CompletedItemWithBoard } from "~/types";
 import { cn } from "~/lib/utils";
 
 export const Route = createFileRoute("/dashboard/review")({

@@ -7,7 +7,7 @@ import {
 } from "~/components/ui/dialog";
 import { ModuleForm, type ModuleSubmitData } from "~/components/ModuleForm";
 import { useCreateModule, useUpdateModule } from "~/hooks/useModules";
-import type { ClassroomModuleWithUser } from "~/data-access/modules";
+import type { ClassroomModuleWithUser } from "~/types";
 
 interface ModuleDialogProps {
   open: boolean;

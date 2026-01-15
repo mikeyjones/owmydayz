@@ -1,7 +1,7 @@
 import { MessageSquare, Loader2 } from "lucide-react";
 import { ConversationItem } from "./ConversationItem";
 import { useConversations } from "~/hooks/useConversations";
-import type { ConversationWithParticipant } from "~/data-access/conversations";
+import type { ConversationWithParticipant } from "~/types";
 
 interface ConversationListProps {
   activeConversationId: string | null;

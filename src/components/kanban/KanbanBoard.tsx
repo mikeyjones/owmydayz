@@ -15,8 +15,8 @@ import {
   useDeleteColumn,
 } from "~/hooks/useKanban";
 import { getColumnColor } from "~/utils/columnColors";
-import type { KanbanItem } from "~/db/schema";
-import type { KanbanColumnWithItems } from "~/data-access/kanban";
+import type { KanbanItem } from "~/types";
+import type { KanbanColumnWithItems } from "~/types";
 
 // System column name constant
 const SYSTEM_COLUMN_NOW = "Now";

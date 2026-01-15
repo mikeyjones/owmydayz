@@ -11,7 +11,7 @@ import {
 import { ItemCommentForm } from "./ItemCommentForm";
 import { MoreHorizontal, Pencil, Trash2, Reply, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "~/lib/utils";
-import type { ItemCommentWithUser } from "~/data-access/item-comments";
+import type { ItemCommentWithUser } from "~/types";
 
 interface ItemCommentItemProps {
   comment: ItemCommentWithUser;

@@ -1,18 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
 import { Home, ArrowLeft, Calendar, Lock, Edit } from "lucide-react";
 import { Page } from "~/components/Page";
 import { AppBreadcrumb } from "~/components/AppBreadcrumb";
 import { UserAvatar } from "~/components/UserAvatar";
 import { Button } from "~/components/ui/button";
 import { Panel, PanelContent } from "~/components/ui/panel";
-import { publicProfileQueryOptions } from "~/queries/profiles";
+import { usePublicProfile } from "~/hooks/useProfile";
 import { authClient } from "~/lib/auth-client";
 
 export const Route = createFileRoute("/profile/$userId/")({
-  loader: async ({ context: { queryClient }, params: { userId } }) => {
-    await queryClient.prefetchQuery(publicProfileQueryOptions(userId));
-  },
   component: Profile,
 });
 
@@ -23,7 +19,7 @@ function Profile() {
     data: profileData,
     isLoading,
     error,
-  } = useQuery(publicProfileQueryOptions(userId));
+  } = usePublicProfile(userId);
 
   const isOwnProfile = session?.user?.id === userId;
 

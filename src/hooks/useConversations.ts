@@ -1,34 +1,32 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
-import { toast } from "sonner";
-import { conversationsQueryOptions } from "~/queries/conversations";
-import { getOrCreateConversationFn } from "~/fn/conversations";
-import { getErrorMessage } from "~/utils/error";
+// Stub hook - conversations not yet implemented in Convex
+// TODO: Implement conversations in Convex
 
-export function useConversations(enabled = true) {
-  return useQuery({
-    ...conversationsQueryOptions(),
-    enabled,
-  });
+export function useConversations() {
+  return {
+    data: [],
+    isLoading: false,
+    error: null,
+  };
+}
+
+export function useConversation(conversationId: string) {
+  return {
+    data: null,
+    isLoading: false,
+    error: null,
+  };
 }
 
 export function useStartConversation() {
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (otherUserId: string) =>
-      getOrCreateConversationFn({ data: { otherUserId } }),
-    onSuccess: (conversation) => {
-      // Invalidate conversations list
-      queryClient.invalidateQueries({ queryKey: ["conversations"] });
-      // Navigate to the messages page with this conversation
-      navigate({ to: "/dashboard/messages", search: { conversation: conversation.id } });
+  return {
+    mutate: async () => {
+      console.warn("Conversations not yet implemented in Convex");
     },
-    onError: (error) => {
-      toast.error("Failed to start conversation", {
-        description: getErrorMessage(error),
-      });
+    mutateAsync: async () => {
+      console.warn("Conversations not yet implemented in Convex");
+      return null;
     },
-  });
+    isPending: false,
+    isError: false,
+  };
 }

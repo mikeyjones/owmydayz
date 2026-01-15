@@ -20,7 +20,7 @@ import { Toaster } from "~/components/ui/sonner";
 import NProgress from "nprogress";
 import "nprogress/nprogress.css";
 import { Footer } from "~/components/Footer";
-import { AuthHeadersProvider } from "~/components/AuthHeadersProvider";
+import { ConvexClientProvider } from "~/components/ConvexClientProvider";
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
@@ -163,8 +163,8 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         `}</style>
       </head>
       <body>
-        <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
-          <AuthHeadersProvider>
+        <ConvexClientProvider>
+          <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
             <div className="min-h-screen bg-background pb-20">
               <Header />
               <main>{children}</main>
@@ -174,8 +174,8 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             <ReactQueryDevtools buttonPosition="bottom-left" />
             <Toaster />
             <Scripts />
-          </AuthHeadersProvider>
-        </ThemeProvider>
+          </ThemeProvider>
+        </ConvexClientProvider>
       </body>
     </html>
   );

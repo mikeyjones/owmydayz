@@ -15,7 +15,7 @@ import { TeamCard } from "./TeamCard";
 import { TeamDialog } from "./TeamDialog";
 import { PendingInvitations } from "./PendingInvitations";
 import { useTeams, useDeleteTeam } from "~/hooks/useTeams";
-import type { Team } from "~/db/schema";
+import type { Team } from "~/types";
 
 export function TeamsList() {
   const { data: teams, isPending, error } = useTeams();

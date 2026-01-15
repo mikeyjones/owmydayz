@@ -1,53 +1,60 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation } from "convex/react";
+import { api } from "../../convex/_generated/api";
+import { useCurrentUser } from "./useCurrentUser";
 import { toast } from "sonner";
-import {
-  boardsQueryOptions,
-  boardQueryOptions,
-  boardWithColumnsQueryOptions,
-  allNowItemsQueryOptions,
-} from "~/queries/kanban";
-import {
-  createBoardFn,
-  updateBoardFn,
-  deleteBoardFn,
-  createColumnFn,
-  updateColumnFn,
-  deleteColumnFn,
-  reorderColumnsFn,
-  createItemFn,
-  updateItemFn,
-  deleteItemFn,
-  moveItemFn,
-  moveItemToBoardFn,
-  completeItemFn,
-} from "~/fn/kanban";
-import { getErrorMessage } from "~/utils/error";
-import { getAuthHeaders } from "~/utils/server-fn-client";
-import type { KanbanImportance, KanbanEffort } from "~/db/schema";
+import type { Id } from "../../convex/_generated/dataModel";
 
 // =====================================================
 // Board Hooks
 // =====================================================
 
 export function useBoards(enabled = true) {
-  return useQuery({
-    ...boardsQueryOptions(),
-    enabled,
-  });
+  const { userId } = useCurrentUser();
+  
+  const boards = useQuery(
+    enabled && userId ? api.kanban.getBoards : "skip",
+    userId ? { userId } : "skip"
+  );
+
+  return {
+    data: boards,
+    isLoading: boards === undefined && enabled && !!userId,
+    error: null,
+  };
 }
 
 export function useBoard(boardId: string, enabled = true) {
-  return useQuery({
-    ...boardQueryOptions(boardId),
-    enabled: enabled && !!boardId,
-  });
+  const { userId } = useCurrentUser();
+  
+  const board = useQuery(
+    enabled && boardId && userId ? api.kanban.getBoardById : "skip",
+    enabled && boardId && userId
+      ? { id: boardId as Id<"kanbanBoards">, userId }
+      : "skip"
+  );
+
+  return {
+    data: board,
+    isLoading: board === undefined && enabled && !!boardId && !!userId,
+    error: null,
+  };
 }
 
 export function useBoardWithColumns(boardId: string, enabled = true) {
-  return useQuery({
-    ...boardWithColumnsQueryOptions(boardId),
-    enabled: enabled && !!boardId,
-  });
+  const { userId } = useCurrentUser();
+  
+  const board = useQuery(
+    enabled && boardId && userId ? api.kanban.getBoardWithColumns : "skip",
+    enabled && boardId && userId
+      ? { id: boardId as Id<"kanbanBoards">, userId }
+      : "skip"
+  );
+
+  return {
+    data: board,
+    isLoading: board === undefined && enabled && !!boardId && !!userId,
+    error: null,
+  };
 }
 
 interface CreateBoardData {
@@ -56,22 +63,47 @@ interface CreateBoardData {
 }
 
 export function useCreateBoard() {
-  const queryClient = useQueryClient();
+  const { userId } = useCurrentUser();
+  const createBoard = useMutation(api.kanban.createBoard);
 
-  return useMutation({
-    mutationFn: (data: CreateBoardData) => createBoardFn({ data, headers: getAuthHeaders() }),
-    onSuccess: () => {
+  return {
+    mutate: async (data: CreateBoardData) => {
+      if (!userId) {
+        toast.error("You must be logged in to create a board");
+        return;
+      }
+      try {
+        await createBoard({
+          name: data.name,
+          description: data.description,
+          userId,
+        });
+        toast.success("Board created successfully!", {
+          description: "Your new board is ready.",
+        });
+      } catch (error) {
+        toast.error("Failed to create board", {
+          description: error instanceof Error ? error.message : "Unknown error",
+        });
+        throw error;
+      }
+    },
+    mutateAsync: async (data: CreateBoardData) => {
+      if (!userId) {
+        throw new Error("You must be logged in to create a board");
+      }
+      const result = await createBoard({
+        name: data.name,
+        description: data.description,
+        userId,
+      });
       toast.success("Board created successfully!", {
         description: "Your new board is ready.",
       });
-      queryClient.invalidateQueries({ queryKey: ["kanban-boards"] });
+      return result;
     },
-    onError: (error) => {
-      toast.error("Failed to create board", {
-        description: getErrorMessage(error),
-      });
-    },
-  });
+    isPending: false,
+  };
 }
 
 interface UpdateBoardData {
@@ -82,38 +114,60 @@ interface UpdateBoardData {
 }
 
 export function useUpdateBoard() {
-  const queryClient = useQueryClient();
+  const { userId } = useCurrentUser();
+  const updateBoard = useMutation(api.kanban.updateBoard);
 
-  return useMutation({
-    mutationFn: (data: UpdateBoardData) => updateBoardFn({ data, headers: getAuthHeaders() }),
-    onSuccess: (_, variables) => {
-      toast.success("Board updated successfully!");
-      queryClient.invalidateQueries({ queryKey: ["kanban-boards"] });
-      queryClient.invalidateQueries({ queryKey: ["kanban-board", variables.id] });
+  return {
+    mutate: async (data: UpdateBoardData) => {
+      if (!userId) {
+        toast.error("You must be logged in to update a board");
+        return;
+      }
+      try {
+        await updateBoard({
+          id: data.id as Id<"kanbanBoards">,
+          name: data.name,
+          description: data.description,
+          focusMode: data.focusMode,
+          userId,
+        });
+        toast.success("Board updated successfully!");
+      } catch (error) {
+        toast.error("Failed to update board", {
+          description: error instanceof Error ? error.message : "Unknown error",
+        });
+        throw error;
+      }
     },
-    onError: (error) => {
-      toast.error("Failed to update board", {
-        description: getErrorMessage(error),
-      });
-    },
-  });
+    isPending: false,
+  };
 }
 
 export function useDeleteBoard() {
-  const queryClient = useQueryClient();
+  const { userId } = useCurrentUser();
+  const deleteBoard = useMutation(api.kanban.deleteBoard);
 
-  return useMutation({
-    mutationFn: (boardId: string) => deleteBoardFn({ data: { id: boardId }, headers: getAuthHeaders() }),
-    onSuccess: () => {
-      toast.success("Board deleted successfully!");
-      queryClient.invalidateQueries({ queryKey: ["kanban-boards"] });
+  return {
+    mutate: async (boardId: string) => {
+      if (!userId) {
+        toast.error("You must be logged in to delete a board");
+        return;
+      }
+      try {
+        await deleteBoard({
+          id: boardId as Id<"kanbanBoards">,
+          userId,
+        });
+        toast.success("Board deleted successfully!");
+      } catch (error) {
+        toast.error("Failed to delete board", {
+          description: error instanceof Error ? error.message : "Unknown error",
+        });
+        throw error;
+      }
     },
-    onError: (error) => {
-      toast.error("Failed to delete board", {
-        description: getErrorMessage(error),
-      });
-    },
-  });
+    isPending: false,
+  };
 }
 
 // =====================================================
@@ -126,66 +180,97 @@ interface CreateColumnData {
 }
 
 export function useCreateColumn() {
-  const queryClient = useQueryClient();
+  const { userId } = useCurrentUser();
+  const createColumn = useMutation(api.kanban.createColumn);
 
-  return useMutation({
-    mutationFn: (data: CreateColumnData) => createColumnFn({ data, headers: getAuthHeaders() }),
-    onSuccess: (_, variables) => {
-      toast.success("Column created successfully!");
-      queryClient.invalidateQueries({ queryKey: ["kanban-board", variables.boardId] });
+  return {
+    mutate: async (data: CreateColumnData) => {
+      if (!userId) {
+        toast.error("You must be logged in to create a column");
+        return;
+      }
+      try {
+        await createColumn({
+          boardId: data.boardId as Id<"kanbanBoards">,
+          name: data.name,
+          userId,
+        });
+        toast.success("Column created successfully!");
+      } catch (error) {
+        toast.error("Failed to create column", {
+          description: error instanceof Error ? error.message : "Unknown error",
+        });
+        throw error;
+      }
     },
-    onError: (error) => {
-      toast.error("Failed to create column", {
-        description: getErrorMessage(error),
-      });
-    },
-  });
+    isPending: false,
+  };
 }
 
 interface UpdateColumnData {
   id: string;
   name: string;
-  boardId: string; // For query invalidation
+  boardId: string; // For query invalidation (not needed with Convex but keeping for compatibility)
 }
 
 export function useUpdateColumn() {
-  const queryClient = useQueryClient();
+  const { userId } = useCurrentUser();
+  const updateColumn = useMutation(api.kanban.updateColumn);
 
-  return useMutation({
-    mutationFn: (data: UpdateColumnData) =>
-      updateColumnFn({ data: { id: data.id, name: data.name }, headers: getAuthHeaders() }),
-    onSuccess: (_, variables) => {
-      toast.success("Column updated successfully!");
-      queryClient.invalidateQueries({ queryKey: ["kanban-board", variables.boardId] });
+  return {
+    mutate: async (data: UpdateColumnData) => {
+      if (!userId) {
+        toast.error("You must be logged in to update a column");
+        return;
+      }
+      try {
+        await updateColumn({
+          id: data.id as Id<"kanbanColumns">,
+          name: data.name,
+          userId,
+        });
+        toast.success("Column updated successfully!");
+      } catch (error) {
+        toast.error("Failed to update column", {
+          description: error instanceof Error ? error.message : "Unknown error",
+        });
+        throw error;
+      }
     },
-    onError: (error) => {
-      toast.error("Failed to update column", {
-        description: getErrorMessage(error),
-      });
-    },
-  });
+    isPending: false,
+  };
 }
 
 interface DeleteColumnData {
   id: string;
-  boardId: string; // For query invalidation
+  boardId: string; // For query invalidation (not needed with Convex but keeping for compatibility)
 }
 
 export function useDeleteColumn() {
-  const queryClient = useQueryClient();
+  const { userId } = useCurrentUser();
+  const deleteColumn = useMutation(api.kanban.deleteColumn);
 
-  return useMutation({
-    mutationFn: (data: DeleteColumnData) => deleteColumnFn({ data: { id: data.id }, headers: getAuthHeaders() }),
-    onSuccess: (_, variables) => {
-      toast.success("Column deleted successfully!");
-      queryClient.invalidateQueries({ queryKey: ["kanban-board", variables.boardId] });
+  return {
+    mutate: async (data: DeleteColumnData) => {
+      if (!userId) {
+        toast.error("You must be logged in to delete a column");
+        return;
+      }
+      try {
+        await deleteColumn({
+          id: data.id as Id<"kanbanColumns">,
+          userId,
+        });
+        toast.success("Column deleted successfully!");
+      } catch (error) {
+        toast.error("Failed to delete column", {
+          description: error instanceof Error ? error.message : "Unknown error",
+        });
+        throw error;
+      }
     },
-    onError: (error) => {
-      toast.error("Failed to delete column", {
-        description: getErrorMessage(error),
-      });
-    },
-  });
+    isPending: false,
+  };
 }
 
 interface ReorderColumnsData {
@@ -194,19 +279,33 @@ interface ReorderColumnsData {
 }
 
 export function useReorderColumns() {
-  const queryClient = useQueryClient();
+  const { userId } = useCurrentUser();
+  const reorderColumns = useMutation(api.kanban.reorderColumns);
 
-  return useMutation({
-    mutationFn: (data: ReorderColumnsData) => reorderColumnsFn({ data, headers: getAuthHeaders() }),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["kanban-board", variables.boardId] });
+  return {
+    mutate: async (data: ReorderColumnsData) => {
+      if (!userId) {
+        toast.error("You must be logged in to reorder columns");
+        return;
+      }
+      try {
+        await reorderColumns({
+          boardId: data.boardId as Id<"kanbanBoards">,
+          columnOrder: data.columnOrder.map((item) => ({
+            id: item.id as Id<"kanbanColumns">,
+            position: item.position,
+          })),
+          userId,
+        });
+      } catch (error) {
+        toast.error("Failed to reorder columns", {
+          description: error instanceof Error ? error.message : "Unknown error",
+        });
+        throw error;
+      }
     },
-    onError: (error) => {
-      toast.error("Failed to reorder columns", {
-        description: getErrorMessage(error),
-      });
-    },
-  });
+    isPending: false,
+  };
 }
 
 // =====================================================
@@ -218,120 +317,151 @@ interface CreateItemData {
   boardId: string;
   name: string;
   description?: string;
-  importance?: KanbanImportance;
-  effort?: KanbanEffort;
+  importance?: string;
+  effort?: string;
   tags?: string[];
 }
 
 export function useCreateItem() {
-  const queryClient = useQueryClient();
+  const { userId } = useCurrentUser();
+  const createItem = useMutation(api.kanban.createItem);
 
-  return useMutation({
-    mutationFn: (data: CreateItemData) => createItemFn({ data, headers: getAuthHeaders() }),
-    onSuccess: (_, variables) => {
-      toast.success("Item created successfully!");
-      queryClient.invalidateQueries({ queryKey: ["kanban-board", variables.boardId] });
+  return {
+    mutate: async (data: CreateItemData) => {
+      if (!userId) {
+        toast.error("You must be logged in to create an item");
+        return;
+      }
+      try {
+        await createItem({
+          columnId: data.columnId as Id<"kanbanColumns">,
+          boardId: data.boardId as Id<"kanbanBoards">,
+          name: data.name,
+          description: data.description,
+          importance: data.importance,
+          effort: data.effort,
+          tags: data.tags,
+          userId,
+        });
+        toast.success("Item created successfully!");
+      } catch (error) {
+        toast.error("Failed to create item", {
+          description: error instanceof Error ? error.message : "Unknown error",
+        });
+        throw error;
+      }
     },
-    onError: (error) => {
-      toast.error("Failed to create item", {
-        description: getErrorMessage(error),
-      });
-    },
-  });
+    isPending: false,
+  };
 }
 
 interface UpdateItemData {
   id: string;
   name: string;
   description?: string;
-  importance?: KanbanImportance;
-  effort?: KanbanEffort;
+  importance?: string;
+  effort?: string;
   tags?: string[];
-  boardId: string; // For query invalidation
+  boardId: string; // For query invalidation (not needed with Convex but keeping for compatibility)
 }
 
 export function useUpdateItem() {
-  const queryClient = useQueryClient();
+  const { userId } = useCurrentUser();
+  const updateItem = useMutation(api.kanban.updateItem);
 
-  return useMutation({
-    mutationFn: (data: UpdateItemData) =>
-      updateItemFn({
-        data: {
-          id: data.id,
+  return {
+    mutate: async (data: UpdateItemData) => {
+      if (!userId) {
+        toast.error("You must be logged in to update an item");
+        return;
+      }
+      try {
+        await updateItem({
+          id: data.id as Id<"kanbanItems">,
           name: data.name,
           description: data.description,
           importance: data.importance,
           effort: data.effort,
           tags: data.tags,
-        },
-        headers: getAuthHeaders(),
-      }),
-    onSuccess: (_, variables) => {
-      toast.success("Item updated successfully!");
-      queryClient.invalidateQueries({ queryKey: ["kanban-board", variables.boardId] });
+          userId,
+        });
+        toast.success("Item updated successfully!");
+      } catch (error) {
+        toast.error("Failed to update item", {
+          description: error instanceof Error ? error.message : "Unknown error",
+        });
+        throw error;
+      }
     },
-    onError: (error) => {
-      toast.error("Failed to update item", {
-        description: getErrorMessage(error),
-      });
-    },
-  });
+    isPending: false,
+  };
 }
 
 interface DeleteItemData {
   id: string;
-  boardId: string; // For query invalidation
+  boardId: string; // For query invalidation (not needed with Convex but keeping for compatibility)
 }
 
 export function useDeleteItem() {
-  const queryClient = useQueryClient();
+  const { userId } = useCurrentUser();
+  const deleteItem = useMutation(api.kanban.deleteItem);
 
-  return useMutation({
-    mutationFn: (data: DeleteItemData) => deleteItemFn({ data: { id: data.id }, headers: getAuthHeaders() }),
-    onSuccess: (_, variables) => {
-      toast.success("Item deleted successfully!");
-      queryClient.invalidateQueries({ queryKey: ["kanban-board", variables.boardId] });
+  return {
+    mutate: async (data: DeleteItemData) => {
+      if (!userId) {
+        toast.error("You must be logged in to delete an item");
+        return;
+      }
+      try {
+        await deleteItem({
+          id: data.id as Id<"kanbanItems">,
+          userId,
+        });
+        toast.success("Item deleted successfully!");
+      } catch (error) {
+        toast.error("Failed to delete item", {
+          description: error instanceof Error ? error.message : "Unknown error",
+        });
+        throw error;
+      }
     },
-    onError: (error) => {
-      toast.error("Failed to delete item", {
-        description: getErrorMessage(error),
-      });
-    },
-  });
+    isPending: false,
+  };
 }
 
 interface MoveItemData {
   itemId: string;
   newColumnId: string;
   newPosition: number;
-  boardId: string; // For query invalidation
+  boardId: string; // For query invalidation (not needed with Convex but keeping for compatibility)
 }
 
 export function useMoveItem() {
-  const queryClient = useQueryClient();
+  const { userId } = useCurrentUser();
+  const moveItem = useMutation(api.kanban.moveItem);
 
-  return useMutation({
-    mutationFn: (data: MoveItemData) =>
-      moveItemFn({
-        data: {
-          itemId: data.itemId,
-          newColumnId: data.newColumnId,
+  return {
+    mutate: async (data: MoveItemData) => {
+      if (!userId) {
+        toast.error("You must be logged in to move an item");
+        return;
+      }
+      try {
+        await moveItem({
+          itemId: data.itemId as Id<"kanbanItems">,
+          newColumnId: data.newColumnId as Id<"kanbanColumns">,
           newPosition: data.newPosition,
-        },
-        headers: getAuthHeaders(),
-      }),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["kanban-board", variables.boardId] });
-      // Also invalidate review data in case item moved to/from Completed column
-      queryClient.invalidateQueries({ queryKey: ["review-completed-items"] });
-      queryClient.invalidateQueries({ queryKey: ["review-stats"] });
+          userId,
+        });
+      } catch (error) {
+        toast.error("Failed to move item", {
+          description: error instanceof Error ? error.message : "Unknown error",
+        });
+        throw error;
+      }
     },
-    onError: (error) => {
-      toast.error("Failed to move item", {
-        description: getErrorMessage(error),
-      });
-    },
-  });
+    isPending: false,
+  };
 }
 
 interface MoveItemToBoardData {
@@ -339,35 +469,37 @@ interface MoveItemToBoardData {
   newBoardId: string;
   newColumnId: string;
   newPosition: number;
-  sourceBoardId: string; // For query invalidation
+  sourceBoardId: string; // For query invalidation (not needed with Convex but keeping for compatibility)
 }
 
 export function useMoveItemToBoard() {
-  const queryClient = useQueryClient();
+  const { userId } = useCurrentUser();
+  const moveItemToBoard = useMutation(api.kanban.moveItemToBoard);
 
-  return useMutation({
-    mutationFn: (data: MoveItemToBoardData) =>
-      moveItemToBoardFn({
-        data: {
-          itemId: data.itemId,
-          newBoardId: data.newBoardId,
-          newColumnId: data.newColumnId,
+  return {
+    mutate: async (data: MoveItemToBoardData) => {
+      if (!userId) {
+        toast.error("You must be logged in to move an item");
+        return;
+      }
+      try {
+        await moveItemToBoard({
+          itemId: data.itemId as Id<"kanbanItems">,
+          newBoardId: data.newBoardId as Id<"kanbanBoards">,
+          newColumnId: data.newColumnId as Id<"kanbanColumns">,
           newPosition: data.newPosition,
-        },
-        headers: getAuthHeaders(),
-      }),
-    onSuccess: (_, variables) => {
-      toast.success("Item moved to another board!");
-      // Invalidate both source and target boards
-      queryClient.invalidateQueries({ queryKey: ["kanban-board", variables.sourceBoardId] });
-      queryClient.invalidateQueries({ queryKey: ["kanban-board", variables.newBoardId] });
+          userId,
+        });
+        toast.success("Item moved to another board!");
+      } catch (error) {
+        toast.error("Failed to move item to board", {
+          description: error instanceof Error ? error.message : "Unknown error",
+        });
+        throw error;
+      }
     },
-    onError: (error) => {
-      toast.error("Failed to move item to board", {
-        description: getErrorMessage(error),
-      });
-    },
-  });
+    isPending: false,
+  };
 }
 
 // =====================================================
@@ -375,34 +507,71 @@ export function useMoveItemToBoard() {
 // =====================================================
 
 export function useAllNowItems(enabled = true) {
-  return useQuery({
-    ...allNowItemsQueryOptions(),
-    enabled,
-  });
+  const { userId } = useCurrentUser();
+  
+  const items = useQuery(
+    enabled && userId ? api.kanban.getAllNowItems : "skip",
+    userId ? { userId } : "skip"
+  );
+
+  return {
+    data: items,
+    isLoading: items === undefined && enabled && !!userId,
+    error: null,
+  };
 }
 
 interface CompleteItemData {
   itemId: string;
-  boardId: string; // For query invalidation
+  boardId: string; // For query invalidation (not needed with Convex but keeping for compatibility)
 }
 
 export function useCompleteItem() {
-  const queryClient = useQueryClient();
+  const { userId } = useCurrentUser();
+  const completeItem = useMutation(api.kanban.completeItem);
 
-  return useMutation({
-    mutationFn: (data: CompleteItemData) =>
-      completeItemFn({ data: { itemId: data.itemId }, headers: getAuthHeaders() }),
-    onSuccess: (_, variables) => {
-      // Invalidate the now items list, specific board, and review data
-      queryClient.invalidateQueries({ queryKey: ["kanban-now-items"] });
-      queryClient.invalidateQueries({ queryKey: ["kanban-board", variables.boardId] });
-      queryClient.invalidateQueries({ queryKey: ["review-completed-items"] });
-      queryClient.invalidateQueries({ queryKey: ["review-stats"] });
+  return {
+    mutate: async (data: CompleteItemData) => {
+      if (!userId) {
+        toast.error("You must be logged in to complete an item");
+        return;
+      }
+      try {
+        await completeItem({
+          itemId: data.itemId as Id<"kanbanItems">,
+          userId,
+        });
+      } catch (error) {
+        toast.error("Failed to complete item", {
+          description: error instanceof Error ? error.message : "Unknown error",
+        });
+        throw error;
+      }
     },
-    onError: (error) => {
-      toast.error("Failed to complete item", {
-        description: getErrorMessage(error),
-      });
+    isPending: false,
+  };
+}
+
+// =====================================================
+// Helper: Ensure System Columns
+// =====================================================
+
+export function useEnsureSystemColumns() {
+  const { userId } = useCurrentUser();
+  const ensureSystemColumns = useMutation(api.kanban.ensureSystemColumns);
+
+  return {
+    mutate: async (boardId: string) => {
+      if (!userId) return;
+      try {
+        await ensureSystemColumns({
+          boardId: boardId as Id<"kanbanBoards">,
+          userId,
+        });
+      } catch (error) {
+        console.error("Failed to ensure system columns:", error);
+      }
     },
-  });
+    isPending: false,
+  };
 }

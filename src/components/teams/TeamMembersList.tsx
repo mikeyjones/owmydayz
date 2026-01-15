@@ -35,7 +35,7 @@ import {
   useRemoveMember,
   useRevokeInvitation,
 } from "~/hooks/useTeams";
-import type { TeamMemberWithUser } from "~/data-access/teams";
+import type { TeamMemberWithUser } from "~/types";
 
 interface TeamMembersListProps {
   teamId: string;

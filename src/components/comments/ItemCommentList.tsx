@@ -1,7 +1,7 @@
 import { ItemCommentForm } from "./ItemCommentForm";
 import { ItemCommentItem } from "./ItemCommentItem";
 import { MessageSquare } from "lucide-react";
-import type { ItemCommentWithUser } from "~/data-access/item-comments";
+import type { ItemCommentWithUser } from "~/types";
 
 interface ItemCommentListProps {
   comments: ItemCommentWithUser[];

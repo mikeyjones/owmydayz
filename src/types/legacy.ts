@@ -180,3 +180,16 @@ export type ConversationWithParticipant = {
   lastMessageAt: Date | null;
   unreadCount: number;
 };
+
+// Item comment types (for kanban)
+export type ItemCommentWithUser = {
+  id: string;
+  content: string;
+  userId: string;
+  userName: string;
+  userImage: string | null;
+  itemId: string;
+  parentCommentId: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+};

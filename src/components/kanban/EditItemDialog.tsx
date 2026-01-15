@@ -16,12 +16,12 @@ import {
   useUpdateKanbanItemComment,
   useDeleteKanbanItemComment,
 } from "~/hooks/useItemComments";
-import { getKanbanItemCommentRepliesFn } from "~/fn/item-comments";
+// TODO: Implement comment replies in Convex
 import { authClient } from "~/lib/auth-client";
 import { cn } from "~/lib/utils";
 import { FileText, MessageSquare } from "lucide-react";
-import type { KanbanItem } from "~/db/schema";
-import type { ItemCommentWithUser } from "~/data-access/item-comments";
+import type { KanbanItem } from "~/types";
+import type { ItemCommentWithUser } from "~/types";
 
 interface EditItemDialogProps {
   open: boolean;
@@ -77,13 +77,9 @@ export function EditItemDialog({
   };
 
   const handleLoadReplies = useCallback(async (parentCommentId: string) => {
-    setLoadingReplies((prev) => ({ ...prev, [parentCommentId]: true }));
-    try {
-      const replies = await getKanbanItemCommentRepliesFn({ data: { parentCommentId } });
-      setRepliesCache((prev) => ({ ...prev, [parentCommentId]: replies }));
-    } finally {
-      setLoadingReplies((prev) => ({ ...prev, [parentCommentId]: false }));
-    }
+    // TODO: Implement comment replies in Convex
+    console.warn("Comment replies not yet implemented in Convex");
+    setLoadingReplies((prev) => ({ ...prev, [parentCommentId]: false }));
   }, []);
 
   const handleCreateComment = useCallback(

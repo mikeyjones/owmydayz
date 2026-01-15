@@ -1,6 +1,6 @@
 import { Loader2 } from "lucide-react";
 import { AttachmentThumbnail } from "./AttachmentThumbnail";
-import type { PostAttachment } from "~/db/schema";
+import type { PostAttachment } from "~/types";
 import type { MediaUploadResult } from "~/utils/storage/media-helpers";
 
 export interface AttachmentPreviewGridProps {

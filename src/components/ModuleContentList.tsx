@@ -5,7 +5,7 @@ import { Button } from "~/components/ui/button";
 import { moduleContentsQueryOptions } from "~/queries/modules";
 import { useDeleteModuleContent } from "~/hooks/useModules";
 import { ConfirmDeleteDialog } from "~/components/ConfirmDeleteDialog";
-import type { ModuleContent, ModuleContentType } from "~/db/schema";
+import type { ModuleContent, ModuleContentType } from "~/types";
 
 const CONTENT_TYPE_ICONS: Record<ModuleContentType, React.ComponentType<{ className?: string }>> = {
   video: Video,

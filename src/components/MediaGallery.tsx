@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Play, Loader2, ImageIcon } from "lucide-react";
 import { cn } from "~/lib/utils";
-import type { PostAttachment } from "~/db/schema";
+import type { PostAttachment } from "~/types";
 import { useAttachmentUrls } from "~/hooks/useAttachments";
 import { MediaLightbox } from "./MediaLightbox";
 

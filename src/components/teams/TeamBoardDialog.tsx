@@ -7,7 +7,7 @@ import {
 } from "~/components/ui/dialog";
 import { TeamBoardForm, type TeamBoardFormData } from "./TeamBoardForm";
 import { useCreateTeamBoard, useUpdateTeamBoard } from "~/hooks/useTeamBoards";
-import type { TeamBoard } from "~/db/schema";
+import type { TeamBoard } from "~/types";
 
 interface TeamBoardDialogProps {
   open: boolean;

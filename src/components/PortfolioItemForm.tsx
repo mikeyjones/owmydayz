@@ -37,7 +37,7 @@ import { useImageUrl } from "~/hooks/useStorage";
 import { uploadImageWithPresignedUrl } from "~/utils/storage/helpers";
 import { toast } from "sonner";
 import { authClient } from "~/lib/auth-client";
-import type { PortfolioItem } from "~/db/schema";
+import type { PortfolioItem } from "~/types";
 
 const portfolioItemSchema = z.object({
   title: z.string().min(1, "Title is required").max(MAX_TITLE_LENGTH),

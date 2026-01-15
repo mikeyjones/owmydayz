@@ -1,6 +1,6 @@
 import { UserAvatar } from "./UserAvatar";
 import { cn } from "~/lib/utils";
-import type { MessageWithSender } from "~/data-access/messages";
+import type { MessageWithSender } from "~/types";
 
 interface MessageItemProps {
   message: MessageWithSender;

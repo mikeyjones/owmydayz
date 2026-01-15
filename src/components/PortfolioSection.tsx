@@ -11,7 +11,7 @@ import {
 import { PortfolioItemCard } from "~/components/PortfolioItemCard";
 import { PortfolioItemForm } from "~/components/PortfolioItemForm";
 import { useMyPortfolio } from "~/hooks/usePortfolio";
-import type { PortfolioItem } from "~/db/schema";
+import type { PortfolioItem } from "~/types";
 
 export function PortfolioSection() {
   const [formOpen, setFormOpen] = useState(false);

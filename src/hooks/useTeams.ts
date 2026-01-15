@@ -1,42 +1,43 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation } from "convex/react";
+import { api } from "../../convex/_generated/api";
+import { useCurrentUser } from "./useCurrentUser";
 import { toast } from "sonner";
-import {
-  teamsQueryOptions,
-  teamQueryOptions,
-  teamMembersQueryOptions,
-  teamInvitationsQueryOptions,
-  myPendingInvitationsQueryOptions,
-} from "~/queries/teams";
-import {
-  createTeamFn,
-  updateTeamFn,
-  deleteTeamFn,
-  inviteMemberFn,
-  revokeInvitationFn,
-  acceptInvitationFn,
-  declineInvitationFn,
-  updateMemberRoleFn,
-  removeMemberFn,
-} from "~/fn/teams";
-import { getErrorMessage } from "~/utils/error";
-import { getAuthHeaders } from "~/utils/server-fn-client";
+import type { Id } from "../../convex/_generated/dataModel";
 
 // =====================================================
 // Team Hooks
 // =====================================================
 
 export function useTeams(enabled = true) {
-  return useQuery({
-    ...teamsQueryOptions(),
-    enabled,
-  });
+  const { userId } = useCurrentUser();
+  
+  const teams = useQuery(
+    enabled && userId ? api.teams.getTeams : "skip",
+    userId ? { userId } : "skip"
+  );
+
+  return {
+    data: teams,
+    isLoading: teams === undefined && enabled && !!userId,
+    error: null,
+  };
 }
 
 export function useTeam(teamId: string, enabled = true) {
-  return useQuery({
-    ...teamQueryOptions(teamId),
-    enabled: enabled && !!teamId,
-  });
+  const { userId } = useCurrentUser();
+  
+  const team = useQuery(
+    enabled && teamId && userId ? api.teams.getTeamById : "skip",
+    enabled && teamId && userId
+      ? { id: teamId as Id<"teams">, userId }
+      : "skip"
+  );
+
+  return {
+    data: team,
+    isLoading: team === undefined && enabled && !!teamId && !!userId,
+    error: null,
+  };
 }
 
 interface CreateTeamData {
@@ -44,22 +45,45 @@ interface CreateTeamData {
 }
 
 export function useCreateTeam() {
-  const queryClient = useQueryClient();
+  const { userId } = useCurrentUser();
+  const createTeam = useMutation(api.teams.createTeam);
 
-  return useMutation({
-    mutationFn: (data: CreateTeamData) => createTeamFn({ data, headers: getAuthHeaders() }),
-    onSuccess: () => {
+  return {
+    mutate: async (data: CreateTeamData) => {
+      if (!userId) {
+        toast.error("You must be logged in to create a team");
+        return;
+      }
+      try {
+        await createTeam({
+          name: data.name,
+          userId,
+        });
+        toast.success("Team created successfully!", {
+          description: "Your new team is ready.",
+        });
+      } catch (error) {
+        toast.error("Failed to create team", {
+          description: error instanceof Error ? error.message : "Unknown error",
+        });
+        throw error;
+      }
+    },
+    mutateAsync: async (data: CreateTeamData) => {
+      if (!userId) {
+        throw new Error("You must be logged in to create a team");
+      }
+      const result = await createTeam({
+        name: data.name,
+        userId,
+      });
       toast.success("Team created successfully!", {
         description: "Your new team is ready.",
       });
-      queryClient.invalidateQueries({ queryKey: ["teams"] });
+      return result;
     },
-    onError: (error) => {
-      toast.error("Failed to create team", {
-        description: getErrorMessage(error),
-      });
-    },
-  });
+    isPending: false,
+  };
 }
 
 interface UpdateTeamData {
@@ -68,38 +92,58 @@ interface UpdateTeamData {
 }
 
 export function useUpdateTeam() {
-  const queryClient = useQueryClient();
+  const { userId } = useCurrentUser();
+  const updateTeam = useMutation(api.teams.updateTeam);
 
-  return useMutation({
-    mutationFn: (data: UpdateTeamData) => updateTeamFn({ data, headers: getAuthHeaders() }),
-    onSuccess: (_, variables) => {
-      toast.success("Team updated successfully!");
-      queryClient.invalidateQueries({ queryKey: ["teams"] });
-      queryClient.invalidateQueries({ queryKey: ["team", variables.id] });
+  return {
+    mutate: async (data: UpdateTeamData) => {
+      if (!userId) {
+        toast.error("You must be logged in to update a team");
+        return;
+      }
+      try {
+        await updateTeam({
+          id: data.id as Id<"teams">,
+          name: data.name,
+          userId,
+        });
+        toast.success("Team updated successfully!");
+      } catch (error) {
+        toast.error("Failed to update team", {
+          description: error instanceof Error ? error.message : "Unknown error",
+        });
+        throw error;
+      }
     },
-    onError: (error) => {
-      toast.error("Failed to update team", {
-        description: getErrorMessage(error),
-      });
-    },
-  });
+    isPending: false,
+  };
 }
 
 export function useDeleteTeam() {
-  const queryClient = useQueryClient();
+  const { userId } = useCurrentUser();
+  const deleteTeam = useMutation(api.teams.deleteTeam);
 
-  return useMutation({
-    mutationFn: (teamId: string) => deleteTeamFn({ data: { id: teamId }, headers: getAuthHeaders() }),
-    onSuccess: () => {
-      toast.success("Team deleted successfully!");
-      queryClient.invalidateQueries({ queryKey: ["teams"] });
+  return {
+    mutate: async (teamId: string) => {
+      if (!userId) {
+        toast.error("You must be logged in to delete a team");
+        return;
+      }
+      try {
+        await deleteTeam({
+          id: teamId as Id<"teams">,
+          userId,
+        });
+        toast.success("Team deleted successfully!");
+      } catch (error) {
+        toast.error("Failed to delete team", {
+          description: error instanceof Error ? error.message : "Unknown error",
+        });
+        throw error;
+      }
     },
-    onError: (error) => {
-      toast.error("Failed to delete team", {
-        description: getErrorMessage(error),
-      });
-    },
-  });
+    isPending: false,
+  };
 }
 
 // =====================================================
@@ -107,57 +151,90 @@ export function useDeleteTeam() {
 // =====================================================
 
 export function useTeamMembers(teamId: string, enabled = true) {
-  return useQuery({
-    ...teamMembersQueryOptions(teamId),
-    enabled: enabled && !!teamId,
-  });
+  const { userId } = useCurrentUser();
+  
+  const members = useQuery(
+    enabled && teamId && userId ? api.teams.getTeamMembers : "skip",
+    enabled && teamId && userId
+      ? { teamId: teamId as Id<"teams">, userId }
+      : "skip"
+  );
+
+  return {
+    data: members,
+    isLoading: members === undefined && enabled && !!teamId && !!userId,
+    error: null,
+  };
 }
 
 interface UpdateMemberRoleData {
   membershipId: string;
   role: "admin" | "member";
-  teamId: string; // For query invalidation
+  teamId: string; // For context
+  targetUserId: string;
 }
 
 export function useUpdateMemberRole() {
-  const queryClient = useQueryClient();
+  const { userId } = useCurrentUser();
+  const updateMemberRole = useMutation(api.teams.updateMemberRole);
 
-  return useMutation({
-    mutationFn: (data: UpdateMemberRoleData) =>
-      updateMemberRoleFn({ data: { membershipId: data.membershipId, role: data.role }, headers: getAuthHeaders() }),
-    onSuccess: (_, variables) => {
-      toast.success("Member role updated!");
-      queryClient.invalidateQueries({ queryKey: ["team-members", variables.teamId] });
+  return {
+    mutate: async (data: UpdateMemberRoleData) => {
+      if (!userId) {
+        toast.error("You must be logged in to update member role");
+        return;
+      }
+      try {
+        await updateMemberRole({
+          teamId: data.teamId as Id<"teams">,
+          targetUserId: data.targetUserId,
+          role: data.role,
+          currentUserId: userId,
+        });
+        toast.success("Member role updated!");
+      } catch (error) {
+        toast.error("Failed to update member role", {
+          description: error instanceof Error ? error.message : "Unknown error",
+        });
+        throw error;
+      }
     },
-    onError: (error) => {
-      toast.error("Failed to update member role", {
-        description: getErrorMessage(error),
-      });
-    },
-  });
+    isPending: false,
+  };
 }
 
 interface RemoveMemberData {
   membershipId: string;
-  teamId: string; // For query invalidation
+  teamId: string;
+  targetUserId: string;
 }
 
 export function useRemoveMember() {
-  const queryClient = useQueryClient();
+  const { userId } = useCurrentUser();
+  const removeMember = useMutation(api.teams.removeMember);
 
-  return useMutation({
-    mutationFn: (data: RemoveMemberData) =>
-      removeMemberFn({ data: { membershipId: data.membershipId }, headers: getAuthHeaders() }),
-    onSuccess: (_, variables) => {
-      toast.success("Member removed from team!");
-      queryClient.invalidateQueries({ queryKey: ["team-members", variables.teamId] });
+  return {
+    mutate: async (data: RemoveMemberData) => {
+      if (!userId) {
+        toast.error("You must be logged in to remove a member");
+        return;
+      }
+      try {
+        await removeMember({
+          teamId: data.teamId as Id<"teams">,
+          targetUserId: data.targetUserId,
+          currentUserId: userId,
+        });
+        toast.success("Member removed from team!");
+      } catch (error) {
+        toast.error("Failed to remove member", {
+          description: error instanceof Error ? error.message : "Unknown error",
+        });
+        throw error;
+      }
     },
-    onError: (error) => {
-      toast.error("Failed to remove member", {
-        description: getErrorMessage(error),
-      });
-    },
-  });
+    isPending: false,
+  };
 }
 
 // =====================================================
@@ -165,17 +242,35 @@ export function useRemoveMember() {
 // =====================================================
 
 export function useTeamInvitations(teamId: string, enabled = true) {
-  return useQuery({
-    ...teamInvitationsQueryOptions(teamId),
-    enabled: enabled && !!teamId,
-  });
+  const { userId } = useCurrentUser();
+  
+  const invitations = useQuery(
+    enabled && teamId && userId ? api.teams.getTeamInvitations : "skip",
+    enabled && teamId && userId
+      ? { teamId: teamId as Id<"teams">, userId }
+      : "skip"
+  );
+
+  return {
+    data: invitations,
+    isLoading: invitations === undefined && enabled && !!teamId && !!userId,
+    error: null,
+  };
 }
 
 export function useMyPendingInvitations(enabled = true) {
-  return useQuery({
-    ...myPendingInvitationsQueryOptions(),
-    enabled,
-  });
+  const { userId } = useCurrentUser();
+  
+  const invitations = useQuery(
+    enabled && userId ? api.teams.getPendingInvitationsForUser : "skip",
+    userId ? { userId } : "skip"
+  );
+
+  return {
+    data: invitations,
+    isLoading: invitations === undefined && enabled && !!userId,
+    error: null,
+  };
 }
 
 interface InviteMemberData {
@@ -185,80 +280,154 @@ interface InviteMemberData {
 }
 
 export function useInviteMember() {
-  const queryClient = useQueryClient();
+  const { userId } = useCurrentUser();
+  const createInvitation = useMutation(api.teams.createInvitation);
 
-  return useMutation({
-    mutationFn: (data: InviteMemberData) => inviteMemberFn({ data, headers: getAuthHeaders() }),
-    onSuccess: (_, variables) => {
-      toast.success("Invitation sent!", {
-        description: `An invitation has been sent to ${variables.email}`,
-      });
-      queryClient.invalidateQueries({ queryKey: ["team-invitations", variables.teamId] });
+  return {
+    mutate: async (data: InviteMemberData) => {
+      if (!userId) {
+        toast.error("You must be logged in to invite a member");
+        return;
+      }
+      try {
+        await createInvitation({
+          teamId: data.teamId as Id<"teams">,
+          email: data.email,
+          role: data.role,
+          userId,
+        });
+        toast.success("Invitation sent!", {
+          description: `An invitation has been sent to ${data.email}`,
+        });
+      } catch (error) {
+        toast.error("Failed to send invitation", {
+          description: error instanceof Error ? error.message : "Unknown error",
+        });
+        throw error;
+      }
     },
-    onError: (error) => {
-      toast.error("Failed to send invitation", {
-        description: getErrorMessage(error),
-      });
-    },
-  });
+    isPending: false,
+  };
 }
 
 interface RevokeInvitationData {
   invitationId: string;
-  teamId: string; // For query invalidation
+  teamId: string; // For context
 }
 
 export function useRevokeInvitation() {
-  const queryClient = useQueryClient();
+  const { userId } = useCurrentUser();
+  const deleteInvitation = useMutation(api.teams.deleteInvitation);
 
-  return useMutation({
-    mutationFn: (data: RevokeInvitationData) =>
-      revokeInvitationFn({ data: { invitationId: data.invitationId }, headers: getAuthHeaders() }),
-    onSuccess: (_, variables) => {
-      toast.success("Invitation revoked!");
-      queryClient.invalidateQueries({ queryKey: ["team-invitations", variables.teamId] });
+  return {
+    mutate: async (data: RevokeInvitationData) => {
+      if (!userId) {
+        toast.error("You must be logged in to revoke an invitation");
+        return;
+      }
+      try {
+        await deleteInvitation({
+          id: data.invitationId as Id<"teamInvitations">,
+          userId,
+        });
+        toast.success("Invitation revoked!");
+      } catch (error) {
+        toast.error("Failed to revoke invitation", {
+          description: error instanceof Error ? error.message : "Unknown error",
+        });
+        throw error;
+      }
     },
-    onError: (error) => {
-      toast.error("Failed to revoke invitation", {
-        description: getErrorMessage(error),
-      });
-    },
-  });
+    isPending: false,
+  };
 }
 
 export function useAcceptInvitation() {
-  const queryClient = useQueryClient();
+  const { userId } = useCurrentUser();
+  const acceptInvitation = useMutation(api.teams.acceptInvitation);
 
-  return useMutation({
-    mutationFn: (invitationId: string) =>
-      acceptInvitationFn({ data: { invitationId }, headers: getAuthHeaders() }),
-    onSuccess: () => {
-      toast.success("You've joined the team!");
-      queryClient.invalidateQueries({ queryKey: ["teams"] });
-      queryClient.invalidateQueries({ queryKey: ["my-pending-invitations"] });
+  return {
+    mutate: async (token: string) => {
+      if (!userId) {
+        toast.error("You must be logged in to accept an invitation");
+        return;
+      }
+      try {
+        await acceptInvitation({
+          token,
+          userId,
+        });
+        toast.success("You've joined the team!");
+      } catch (error) {
+        toast.error("Failed to accept invitation", {
+          description: error instanceof Error ? error.message : "Unknown error",
+        });
+        throw error;
+      }
     },
-    onError: (error) => {
-      toast.error("Failed to accept invitation", {
-        description: getErrorMessage(error),
-      });
-    },
-  });
+    isPending: false,
+  };
 }
 
 export function useDeclineInvitation() {
-  const queryClient = useQueryClient();
+  const { userId } = useCurrentUser();
+  const deleteInvitation = useMutation(api.teams.deleteInvitation);
 
-  return useMutation({
-    mutationFn: (invitationId: string) =>
-      declineInvitationFn({ data: { invitationId }, headers: getAuthHeaders() }),
-    onSuccess: () => {
-      toast.success("Invitation declined");
-      queryClient.invalidateQueries({ queryKey: ["my-pending-invitations"] });
+  return {
+    mutate: async (invitationId: string) => {
+      if (!userId) {
+        toast.error("You must be logged in to decline an invitation");
+        return;
+      }
+      try {
+        await deleteInvitation({
+          id: invitationId as Id<"teamInvitations">,
+          userId,
+        });
+        toast.success("Invitation declined");
+      } catch (error) {
+        toast.error("Failed to decline invitation", {
+          description: error instanceof Error ? error.message : "Unknown error",
+        });
+        throw error;
+      }
     },
-    onError: (error) => {
-      toast.error("Failed to decline invitation", {
-        description: getErrorMessage(error),
-      });
-    },
-  });
+    isPending: false,
+  };
+}
+
+// =====================================================
+// Helper Hooks
+// =====================================================
+
+export function useIsTeamMember(teamId: string, enabled = true) {
+  const { userId } = useCurrentUser();
+  
+  const isMember = useQuery(
+    enabled && teamId && userId ? api.teams.isTeamMember : "skip",
+    enabled && teamId && userId
+      ? { teamId: teamId as Id<"teams">, userId }
+      : "skip"
+  );
+
+  return {
+    data: isMember,
+    isLoading: isMember === undefined && enabled && !!teamId && !!userId,
+  };
+}
+
+export function useHasTeamRole(teamId: string, requiredRole: string, enabled = true) {
+  const { userId } = useCurrentUser();
+  
+  const hasRole = useQuery(
+    enabled && teamId && userId ? api.teams.hasTeamRole : "skip",
+    enabled && teamId && userId
+      ? { teamId: teamId as Id<"teams">, requiredRole, userId }
+      : "skip"
+  );
+
+  return {
+    data: hasRole,
+    isLoading: hasRole === undefined && enabled && !!teamId && !!userId,
+  };
 }

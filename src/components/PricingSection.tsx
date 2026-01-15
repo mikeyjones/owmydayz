@@ -8,7 +8,7 @@ import { useRouter } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { useState } from "react";
 import { PricingCard } from "./PricingCard";
-import type { SubscriptionPlan } from "~/db/schema";
+import type { SubscriptionPlan } from "~/types";
 import { FadeIn } from "~/components/ui/fade-in";
 
 interface PricingSectionProps {

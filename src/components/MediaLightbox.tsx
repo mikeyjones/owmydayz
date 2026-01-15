@@ -2,7 +2,7 @@ import { useEffect, useCallback, useState } from "react";
 import { X, ChevronLeft, ChevronRight, Play, Loader2 } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { Button } from "~/components/ui/button";
-import type { PostAttachment } from "~/db/schema";
+import type { PostAttachment } from "~/types";
 import { useAttachmentUrl } from "~/hooks/useAttachments";
 
 interface MediaLightboxProps {

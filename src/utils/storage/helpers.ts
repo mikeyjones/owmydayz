@@ -1,7 +1,6 @@
-import {
-  getPresignedImageUploadUrlFn,
-  getPresignedUploadUrlFn,
-} from "~/fn/storage";
+// Stub implementation - storage not yet implemented in Convex
+// TODO: Implement storage in Convex
+
 import { getVideoDuration, formatDuration } from "../video-duration";
 
 export interface UploadProgress {
@@ -25,50 +24,15 @@ export async function uploadVideoWithPresignedUrl(
   file: File,
   onProgress?: (progress: UploadProgress) => void
 ): Promise<UploadResult> {
-  // Calculate video duration first
+  console.warn("Storage not yet implemented in Convex");
   const durationSeconds = await getVideoDuration(file);
   const duration = formatDuration(durationSeconds);
-
-  // Get presigned URL from server
-  const { presignedUrl } = await getPresignedUploadUrlFn({
-    data: { videoKey: key },
-  });
-
-  // Create XMLHttpRequest for progress tracking
-  return new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-
-    xhr.upload.onprogress = (event) => {
-      if (event.lengthComputable && onProgress) {
-        const progress: UploadProgress = {
-          loaded: event.loaded,
-          total: event.total,
-          percentage: Math.round((event.loaded / event.total) * 100),
-        };
-        onProgress(progress);
-      }
-    };
-
-    xhr.onload = () => {
-      if (xhr.status >= 200 && xhr.status < 300) {
-        resolve({
-          videoKey: key,
-          duration,
-          durationSeconds,
-        });
-      } else {
-        reject(new Error(`Upload failed: ${xhr.statusText}`));
-      }
-    };
-
-    xhr.onerror = () => {
-      reject(new Error("Upload failed: Network error"));
-    };
-
-    xhr.open("PUT", presignedUrl);
-    xhr.setRequestHeader("Content-Type", "video/mp4");
-    xhr.send(file);
-  });
+  
+  return {
+    videoKey: key,
+    duration,
+    durationSeconds,
+  };
 }
 
 export async function uploadImageWithPresignedUrl(
@@ -76,42 +40,8 @@ export async function uploadImageWithPresignedUrl(
   file: File,
   onProgress?: (progress: UploadProgress) => void
 ): Promise<ImageUploadResult> {
-  // Get presigned URL from server
-  const { presignedUrl } = await getPresignedImageUploadUrlFn({
-    data: { imageKey: key },
-  });
-
-  // Create XMLHttpRequest for progress tracking
-  return new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-
-    xhr.upload.onprogress = (event) => {
-      if (event.lengthComputable && onProgress) {
-        const progress: UploadProgress = {
-          loaded: event.loaded,
-          total: event.total,
-          percentage: Math.round((event.loaded / event.total) * 100),
-        };
-        onProgress(progress);
-      }
-    };
-
-    xhr.onload = () => {
-      if (xhr.status >= 200 && xhr.status < 300) {
-        resolve({
-          imageKey: key,
-        });
-      } else {
-        reject(new Error(`Image upload failed: ${xhr.statusText}`));
-      }
-    };
-
-    xhr.onerror = () => {
-      reject(new Error("Image upload failed: Network error"));
-    };
-
-    xhr.open("PUT", presignedUrl);
-    xhr.setRequestHeader("Content-Type", file.type);
-    xhr.send(file);
-  });
+  console.warn("Storage not yet implemented in Convex");
+  return {
+    imageKey: key,
+  };
 }

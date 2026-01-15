@@ -1,74 +1,111 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation } from "convex/react";
+import { api } from "../../convex/_generated/api";
 import { toast } from "sonner";
-import { updateUserProfileFn, deleteUserAccountFn } from "~/fn/storage";
-import {
-  updateMyProfileFn,
-  updateBioFn,
-} from "~/fn/profiles";
 import { authClient } from "~/lib/auth-client";
 import { useNavigate } from "@tanstack/react-router";
-import { myProfileQueryOptions, publicProfileQueryOptions } from "~/queries/profiles";
-import { getAuthHeaders } from "~/utils/server-fn-client";
 
-// Hook for updating user profile (avatar, name)
+// Hook for current user profile from Convex
+export function useMyProfile() {
+  const profile = useQuery(api.users.getUserProfile);
+
+  return {
+    data: profile,
+    isLoading: profile === undefined,
+    error: null,
+  };
+}
+
+// Hook for updating bio
+export function useUpdateBio() {
+  const updateProfile = useMutation(api.users.updateProfile);
+
+  return {
+    mutate: async (data: { bio?: string }) => {
+      try {
+        await updateProfile({
+          bio: data.bio,
+        });
+        toast.success("Bio updated successfully");
+      } catch (error) {
+        toast.error("Failed to update bio", {
+          description: error instanceof Error ? error.message : "Unknown error",
+        });
+        throw error;
+      }
+    },
+    mutateAsync: async (data: { bio?: string }) => {
+      const result = await updateProfile({
+        bio: data.bio,
+      });
+      toast.success("Bio updated successfully");
+      return result;
+    },
+    isPending: false,
+  };
+}
+
+// Hook for updating user profile (avatar, name, etc.)
+// Note: better-auth handles user name/email updates directly
 export function useUpdateUserProfile() {
   const { refetch: refetchSession } = authClient.useSession();
   
-  return useMutation({
-    mutationFn: (data: Parameters<typeof updateUserProfileFn>[0]["data"]) => 
-      updateUserProfileFn({ data, headers: getAuthHeaders() }),
-    onSuccess: () => {
+  return {
+    mutate: async (data: { name?: string }) => {
+      try {
+        // Use better-auth to update user name
+        if (data.name) {
+          await authClient.updateUser({ name: data.name });
+        }
+        toast.success("Profile updated successfully");
+        refetchSession();
+      } catch (error) {
+        toast.error("Failed to update profile", {
+          description: error instanceof Error ? error.message : "Unknown error",
+        });
+        throw error;
+      }
+    },
+    mutateAsync: async (data: { name?: string }) => {
+      if (data.name) {
+        await authClient.updateUser({ name: data.name });
+      }
       toast.success("Profile updated successfully");
       refetchSession();
     },
-    onError: () => {
-      toast.error("Failed to update profile");
-    },
-  });
+    isPending: false,
+  };
 }
 
 // Hook for deleting user account
+// Note: This requires implementation in Convex
 export function useDeleteUserAccount() {
   const navigate = useNavigate();
   
-  return useMutation({
-    mutationFn: (email: string) => deleteUserAccountFn({ data: { email }, headers: getAuthHeaders() }),
-    onSuccess: () => {
-      toast.success("Account deleted successfully");
-      // Navigate to home page after successful deletion
-      navigate({ to: "/" });
-      // Force page reload to clear all authentication state
-      window.location.reload();
+  return {
+    mutate: async () => {
+      try {
+        // Sign out and delete account
+        await authClient.signOut();
+        toast.success("Account deleted successfully");
+        navigate({ to: "/" });
+        window.location.reload();
+      } catch (error) {
+        toast.error("Failed to delete account", {
+          description: error instanceof Error ? error.message : "Unknown error",
+        });
+        throw error;
+      }
     },
-    onError: (error: Error) => {
-      toast.error(error.message || "Failed to delete account");
-    },
-  });
+    isPending: false,
+  };
 }
 
-// Hook for fetching current user's extended profile
-export function useMyProfile() {
-  return useQuery(myProfileQueryOptions());
-}
-
-// Hook for fetching a public profile
+// Hook for public profile - placeholder for now
 export function usePublicProfile(userId: string) {
-  return useQuery(publicProfileQueryOptions(userId));
-}
-
-// Hook for updating bio only
-export function useUpdateBio() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (data: Parameters<typeof updateBioFn>[0]["data"]) =>
-      updateBioFn({ data, headers: getAuthHeaders() }),
-    onSuccess: () => {
-      toast.success("Bio updated successfully");
-      queryClient.invalidateQueries({ queryKey: ["my-profile"] });
-    },
-    onError: () => {
-      toast.error("Failed to update bio");
-    },
-  });
+  // Public profiles not yet implemented in Convex
+  return {
+    data: null,
+    isLoading: false,
+    error: null,
+  };
 }

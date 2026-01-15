@@ -3,7 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Loader2, Plus, Video, FileText, Image, File, CheckSquare } from "lucide-react";
 import { useState } from "react";
-import { MODULE_CONTENT_TYPES, type ModuleContentType } from "~/fn/modules";
+import { MODULE_CONTENT_TYPES, type ModuleContentType } from "~/types";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";

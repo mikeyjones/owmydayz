@@ -16,12 +16,12 @@ import {
   useUpdateTeamItemComment,
   useDeleteTeamItemComment,
 } from "~/hooks/useItemComments";
-import { getTeamItemCommentRepliesFn } from "~/fn/item-comments";
+// TODO: Implement comment replies in Convex
 import { authClient } from "~/lib/auth-client";
 import { cn } from "~/lib/utils";
 import { FileText, MessageSquare } from "lucide-react";
-import type { TeamItem } from "~/db/schema";
-import type { ItemCommentWithUser } from "~/data-access/item-comments";
+import type { TeamItem } from "~/types";
+import type { ItemCommentWithUser } from "~/types";
 
 interface TeamEditItemDialogProps {
   open: boolean;
@@ -77,13 +77,9 @@ export function TeamEditItemDialog({
   };
 
   const handleLoadReplies = useCallback(async (parentCommentId: string) => {
-    setLoadingReplies((prev) => ({ ...prev, [parentCommentId]: true }));
-    try {
-      const replies = await getTeamItemCommentRepliesFn({ data: { parentCommentId } });
-      setRepliesCache((prev) => ({ ...prev, [parentCommentId]: replies }));
-    } finally {
-      setLoadingReplies((prev) => ({ ...prev, [parentCommentId]: false }));
-    }
+    // TODO: Implement comment replies in Convex
+    console.warn("Comment replies not yet implemented in Convex");
+    setLoadingReplies((prev) => ({ ...prev, [parentCommentId]: false }));
   }, []);
 
   const handleCreateComment = useCallback(

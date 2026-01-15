@@ -11,7 +11,7 @@ import {
 import { Tooltip } from "~/components/ui/tooltip";
 import { cn } from "~/lib/utils";
 import { TeamKanbanItemCard } from "./TeamKanbanItem";
-import type { TeamColumn as TeamColumnType, TeamItem } from "~/db/schema";
+import type { TeamColumn as TeamColumnType, TeamItem } from "~/types";
 import type { ColumnColor } from "~/utils/columnColors";
 
 interface TeamKanbanColumnProps {

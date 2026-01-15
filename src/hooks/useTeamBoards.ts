@@ -1,59 +1,77 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation } from "convex/react";
+import { api } from "../../convex/_generated/api";
+import { useCurrentUser } from "./useCurrentUser";
 import { toast } from "sonner";
-import {
-  teamBoardsQueryOptions,
-  allTeamBoardsQueryOptions,
-  teamBoardQueryOptions,
-  teamBoardWithColumnsQueryOptions,
-  allTeamNowItemsQueryOptions,
-} from "~/queries/team-boards";
-import {
-  createTeamBoardFn,
-  updateTeamBoardFn,
-  deleteTeamBoardFn,
-  createTeamColumnFn,
-  updateTeamColumnFn,
-  deleteTeamColumnFn,
-  reorderTeamColumnsFn,
-  createTeamItemFn,
-  updateTeamItemFn,
-  deleteTeamItemFn,
-  moveTeamItemFn,
-  completeTeamItemFn,
-} from "~/fn/team-boards";
-import { getErrorMessage } from "~/utils/error";
-import type { KanbanImportance, KanbanEffort } from "~/db/schema";
+import type { Id } from "../../convex/_generated/dataModel";
 
 // =====================================================
 // Team Board Hooks
 // =====================================================
 
 export function useTeamBoards(teamId: string, enabled = true) {
-  return useQuery({
-    ...teamBoardsQueryOptions(teamId),
-    enabled: enabled && !!teamId,
-  });
+  const { userId } = useCurrentUser();
+  
+  const boards = useQuery(
+    enabled && teamId && userId ? api.teamBoards.getTeamBoards : "skip",
+    enabled && teamId && userId
+      ? { teamId: teamId as Id<"teams">, userId }
+      : "skip"
+  );
+
+  return {
+    data: boards,
+    isLoading: boards === undefined && enabled && !!teamId && !!userId,
+    error: null,
+  };
 }
 
 export function useAllTeamBoards(enabled = true) {
-  return useQuery({
-    ...allTeamBoardsQueryOptions(),
-    enabled,
-  });
+  const { userId } = useCurrentUser();
+  
+  const boards = useQuery(
+    enabled && userId ? api.teamBoards.getAllTeamBoards : "skip",
+    userId ? { userId } : "skip"
+  );
+
+  return {
+    data: boards,
+    isLoading: boards === undefined && enabled && !!userId,
+    error: null,
+  };
 }
 
 export function useTeamBoard(boardId: string, enabled = true) {
-  return useQuery({
-    ...teamBoardQueryOptions(boardId),
-    enabled: enabled && !!boardId,
-  });
+  const { userId } = useCurrentUser();
+  
+  const board = useQuery(
+    enabled && boardId && userId ? api.teamBoards.getTeamBoardById : "skip",
+    enabled && boardId && userId
+      ? { id: boardId as Id<"teamBoards">, userId }
+      : "skip"
+  );
+
+  return {
+    data: board,
+    isLoading: board === undefined && enabled && !!boardId && !!userId,
+    error: null,
+  };
 }
 
 export function useTeamBoardWithColumns(boardId: string, enabled = true) {
-  return useQuery({
-    ...teamBoardWithColumnsQueryOptions(boardId),
-    enabled: enabled && !!boardId,
-  });
+  const { userId } = useCurrentUser();
+  
+  const board = useQuery(
+    enabled && boardId && userId ? api.teamBoards.getTeamBoardWithColumns : "skip",
+    enabled && boardId && userId
+      ? { id: boardId as Id<"teamBoards">, userId }
+      : "skip"
+  );
+
+  return {
+    data: board,
+    isLoading: board === undefined && enabled && !!boardId && !!userId,
+    error: null,
+  };
 }
 
 interface CreateTeamBoardData {
@@ -63,23 +81,34 @@ interface CreateTeamBoardData {
 }
 
 export function useCreateTeamBoard() {
-  const queryClient = useQueryClient();
+  const { userId } = useCurrentUser();
+  const createTeamBoard = useMutation(api.teamBoards.createTeamBoard);
 
-  return useMutation({
-    mutationFn: (data: CreateTeamBoardData) => createTeamBoardFn({ data }),
-    onSuccess: (_, variables) => {
-      toast.success("Board created successfully!", {
-        description: "Your new team board is ready.",
-      });
-      queryClient.invalidateQueries({ queryKey: ["team-boards", variables.teamId] });
-      queryClient.invalidateQueries({ queryKey: ["all-team-boards"] });
+  return {
+    mutate: async (data: CreateTeamBoardData) => {
+      if (!userId) {
+        toast.error("You must be logged in to create a board");
+        return;
+      }
+      try {
+        await createTeamBoard({
+          teamId: data.teamId as Id<"teams">,
+          name: data.name,
+          description: data.description,
+          userId,
+        });
+        toast.success("Board created successfully!", {
+          description: "Your new team board is ready.",
+        });
+      } catch (error) {
+        toast.error("Failed to create board", {
+          description: error instanceof Error ? error.message : "Unknown error",
+        });
+        throw error;
+      }
     },
-    onError: (error) => {
-      toast.error("Failed to create board", {
-        description: getErrorMessage(error),
-      });
-    },
-  });
+    isPending: false,
+  };
 }
 
 interface UpdateTeamBoardData {
@@ -87,51 +116,57 @@ interface UpdateTeamBoardData {
   name: string;
   description?: string;
   focusMode?: boolean;
-  teamId: string; // For query invalidation
+  teamId: string; // For context
 }
 
 export function useUpdateTeamBoard() {
-  const queryClient = useQueryClient();
+  const updateTeamBoard = useMutation(api.teamBoards.updateTeamBoard);
 
-  return useMutation({
-    mutationFn: (data: UpdateTeamBoardData) =>
-      updateTeamBoardFn({ data: { id: data.id, name: data.name, description: data.description, focusMode: data.focusMode } }),
-    onSuccess: (_, variables) => {
-      toast.success("Board updated successfully!");
-      queryClient.invalidateQueries({ queryKey: ["team-boards", variables.teamId] });
-      queryClient.invalidateQueries({ queryKey: ["team-board", variables.id] });
-      queryClient.invalidateQueries({ queryKey: ["all-team-boards"] });
+  return {
+    mutate: async (data: UpdateTeamBoardData) => {
+      try {
+        await updateTeamBoard({
+          id: data.id as Id<"teamBoards">,
+          name: data.name,
+          description: data.description,
+          focusMode: data.focusMode,
+        });
+        toast.success("Board updated successfully!");
+      } catch (error) {
+        toast.error("Failed to update board", {
+          description: error instanceof Error ? error.message : "Unknown error",
+        });
+        throw error;
+      }
     },
-    onError: (error) => {
-      toast.error("Failed to update board", {
-        description: getErrorMessage(error),
-      });
-    },
-  });
+    isPending: false,
+  };
 }
 
 interface DeleteTeamBoardData {
   id: string;
-  teamId: string; // For query invalidation
+  teamId: string; // For context
 }
 
 export function useDeleteTeamBoard() {
-  const queryClient = useQueryClient();
+  const deleteTeamBoard = useMutation(api.teamBoards.deleteTeamBoard);
 
-  return useMutation({
-    mutationFn: (data: DeleteTeamBoardData) =>
-      deleteTeamBoardFn({ data: { id: data.id } }),
-    onSuccess: (_, variables) => {
-      toast.success("Board deleted successfully!");
-      queryClient.invalidateQueries({ queryKey: ["team-boards", variables.teamId] });
-      queryClient.invalidateQueries({ queryKey: ["all-team-boards"] });
+  return {
+    mutate: async (data: DeleteTeamBoardData) => {
+      try {
+        await deleteTeamBoard({
+          id: data.id as Id<"teamBoards">,
+        });
+        toast.success("Board deleted successfully!");
+      } catch (error) {
+        toast.error("Failed to delete board", {
+          description: error instanceof Error ? error.message : "Unknown error",
+        });
+        throw error;
+      }
     },
-    onError: (error) => {
-      toast.error("Failed to delete board", {
-        description: getErrorMessage(error),
-      });
-    },
-  });
+    isPending: false,
+  };
 }
 
 // =====================================================
@@ -144,67 +179,79 @@ interface CreateTeamColumnData {
 }
 
 export function useCreateTeamColumn() {
-  const queryClient = useQueryClient();
+  const createTeamColumn = useMutation(api.teamBoards.createTeamColumn);
 
-  return useMutation({
-    mutationFn: (data: CreateTeamColumnData) => createTeamColumnFn({ data }),
-    onSuccess: (_, variables) => {
-      toast.success("Column created successfully!");
-      queryClient.invalidateQueries({ queryKey: ["team-board", variables.boardId] });
+  return {
+    mutate: async (data: CreateTeamColumnData) => {
+      try {
+        await createTeamColumn({
+          boardId: data.boardId as Id<"teamBoards">,
+          name: data.name,
+        });
+        toast.success("Column created successfully!");
+      } catch (error) {
+        toast.error("Failed to create column", {
+          description: error instanceof Error ? error.message : "Unknown error",
+        });
+        throw error;
+      }
     },
-    onError: (error) => {
-      toast.error("Failed to create column", {
-        description: getErrorMessage(error),
-      });
-    },
-  });
+    isPending: false,
+  };
 }
 
 interface UpdateTeamColumnData {
   id: string;
   name: string;
-  boardId: string; // For query invalidation
+  boardId: string; // For context
 }
 
 export function useUpdateTeamColumn() {
-  const queryClient = useQueryClient();
+  const updateTeamColumn = useMutation(api.teamBoards.updateTeamColumn);
 
-  return useMutation({
-    mutationFn: (data: UpdateTeamColumnData) =>
-      updateTeamColumnFn({ data: { id: data.id, name: data.name } }),
-    onSuccess: (_, variables) => {
-      toast.success("Column updated successfully!");
-      queryClient.invalidateQueries({ queryKey: ["team-board", variables.boardId] });
+  return {
+    mutate: async (data: UpdateTeamColumnData) => {
+      try {
+        await updateTeamColumn({
+          id: data.id as Id<"teamColumns">,
+          name: data.name,
+        });
+        toast.success("Column updated successfully!");
+      } catch (error) {
+        toast.error("Failed to update column", {
+          description: error instanceof Error ? error.message : "Unknown error",
+        });
+        throw error;
+      }
     },
-    onError: (error) => {
-      toast.error("Failed to update column", {
-        description: getErrorMessage(error),
-      });
-    },
-  });
+    isPending: false,
+  };
 }
 
 interface DeleteTeamColumnData {
   id: string;
-  boardId: string; // For query invalidation
+  boardId: string; // For context
 }
 
 export function useDeleteTeamColumn() {
-  const queryClient = useQueryClient();
+  const deleteTeamColumn = useMutation(api.teamBoards.deleteTeamColumn);
 
-  return useMutation({
-    mutationFn: (data: DeleteTeamColumnData) =>
-      deleteTeamColumnFn({ data: { id: data.id } }),
-    onSuccess: (_, variables) => {
-      toast.success("Column deleted successfully!");
-      queryClient.invalidateQueries({ queryKey: ["team-board", variables.boardId] });
+  return {
+    mutate: async (data: DeleteTeamColumnData) => {
+      try {
+        await deleteTeamColumn({
+          id: data.id as Id<"teamColumns">,
+        });
+        toast.success("Column deleted successfully!");
+      } catch (error) {
+        toast.error("Failed to delete column", {
+          description: error instanceof Error ? error.message : "Unknown error",
+        });
+        throw error;
+      }
     },
-    onError: (error) => {
-      toast.error("Failed to delete column", {
-        description: getErrorMessage(error),
-      });
-    },
-  });
+    isPending: false,
+  };
 }
 
 interface ReorderTeamColumnsData {
@@ -213,19 +260,27 @@ interface ReorderTeamColumnsData {
 }
 
 export function useReorderTeamColumns() {
-  const queryClient = useQueryClient();
+  const reorderTeamColumns = useMutation(api.teamBoards.reorderTeamColumns);
 
-  return useMutation({
-    mutationFn: (data: ReorderTeamColumnsData) => reorderTeamColumnsFn({ data }),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["team-board", variables.boardId] });
+  return {
+    mutate: async (data: ReorderTeamColumnsData) => {
+      try {
+        await reorderTeamColumns({
+          boardId: data.boardId as Id<"teamBoards">,
+          columnOrder: data.columnOrder.map((item) => ({
+            id: item.id as Id<"teamColumns">,
+            position: item.position,
+          })),
+        });
+      } catch (error) {
+        toast.error("Failed to reorder columns", {
+          description: error instanceof Error ? error.message : "Unknown error",
+        });
+        throw error;
+      }
     },
-    onError: (error) => {
-      toast.error("Failed to reorder columns", {
-        description: getErrorMessage(error),
-      });
-    },
-  });
+    isPending: false,
+  };
 }
 
 // =====================================================
@@ -237,117 +292,127 @@ interface CreateTeamItemData {
   boardId: string;
   name: string;
   description?: string;
-  importance?: KanbanImportance;
-  effort?: KanbanEffort;
+  importance?: string;
+  effort?: string;
   tags?: string[];
 }
 
 export function useCreateTeamItem() {
-  const queryClient = useQueryClient();
+  const createTeamItem = useMutation(api.teamBoards.createTeamItem);
 
-  return useMutation({
-    mutationFn: (data: CreateTeamItemData) => createTeamItemFn({ data }),
-    onSuccess: (_, variables) => {
-      toast.success("Item created successfully!");
-      queryClient.invalidateQueries({ queryKey: ["team-board", variables.boardId] });
+  return {
+    mutate: async (data: CreateTeamItemData) => {
+      try {
+        await createTeamItem({
+          columnId: data.columnId as Id<"teamColumns">,
+          boardId: data.boardId as Id<"teamBoards">,
+          name: data.name,
+          description: data.description,
+          importance: data.importance,
+          effort: data.effort,
+          tags: data.tags,
+        });
+        toast.success("Item created successfully!");
+      } catch (error) {
+        toast.error("Failed to create item", {
+          description: error instanceof Error ? error.message : "Unknown error",
+        });
+        throw error;
+      }
     },
-    onError: (error) => {
-      toast.error("Failed to create item", {
-        description: getErrorMessage(error),
-      });
-    },
-  });
+    isPending: false,
+  };
 }
 
 interface UpdateTeamItemData {
   id: string;
   name: string;
   description?: string;
-  importance?: KanbanImportance;
-  effort?: KanbanEffort;
+  importance?: string;
+  effort?: string;
   tags?: string[];
-  boardId: string; // For query invalidation
+  boardId: string; // For context
 }
 
 export function useUpdateTeamItem() {
-  const queryClient = useQueryClient();
+  const updateTeamItem = useMutation(api.teamBoards.updateTeamItem);
 
-  return useMutation({
-    mutationFn: (data: UpdateTeamItemData) =>
-      updateTeamItemFn({
-        data: {
-          id: data.id,
+  return {
+    mutate: async (data: UpdateTeamItemData) => {
+      try {
+        await updateTeamItem({
+          id: data.id as Id<"teamItems">,
           name: data.name,
           description: data.description,
           importance: data.importance,
           effort: data.effort,
           tags: data.tags,
-        },
-      }),
-    onSuccess: (_, variables) => {
-      toast.success("Item updated successfully!");
-      queryClient.invalidateQueries({ queryKey: ["team-board", variables.boardId] });
+        });
+        toast.success("Item updated successfully!");
+      } catch (error) {
+        toast.error("Failed to update item", {
+          description: error instanceof Error ? error.message : "Unknown error",
+        });
+        throw error;
+      }
     },
-    onError: (error) => {
-      toast.error("Failed to update item", {
-        description: getErrorMessage(error),
-      });
-    },
-  });
+    isPending: false,
+  };
 }
 
 interface DeleteTeamItemData {
   id: string;
-  boardId: string; // For query invalidation
+  boardId: string; // For context
 }
 
 export function useDeleteTeamItem() {
-  const queryClient = useQueryClient();
+  const deleteTeamItem = useMutation(api.teamBoards.deleteTeamItem);
 
-  return useMutation({
-    mutationFn: (data: DeleteTeamItemData) =>
-      deleteTeamItemFn({ data: { id: data.id } }),
-    onSuccess: (_, variables) => {
-      toast.success("Item deleted successfully!");
-      queryClient.invalidateQueries({ queryKey: ["team-board", variables.boardId] });
+  return {
+    mutate: async (data: DeleteTeamItemData) => {
+      try {
+        await deleteTeamItem({
+          id: data.id as Id<"teamItems">,
+        });
+        toast.success("Item deleted successfully!");
+      } catch (error) {
+        toast.error("Failed to delete item", {
+          description: error instanceof Error ? error.message : "Unknown error",
+        });
+        throw error;
+      }
     },
-    onError: (error) => {
-      toast.error("Failed to delete item", {
-        description: getErrorMessage(error),
-      });
-    },
-  });
+    isPending: false,
+  };
 }
 
 interface MoveTeamItemData {
   itemId: string;
   newColumnId: string;
   newPosition: number;
-  boardId: string; // For query invalidation
+  boardId: string; // For context
 }
 
 export function useMoveTeamItem() {
-  const queryClient = useQueryClient();
+  const moveTeamItem = useMutation(api.teamBoards.moveTeamItem);
 
-  return useMutation({
-    mutationFn: (data: MoveTeamItemData) =>
-      moveTeamItemFn({
-        data: {
-          itemId: data.itemId,
-          newColumnId: data.newColumnId,
+  return {
+    mutate: async (data: MoveTeamItemData) => {
+      try {
+        await moveTeamItem({
+          itemId: data.itemId as Id<"teamItems">,
+          newColumnId: data.newColumnId as Id<"teamColumns">,
           newPosition: data.newPosition,
-        },
-      }),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["team-board", variables.boardId] });
-      queryClient.invalidateQueries({ queryKey: ["team-now-items"] });
+        });
+      } catch (error) {
+        toast.error("Failed to move item", {
+          description: error instanceof Error ? error.message : "Unknown error",
+        });
+        throw error;
+      }
     },
-    onError: (error) => {
-      toast.error("Failed to move item", {
-        description: getErrorMessage(error),
-      });
-    },
-  });
+    isPending: false,
+  };
 }
 
 // =====================================================
@@ -355,31 +420,41 @@ export function useMoveTeamItem() {
 // =====================================================
 
 export function useAllTeamNowItems(enabled = true) {
-  return useQuery({
-    ...allTeamNowItemsQueryOptions(),
-    enabled,
-  });
+  const { userId } = useCurrentUser();
+  
+  const items = useQuery(
+    enabled && userId ? api.teamBoards.getAllTeamNowItems : "skip",
+    userId ? { userId } : "skip"
+  );
+
+  return {
+    data: items,
+    isLoading: items === undefined && enabled && !!userId,
+    error: null,
+  };
 }
 
 interface CompleteTeamItemData {
   itemId: string;
-  boardId: string; // For query invalidation
+  boardId: string; // For context
 }
 
 export function useCompleteTeamItem() {
-  const queryClient = useQueryClient();
+  const completeTeamItem = useMutation(api.teamBoards.completeTeamItem);
 
-  return useMutation({
-    mutationFn: (data: CompleteTeamItemData) =>
-      completeTeamItemFn({ data: { itemId: data.itemId } }),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["team-now-items"] });
-      queryClient.invalidateQueries({ queryKey: ["team-board", variables.boardId] });
+  return {
+    mutate: async (data: CompleteTeamItemData) => {
+      try {
+        await completeTeamItem({
+          itemId: data.itemId as Id<"teamItems">,
+        });
+      } catch (error) {
+        toast.error("Failed to complete item", {
+          description: error instanceof Error ? error.message : "Unknown error",
+        });
+        throw error;
+      }
     },
-    onError: (error) => {
-      toast.error("Failed to complete item", {
-        description: getErrorMessage(error),
-      });
-    },
-  });
+    isPending: false,
+  };
 }

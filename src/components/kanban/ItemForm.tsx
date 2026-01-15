@@ -23,7 +23,7 @@ import {
 } from "~/components/ui/select";
 import { Badge } from "~/components/ui/badge";
 import { useState } from "react";
-import { KANBAN_IMPORTANCE_VALUES, KANBAN_EFFORT_VALUES } from "~/db/schema";
+import { KANBAN_IMPORTANCE_VALUES, KANBAN_EFFORT_VALUES } from "~/types";
 
 export const itemFormSchema = z.object({
   name: z

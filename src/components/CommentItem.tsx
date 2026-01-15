@@ -5,7 +5,7 @@ import { Button } from "~/components/ui/button";
 import { UserAvatarLink } from "~/components/UserAvatarLink";
 import { UserNameLink } from "~/components/UserNameLink";
 import { formatRelativeTime } from "~/utils/song";
-import type { CommentWithUser } from "~/data-access/comments";
+import type { CommentWithUser } from "~/types";
 import { CommentForm } from "./CommentForm";
 import { useCommentReplies } from "~/hooks/useComments";
 import { useCommentAttachments } from "~/hooks/useAttachments";

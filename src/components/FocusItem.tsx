@@ -2,14 +2,31 @@ import { useState } from "react";
 import confetti from "canvas-confetti";
 import { Check, Loader2 } from "lucide-react";
 import { cn } from "~/lib/utils";
-import type { NowItemWithBoard } from "~/data-access/kanban";
-import type { KanbanImportance } from "~/db/schema";
+
+// Convex now item type
+interface NowItem {
+  _id: string;
+  columnId: string;
+  boardId: string;
+  name: string;
+  description?: string;
+  importance: string;
+  effort: string;
+  tags: string[];
+  position: number;
+  completedAt?: number;
+  createdAt: number;
+  updatedAt: number;
+  boardName: string;
+}
 
 interface FocusItemProps {
-  item: NowItemWithBoard;
+  item: NowItem;
   onComplete: (itemId: string, boardId: string) => void;
   isCompleting?: boolean;
 }
+
+type KanbanImportance = "low" | "medium" | "high";
 
 const importanceStyles: Record<KanbanImportance, { bg: string; text: string; label: string }> = {
   low: { bg: "bg-emerald-500/20", text: "text-emerald-400", label: "Low" },
@@ -76,7 +93,7 @@ export function FocusItem({ item, onComplete, isCompleting = false }: FocusItemP
     
     // Actually complete the item after animation
     setTimeout(() => {
-      onComplete(item.id, item.boardId);
+      onComplete(item._id, item.boardId);
     }, 600);
   };
 

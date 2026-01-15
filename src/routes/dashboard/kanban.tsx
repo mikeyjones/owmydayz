@@ -11,7 +11,7 @@ import {
 } from "~/components/ui/dropdown-menu";
 import { KanbanBoard, CreateBoardDialog } from "~/components/kanban";
 import { useBoards, useDeleteBoard } from "~/hooks/useKanban";
-import type { KanbanBoard as KanbanBoardType } from "~/db/schema";
+import type { KanbanBoard as KanbanBoardType } from "~/types";
 
 export const Route = createFileRoute("/dashboard/kanban")({
   component: KanbanPage,

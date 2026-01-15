@@ -3,7 +3,7 @@ import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
 import { Calendar, CreditCard, AlertTriangle } from "lucide-react";
 import { PlanBadge } from "./PlanBadge";
-import type { SubscriptionPlan, SubscriptionStatus as Status } from "~/db/schema";
+import type { SubscriptionPlan, SubscriptionStatus as Status } from "~/types";
 
 interface SubscriptionStatusProps {
   plan: SubscriptionPlan;

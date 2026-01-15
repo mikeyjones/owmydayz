@@ -1,6 +1,6 @@
 import { UserAvatar } from "./UserAvatar";
 import { cn } from "~/lib/utils";
-import type { ConversationWithParticipant } from "~/data-access/conversations";
+import type { ConversationWithParticipant } from "~/types";
 
 interface ConversationItemProps {
   conversation: ConversationWithParticipant;

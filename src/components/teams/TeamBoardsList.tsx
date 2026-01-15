@@ -14,7 +14,7 @@ import {
 import { TeamBoardCard } from "./TeamBoardCard";
 import { TeamBoardDialog } from "./TeamBoardDialog";
 import { useTeamBoards, useDeleteTeamBoard } from "~/hooks/useTeamBoards";
-import type { TeamBoard } from "~/db/schema";
+import type { TeamBoard } from "~/types";
 
 interface TeamBoardsListProps {
   teamId: string;

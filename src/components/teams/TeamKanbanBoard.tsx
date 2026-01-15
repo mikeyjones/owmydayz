@@ -15,8 +15,8 @@ import {
   useDeleteTeamColumn,
 } from "~/hooks/useTeamBoards";
 import { getColumnColor } from "~/utils/columnColors";
-import type { TeamItem } from "~/db/schema";
-import type { TeamColumnWithItems } from "~/data-access/team-boards";
+import type { TeamItem } from "~/types";
+import type { TeamColumnWithItems } from "~/types";
 
 // System column name constant
 const SYSTEM_COLUMN_NOW = "Now";

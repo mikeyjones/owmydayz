@@ -7,7 +7,7 @@ import {
 import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
 import { Panel } from "~/components/ui/panel";
-import type { EventWithUser } from "~/data-access/events";
+import type { EventWithUser } from "~/types";
 
 interface CalendarProps {
   events: EventWithUser[];

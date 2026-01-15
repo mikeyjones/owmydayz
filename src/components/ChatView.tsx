@@ -4,7 +4,7 @@ import { MessageList } from "./MessageList";
 import { MessageInput } from "./MessageInput";
 import { Button } from "./ui/button";
 import { Link } from "@tanstack/react-router";
-import type { ConversationWithParticipant } from "~/data-access/conversations";
+import type { ConversationWithParticipant } from "~/types";
 
 interface ChatViewProps {
   conversation: ConversationWithParticipant | null;

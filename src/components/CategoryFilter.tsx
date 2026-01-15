@@ -1,5 +1,5 @@
 import { cn } from "~/lib/utils";
-import { POST_CATEGORIES, type PostCategory } from "~/fn/posts";
+import { POST_CATEGORIES, type PostCategory } from "~/types";
 
 const CATEGORY_LABELS: Record<PostCategory | "all", string> = {
   all: "All",

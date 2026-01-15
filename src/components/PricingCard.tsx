@@ -1,7 +1,7 @@
 import { Button } from "~/components/ui/button";
 import { Check } from "lucide-react";
 import { SUBSCRIPTION_PLANS } from "~/lib/plans";
-import type { SubscriptionPlan } from "~/db/schema";
+import type { SubscriptionPlan } from "~/types";
 import { authClient } from "~/lib/auth-client";
 import { Panel } from "~/components/ui/panel";
 import { cn } from "~/lib/utils";

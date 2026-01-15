@@ -1,76 +1,52 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
-import {
-  createPortfolioItemFn,
-  updatePortfolioItemFn,
-  deletePortfolioItemFn,
-} from "~/fn/portfolio";
-import {
-  myPortfolioQueryOptions,
-  userPortfolioQueryOptions,
-  portfolioItemQueryOptions,
-} from "~/queries/portfolio";
+// Stub hook - portfolio not yet implemented in Convex
+// TODO: Implement portfolio in Convex
 
-// Hook for fetching current user's portfolio items
-export function useMyPortfolio() {
-  return useQuery(myPortfolioQueryOptions());
+export function usePortfolioItems() {
+  return {
+    data: [],
+    isLoading: false,
+    error: null,
+  };
 }
 
-// Hook for fetching a user's portfolio items
-export function useUserPortfolio(userId: string) {
-  return useQuery(userPortfolioQueryOptions(userId));
+export function usePortfolioItem(itemId: string) {
+  return {
+    data: null,
+    isLoading: false,
+    error: null,
+  };
 }
 
-// Hook for fetching a single portfolio item
-export function usePortfolioItem(id: string) {
-  return useQuery(portfolioItemQueryOptions(id));
-}
-
-// Hook for creating a portfolio item
 export function useCreatePortfolioItem() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: createPortfolioItemFn,
-    onSuccess: () => {
-      toast.success("Portfolio item created successfully");
-      queryClient.invalidateQueries({ queryKey: ["my-portfolio"] });
+  return {
+    mutate: async () => {
+      console.warn("Portfolio not yet implemented in Convex");
     },
-    onError: () => {
-      toast.error("Failed to create portfolio item");
+    mutateAsync: async () => {
+      console.warn("Portfolio not yet implemented in Convex");
+      return null;
     },
-  });
+    isPending: false,
+    isError: false,
+  };
 }
 
-// Hook for updating a portfolio item
 export function useUpdatePortfolioItem() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: updatePortfolioItemFn,
-    onSuccess: (data) => {
-      toast.success("Portfolio item updated successfully");
-      queryClient.invalidateQueries({ queryKey: ["my-portfolio"] });
-      queryClient.invalidateQueries({ queryKey: ["portfolio-item", data.id] });
+  return {
+    mutate: async () => {
+      console.warn("Portfolio not yet implemented in Convex");
     },
-    onError: () => {
-      toast.error("Failed to update portfolio item");
-    },
-  });
+    isPending: false,
+    isError: false,
+  };
 }
 
-// Hook for deleting a portfolio item
 export function useDeletePortfolioItem() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: deletePortfolioItemFn,
-    onSuccess: () => {
-      toast.success("Portfolio item deleted successfully");
-      queryClient.invalidateQueries({ queryKey: ["my-portfolio"] });
+  return {
+    mutate: async () => {
+      console.warn("Portfolio not yet implemented in Convex");
     },
-    onError: () => {
-      toast.error("Failed to delete portfolio item");
-    },
-  });
+    isPending: false,
+    isError: false,
+  };
 }

@@ -88,6 +88,7 @@ export type TeamBoard = {
   name: string;
   description?: string;
   focusMode: boolean;
+  createdBy: string;
   createdAt: number;
   updatedAt: number;
 };

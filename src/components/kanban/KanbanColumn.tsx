@@ -11,7 +11,7 @@ import {
 import { Tooltip } from "~/components/ui/tooltip";
 import { cn } from "~/lib/utils";
 import { KanbanItemCard } from "./KanbanItem";
-import type { KanbanColumn as KanbanColumnType, KanbanItem } from "~/db/schema";
+import type { KanbanColumn as KanbanColumnType, KanbanItem } from "~/types";
 import type { ColumnColor } from "~/utils/columnColors";
 
 interface KanbanColumnProps {

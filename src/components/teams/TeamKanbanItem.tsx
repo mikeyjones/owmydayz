@@ -14,7 +14,7 @@ import {
 import { cn } from "~/lib/utils";
 import { useTeamItemCommentCount } from "~/hooks/useItemComments";
 import { DropIndicator } from "~/components/kanban/DropIndicator";
-import type { TeamItem as TeamItemType, KanbanImportance, KanbanEffort } from "~/db/schema";
+import type { TeamItem as TeamItemType, KanbanImportance, KanbanEffort } from "~/types";
 import type { ColumnColor } from "~/utils/columnColors";
 
 interface TeamKanbanItemProps {

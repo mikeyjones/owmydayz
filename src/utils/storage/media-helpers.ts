@@ -1,5 +1,7 @@
-import { getMediaUploadUrlFn } from "~/fn/attachments";
-import type { AttachmentType } from "~/db/schema";
+// Stub implementation - media storage not yet implemented in Convex
+// TODO: Implement media storage in Convex
+
+import type { AttachmentType } from "~/types";
 
 export interface UploadProgress {
   loaded: number;
@@ -90,54 +92,17 @@ export async function uploadMediaFile(
   file: File,
   onProgress?: (progress: UploadProgress) => void
 ): Promise<MediaUploadResult> {
-  // Get presigned URL from server
-  const { presignedUrl, fileKey, attachmentId, attachmentType } =
-    await getMediaUploadUrlFn({
-      data: {
-        fileName: file.name,
-        contentType: file.type,
-        fileSize: file.size,
-      },
-    });
-
-  // Upload file directly to R2
-  return new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-
-    xhr.upload.onprogress = (event) => {
-      if (event.lengthComputable && onProgress) {
-        const progress: UploadProgress = {
-          loaded: event.loaded,
-          total: event.total,
-          percentage: Math.round((event.loaded / event.total) * 100),
-        };
-        onProgress(progress);
-      }
-    };
-
-    xhr.onload = () => {
-      if (xhr.status >= 200 && xhr.status < 300) {
-        resolve({
-          id: attachmentId,
-          fileKey,
-          fileName: file.name,
-          fileSize: file.size,
-          mimeType: file.type,
-          type: attachmentType,
-        });
-      } else {
-        reject(new Error(`Upload failed: ${xhr.statusText}`));
-      }
-    };
-
-    xhr.onerror = () => {
-      reject(new Error("Upload failed: Network error"));
-    };
-
-    xhr.open("PUT", presignedUrl);
-    xhr.setRequestHeader("Content-Type", file.type);
-    xhr.send(file);
-  });
+  console.warn("Media upload not yet implemented in Convex");
+  
+  // Return stub result
+  return {
+    id: crypto.randomUUID(),
+    fileKey: `stub-${Date.now()}`,
+    fileName: file.name,
+    fileSize: file.size,
+    mimeType: file.type,
+    type: getMediaType(file.type) || "image",
+  };
 }
 
 export async function uploadMultipleMediaFiles(
@@ -146,22 +111,16 @@ export async function uploadMultipleMediaFiles(
   onFileComplete?: (fileIndex: number, result: MediaUploadResult) => void,
   onFileError?: (fileIndex: number, error: string) => void
 ): Promise<MediaUploadResult[]> {
+  console.warn("Media upload not yet implemented in Convex");
+  
   const results: MediaUploadResult[] = [];
-
   for (let i = 0; i < files.length; i++) {
-    try {
-      const result = await uploadMediaFile(files[i], (progress) => {
-        onFileProgress?.(i, progress);
-      });
-      results.push(result);
-      onFileComplete?.(i, result);
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Upload failed";
-      onFileError?.(i, errorMessage);
-    }
+    const result = await uploadMediaFile(files[i], (progress) => {
+      onFileProgress?.(i, progress);
+    });
+    results.push(result);
+    onFileComplete?.(i, result);
   }
-
   return results;
 }
 

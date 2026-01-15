@@ -1,10 +1,10 @@
+// Stripe webhook - TODO: Implement via Convex HTTP actions
+// This is a stub that will need to be reimplemented for Convex
+
 import { stripe } from "~/lib/stripe";
 import { updateUserSubscription, updateUserPlan } from "~/utils/subscription";
-import { database } from "~/db";
-import { user } from "~/db/schema";
-import { eq } from "drizzle-orm";
 import { privateEnv } from "~/config/privateEnv";
-import type { SubscriptionPlan, SubscriptionStatus } from "~/db/schema";
+import type { SubscriptionPlan, SubscriptionStatus } from "~/types";
 import { getPlanByPriceId } from "~/lib/plans";
 import { createFileRoute } from "@tanstack/react-router";
 
@@ -87,6 +87,7 @@ async function handleCheckoutCompleted(session: any) {
     throw new Error("Invalid subscription period end date");
   }
 
+  // TODO: Implement via Convex mutation
   await updateUserSubscription(session.metadata.userId, {
     subscriptionId: subscription.id,
     customerId: subscription.customer as string,
@@ -110,65 +111,13 @@ async function handleSubscriptionChange(subscription: any) {
     return;
   }
 
-  // Find user by customer ID - let Stripe handle retries if this fails
-  const [userData] = await database
-    .select()
-    .from(user)
-    .where(eq(user.stripeCustomerId, subscription.customer));
-
-  if (!userData) {
-    console.error("No user found for customer:", subscription.customer);
-    return;
-  }
-
-  // Use item-level billing period (new Stripe API)
-  const subscriptionItem = subscription.items.data[0];
-  const periodEnd = subscriptionItem?.current_period_end;
-  const expiresAt = periodEnd ? new Date(periodEnd * 1000) : undefined;
-
-  await updateUserSubscription(userData.id, {
-    subscriptionId: subscription.id,
-    customerId: subscription.customer as string,
-    plan: planDetails.plan,
-    status: subscription.status as SubscriptionStatus,
-    expiresAt,
-  });
-
-  console.log(
-    `Updated subscription ${subscription.id} for user ${userData.id}`
-  );
+  // TODO: Look up user by Stripe customer ID in Convex
+  console.warn("Subscription change handling not yet implemented in Convex");
 }
 
 async function handleSubscriptionDeleted(subscription: any) {
   console.log("Handling subscription deleted:", subscription.id);
 
-  const customerId = subscription.customer;
-
-  // Find user by customer ID
-  const [userData] = await database
-    .select()
-    .from(user)
-    .where(eq(user.stripeCustomerId, customerId));
-
-  if (!userData) {
-    console.error("No user found for customer:", customerId);
-    return;
-  }
-
-  // Reset user to free plan
-  await updateUserPlan(userData.id, "free");
-
-  // Update subscription status
-  await database
-    .update(user)
-    .set({
-      subscriptionStatus: "canceled",
-      subscriptionExpiresAt: new Date(subscription.canceled_at * 1000),
-      updatedAt: new Date(),
-    })
-    .where(eq(user.id, userData.id));
-
-  console.log(
-    `Reset user ${userData.id} to free plan after subscription deletion`
-  );
+  // TODO: Look up user by Stripe customer ID in Convex and update
+  console.warn("Subscription deletion handling not yet implemented in Convex");
 }

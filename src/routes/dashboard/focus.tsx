@@ -2,7 +2,23 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Loader2, Target, CheckCircle2 } from "lucide-react";
 import { useAllNowItems, useCompleteItem } from "~/hooks/useKanban";
 import { FocusItem } from "~/components/FocusItem";
-import type { NowItemWithBoard } from "~/data-access/kanban";
+
+// Convex now item type
+interface NowItem {
+  _id: string;
+  columnId: string;
+  boardId: string;
+  name: string;
+  description?: string;
+  importance: string;
+  effort: string;
+  tags: string[];
+  position: number;
+  completedAt?: number;
+  createdAt: number;
+  updatedAt: number;
+  boardName: string;
+}
 
 export const Route = createFileRoute("/dashboard/focus")({
   component: FocusPage,
@@ -25,7 +41,7 @@ function FocusPage() {
       acc[item.boardName].push(item);
       return acc;
     },
-    {} as Record<string, NowItemWithBoard[]>
+    {} as Record<string, NowItem[]>
   );
 
   if (isLoading) {
@@ -94,7 +110,7 @@ function FocusPage() {
               <div className="space-y-2">
                 {boardItems.map((item) => (
                   <FocusItem
-                    key={item.id}
+                    key={item._id}
                     item={item}
                     onComplete={handleComplete}
                     isCompleting={completeItemMutation.isPending}

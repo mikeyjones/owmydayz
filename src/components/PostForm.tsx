@@ -3,7 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useState, useEffect } from "react";
 import { Loader2, MessageSquarePlus, Save } from "lucide-react";
-import { POST_CATEGORIES } from "~/fn/posts";
+import { POST_CATEGORIES } from "~/types";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
@@ -27,7 +27,7 @@ import { MediaUploadToggle } from "~/components/MediaUploadToggle";
 import { AttachmentPreviewGrid } from "~/components/AttachmentPreviewGrid";
 import type { MediaUploadResult } from "~/utils/storage/media-helpers";
 import { revokeFilePreview } from "~/utils/storage/media-helpers";
-import type { PostAttachment } from "~/db/schema";
+import type { PostAttachment } from "~/types";
 import { useAttachmentUrls } from "~/hooks/useAttachments";
 
 export const postFormSchema = z.object({

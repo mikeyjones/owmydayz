@@ -22,7 +22,7 @@ import {
 } from "~/components/ui/dialog";
 import { useDeletePortfolioItem } from "~/hooks/usePortfolio";
 import { useImageUrl } from "~/hooks/useStorage";
-import type { PortfolioItem } from "~/db/schema";
+import type { PortfolioItem } from "~/types";
 
 interface PortfolioItemCardProps {
   item: PortfolioItem;

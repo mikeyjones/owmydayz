@@ -15,7 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import type { Team } from "~/db/schema";
+import type { Team } from "~/types";
 
 interface TeamCardProps {
   team: Team;

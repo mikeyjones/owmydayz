@@ -1,5 +1,5 @@
 import { Badge } from "~/components/ui/badge";
-import type { SubscriptionPlan } from "~/db/schema";
+import type { SubscriptionPlan } from "~/types";
 
 interface PlanBadgeProps {
   plan: SubscriptionPlan;

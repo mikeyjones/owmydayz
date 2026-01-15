@@ -7,7 +7,7 @@ import {
 } from "~/components/ui/dialog";
 import { TeamForm, type TeamFormData } from "./TeamForm";
 import { useCreateTeam, useUpdateTeam } from "~/hooks/useTeams";
-import type { Team } from "~/db/schema";
+import type { Team } from "~/types";
 
 interface TeamDialogProps {
   open: boolean;

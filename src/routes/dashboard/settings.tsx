@@ -27,7 +27,7 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Upload, User, Home } from "lucide-react";
-import { assertAuthenticatedFn } from "~/fn/guards";
+import { assertAuthenticatedFn } from "~/utils/guards";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";

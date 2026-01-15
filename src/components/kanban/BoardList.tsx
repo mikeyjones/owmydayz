@@ -14,7 +14,7 @@ import {
 import { BoardCard } from "./BoardCard";
 import { BoardDialog } from "./BoardDialog";
 import { useBoards, useDeleteBoard } from "~/hooks/useKanban";
-import type { KanbanBoard } from "~/db/schema";
+import type { KanbanBoard } from "~/types";
 
 export function BoardList() {
   const { data: boards, isPending, error } = useBoards();

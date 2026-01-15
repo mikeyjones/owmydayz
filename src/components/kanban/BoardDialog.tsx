@@ -7,7 +7,7 @@ import {
 } from "~/components/ui/dialog";
 import { BoardForm, type BoardFormData } from "./BoardForm";
 import { useCreateBoard, useUpdateBoard } from "~/hooks/useKanban";
-import type { KanbanBoard } from "~/db/schema";
+import type { KanbanBoard } from "~/types";
 
 interface BoardDialogProps {
   open: boolean;

@@ -15,7 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import type { KanbanBoard } from "~/db/schema";
+import type { KanbanBoard } from "~/types";
 
 interface BoardCardProps {
   board: KanbanBoard;
