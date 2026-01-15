@@ -17,7 +17,7 @@ import { useBoards, useDeleteBoard } from "~/hooks/useKanban";
 import type { KanbanBoard } from "~/types";
 
 export function BoardList() {
-  const { data: boards, isPending, error } = useBoards();
+  const { data: boards, isLoading, error } = useBoards();
   const deleteBoardMutation = useDeleteBoard();
 
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -40,7 +40,7 @@ export function BoardList() {
     }
   };
 
-  if (isPending) {
+  if (isLoading || boards === undefined) {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
