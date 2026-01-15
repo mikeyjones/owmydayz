@@ -15,6 +15,7 @@ import { Tooltip } from "~/components/ui/tooltip";
 import { cn } from "~/lib/utils";
 import { KanbanItemCard } from "./KanbanItem";
 import type { KanbanColumn as KanbanColumnType, KanbanItem } from "~/db/schema";
+import type { ColumnColor } from "~/utils/columnColors";
 
 interface KanbanColumnProps {
   column: KanbanColumnType & { items: KanbanItem[] };
@@ -25,6 +26,7 @@ interface KanbanColumnProps {
   onDeleteColumn?: (columnId: string) => void;
   isFolded?: boolean;
   onUnfold?: (columnId: string) => void;
+  columnColor?: ColumnColor;
 }
 
 export function KanbanColumnComponent({
@@ -36,6 +38,7 @@ export function KanbanColumnComponent({
   onDeleteColumn,
   isFolded = false,
   onUnfold,
+  columnColor,
 }: KanbanColumnProps) {
   const { setNodeRef, isOver } = useDroppable({
     id: column.id,
@@ -56,14 +59,23 @@ export function KanbanColumnComponent({
           type="button"
           onClick={() => onUnfold?.(column.id)}
           className={cn(
-            "flex flex-col w-12 min-w-12 max-w-12 bg-muted/30 rounded-lg border cursor-pointer transition-all hover:bg-muted/50 hover:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/50",
-            isOver && "ring-2 ring-primary/50 bg-muted/50"
+            "flex flex-col w-12 min-w-12 max-w-12 rounded-lg border cursor-pointer transition-all hover:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/50",
+            columnColor?.bg || "bg-muted/30",
+            columnColor?.border,
+            isOver && "ring-2 ring-primary/50"
           )}
         >
           {/* Folded Header */}
-          <div className="flex flex-col items-center gap-2 p-2 border-b bg-muted/50 rounded-t-lg w-full">
-            <ChevronRight className="h-4 w-4 text-muted-foreground" />
-            <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full">
+          <div className={cn(
+            "flex flex-col items-center gap-2 p-2 border-b rounded-t-lg w-full",
+            columnColor?.headerBg || "bg-muted/50"
+          )}>
+            <ChevronRight className={cn("h-4 w-4", columnColor?.text || "text-muted-foreground")} />
+            <span className={cn(
+              "text-xs px-1.5 py-0.5 rounded-full",
+              columnColor?.headerBg || "bg-muted",
+              columnColor?.text || "text-muted-foreground"
+            )}>
               {column.items.length}
             </span>
           </div>
@@ -71,7 +83,10 @@ export function KanbanColumnComponent({
           {/* Vertical Column Name */}
           <div className="flex-1 flex items-center justify-center p-2 min-h-[100px]">
             <span
-              className="font-semibold text-sm text-muted-foreground whitespace-nowrap"
+              className={cn(
+                "font-semibold text-sm whitespace-nowrap",
+                columnColor?.text || "text-muted-foreground"
+              )}
               style={{
                 writingMode: "vertical-rl",
                 textOrientation: "mixed",
@@ -89,15 +104,24 @@ export function KanbanColumnComponent({
   return (
     <div
       className={cn(
-        "flex flex-col w-72 min-w-72 max-w-72 bg-muted/30 rounded-lg border",
+        "flex flex-col w-72 min-w-72 max-w-72 rounded-lg border",
+        columnColor?.bg || "bg-muted/30",
+        columnColor?.border,
         isOver && "ring-2 ring-primary/50"
       )}
     >
       {/* Column Header */}
-      <div className="flex items-center justify-between p-3 border-b bg-muted/50 rounded-t-lg">
+      <div className={cn(
+        "flex items-center justify-between p-3 border-b rounded-t-lg",
+        columnColor?.headerBg || "bg-muted/50"
+      )}>
         <div className="flex items-center gap-2">
-          <h3 className="font-semibold text-sm">{column.name}</h3>
-          <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+          <h3 className={cn("font-semibold text-sm", columnColor?.text)}>{column.name}</h3>
+          <span className={cn(
+            "text-xs px-2 py-0.5 rounded-full",
+            columnColor?.headerBg || "bg-muted",
+            columnColor?.text || "text-muted-foreground"
+          )}>
             {column.items.length}
           </span>
         </div>
@@ -154,6 +178,7 @@ export function KanbanColumnComponent({
               item={item}
               onEdit={onEditItem}
               onDelete={onDeleteItem}
+              columnColor={columnColor}
             />
           ))}
         </SortableContext>

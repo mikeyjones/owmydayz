@@ -25,6 +25,7 @@ import {
   useDeleteTeamItem,
   useDeleteTeamColumn,
 } from "~/hooks/useTeamBoards";
+import { getColumnColor } from "~/utils/columnColors";
 import type { TeamItem } from "~/db/schema";
 import type { TeamColumnWithItems } from "~/data-access/team-boards";
 
@@ -238,7 +239,7 @@ export function TeamKanbanBoard({ boardId, teamId }: TeamKanbanBoardProps) {
       >
         <div className="flex-1 overflow-x-auto pb-4">
           <div className="flex gap-4 h-full min-h-[400px]">
-            {board.columns.map((column) => (
+            {board.columns.map((column, index) => (
               <TeamKanbanColumn
                 key={column.id}
                 column={column}
@@ -248,6 +249,7 @@ export function TeamKanbanBoard({ boardId, teamId }: TeamKanbanBoardProps) {
                 onDeleteColumn={handleDeleteColumn}
                 isFolded={isColumnFolded(column)}
                 onUnfold={handleUnfoldColumn}
+                columnColor={getColumnColor(index)}
               />
             ))}
 

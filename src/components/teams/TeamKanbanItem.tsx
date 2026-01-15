@@ -12,12 +12,14 @@ import {
 import { cn } from "~/lib/utils";
 import { useTeamItemCommentCount } from "~/hooks/useItemComments";
 import type { TeamItem as TeamItemType, KanbanImportance, KanbanEffort } from "~/db/schema";
+import type { ColumnColor } from "~/utils/columnColors";
 
 interface TeamKanbanItemProps {
   item: TeamItemType;
   onEdit: (item: TeamItemType) => void;
   onDelete: (itemId: string) => void;
   isDragging?: boolean;
+  columnColor?: ColumnColor;
 }
 
 const importanceStyles: Record<KanbanImportance, { bg: string; text: string; label: string }> = {
@@ -37,6 +39,7 @@ export function TeamKanbanItemCard({
   onEdit,
   onDelete,
   isDragging = false,
+  columnColor,
 }: TeamKanbanItemProps) {
   const {
     attributes,
@@ -69,7 +72,8 @@ export function TeamKanbanItemCard({
       ref={setNodeRef}
       style={style}
       className={cn(
-        "bg-card border rounded-lg p-3 shadow-sm transition-all",
+        "bg-card border rounded-lg p-3 shadow-sm transition-all border-l-4",
+        columnColor?.accent || "border-l-transparent",
         "hover:shadow-md hover:border-primary/30",
         (isDragging || isSortableDragging) && "opacity-50 shadow-lg ring-2 ring-primary/50"
       )}

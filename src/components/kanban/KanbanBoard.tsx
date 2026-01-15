@@ -25,6 +25,7 @@ import {
   useDeleteItem,
   useDeleteColumn,
 } from "~/hooks/useKanban";
+import { getColumnColor } from "~/utils/columnColors";
 import type { KanbanItem } from "~/db/schema";
 import type { KanbanColumnWithItems } from "~/data-access/kanban";
 
@@ -240,7 +241,7 @@ export function KanbanBoard({ boardId }: KanbanBoardProps) {
       >
         <div className="flex-1 overflow-x-auto pb-4">
           <div className="flex gap-4 h-full min-h-[400px]">
-            {board.columns.map((column) => (
+            {board.columns.map((column, index) => (
               <KanbanColumnComponent
                 key={column.id}
                 column={column}
@@ -250,6 +251,7 @@ export function KanbanBoard({ boardId }: KanbanBoardProps) {
                 onDeleteColumn={handleDeleteColumn}
                 isFolded={isColumnFolded(column)}
                 onUnfold={handleUnfoldColumn}
+                columnColor={getColumnColor(index)}
               />
             ))}
 
