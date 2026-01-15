@@ -1,5 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
 import { getImageUrlFn } from "~/fn/storage";
+import { getAuthHeaders } from "~/utils/server-fn-client";
 
 export const getUserAvatarQuery = (imageKey: string | null) =>
   queryOptions({
@@ -12,6 +13,7 @@ export const getUserAvatarQuery = (imageKey: string | null) =>
       try {
         const result = await getImageUrlFn({
           data: { imageKey },
+          headers: getAuthHeaders(),
         });
         return { imageUrl: result.imageUrl };
       } catch (error) {

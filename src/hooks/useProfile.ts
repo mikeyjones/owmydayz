@@ -8,13 +8,15 @@ import {
 import { authClient } from "~/lib/auth-client";
 import { useNavigate } from "@tanstack/react-router";
 import { myProfileQueryOptions, publicProfileQueryOptions } from "~/queries/profiles";
+import { getAuthHeaders } from "~/utils/server-fn-client";
 
 // Hook for updating user profile (avatar, name)
 export function useUpdateUserProfile() {
   const { refetch: refetchSession } = authClient.useSession();
   
   return useMutation({
-    mutationFn: updateUserProfileFn,
+    mutationFn: (data: Parameters<typeof updateUserProfileFn>[0]["data"]) => 
+      updateUserProfileFn({ data, headers: getAuthHeaders() }),
     onSuccess: () => {
       toast.success("Profile updated successfully");
       refetchSession();
@@ -30,7 +32,7 @@ export function useDeleteUserAccount() {
   const navigate = useNavigate();
   
   return useMutation({
-    mutationFn: deleteUserAccountFn,
+    mutationFn: (email: string) => deleteUserAccountFn({ data: { email }, headers: getAuthHeaders() }),
     onSuccess: () => {
       toast.success("Account deleted successfully");
       // Navigate to home page after successful deletion
@@ -59,7 +61,8 @@ export function useUpdateBio() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: updateBioFn,
+    mutationFn: (data: Parameters<typeof updateBioFn>[0]["data"]) =>
+      updateBioFn({ data, headers: getAuthHeaders() }),
     onSuccess: () => {
       toast.success("Bio updated successfully");
       queryClient.invalidateQueries({ queryKey: ["my-profile"] });

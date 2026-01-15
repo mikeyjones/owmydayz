@@ -22,6 +22,7 @@ import {
   completeItemFn,
 } from "~/fn/kanban";
 import { getErrorMessage } from "~/utils/error";
+import { getAuthHeaders } from "~/utils/server-fn-client";
 import type { KanbanImportance, KanbanEffort } from "~/db/schema";
 
 // =====================================================
@@ -58,7 +59,7 @@ export function useCreateBoard() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: CreateBoardData) => createBoardFn({ data }),
+    mutationFn: (data: CreateBoardData) => createBoardFn({ data, headers: getAuthHeaders() }),
     onSuccess: () => {
       toast.success("Board created successfully!", {
         description: "Your new board is ready.",
@@ -84,7 +85,7 @@ export function useUpdateBoard() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: UpdateBoardData) => updateBoardFn({ data }),
+    mutationFn: (data: UpdateBoardData) => updateBoardFn({ data, headers: getAuthHeaders() }),
     onSuccess: (_, variables) => {
       toast.success("Board updated successfully!");
       queryClient.invalidateQueries({ queryKey: ["kanban-boards"] });
@@ -102,7 +103,7 @@ export function useDeleteBoard() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (boardId: string) => deleteBoardFn({ data: { id: boardId } }),
+    mutationFn: (boardId: string) => deleteBoardFn({ data: { id: boardId }, headers: getAuthHeaders() }),
     onSuccess: () => {
       toast.success("Board deleted successfully!");
       queryClient.invalidateQueries({ queryKey: ["kanban-boards"] });
@@ -128,7 +129,7 @@ export function useCreateColumn() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: CreateColumnData) => createColumnFn({ data }),
+    mutationFn: (data: CreateColumnData) => createColumnFn({ data, headers: getAuthHeaders() }),
     onSuccess: (_, variables) => {
       toast.success("Column created successfully!");
       queryClient.invalidateQueries({ queryKey: ["kanban-board", variables.boardId] });
@@ -152,7 +153,7 @@ export function useUpdateColumn() {
 
   return useMutation({
     mutationFn: (data: UpdateColumnData) =>
-      updateColumnFn({ data: { id: data.id, name: data.name } }),
+      updateColumnFn({ data: { id: data.id, name: data.name }, headers: getAuthHeaders() }),
     onSuccess: (_, variables) => {
       toast.success("Column updated successfully!");
       queryClient.invalidateQueries({ queryKey: ["kanban-board", variables.boardId] });
@@ -174,7 +175,7 @@ export function useDeleteColumn() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: DeleteColumnData) => deleteColumnFn({ data: { id: data.id } }),
+    mutationFn: (data: DeleteColumnData) => deleteColumnFn({ data: { id: data.id }, headers: getAuthHeaders() }),
     onSuccess: (_, variables) => {
       toast.success("Column deleted successfully!");
       queryClient.invalidateQueries({ queryKey: ["kanban-board", variables.boardId] });
@@ -196,7 +197,7 @@ export function useReorderColumns() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: ReorderColumnsData) => reorderColumnsFn({ data }),
+    mutationFn: (data: ReorderColumnsData) => reorderColumnsFn({ data, headers: getAuthHeaders() }),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["kanban-board", variables.boardId] });
     },
@@ -226,7 +227,7 @@ export function useCreateItem() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: CreateItemData) => createItemFn({ data }),
+    mutationFn: (data: CreateItemData) => createItemFn({ data, headers: getAuthHeaders() }),
     onSuccess: (_, variables) => {
       toast.success("Item created successfully!");
       queryClient.invalidateQueries({ queryKey: ["kanban-board", variables.boardId] });
@@ -263,6 +264,7 @@ export function useUpdateItem() {
           effort: data.effort,
           tags: data.tags,
         },
+        headers: getAuthHeaders(),
       }),
     onSuccess: (_, variables) => {
       toast.success("Item updated successfully!");
@@ -285,7 +287,7 @@ export function useDeleteItem() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: DeleteItemData) => deleteItemFn({ data: { id: data.id } }),
+    mutationFn: (data: DeleteItemData) => deleteItemFn({ data: { id: data.id }, headers: getAuthHeaders() }),
     onSuccess: (_, variables) => {
       toast.success("Item deleted successfully!");
       queryClient.invalidateQueries({ queryKey: ["kanban-board", variables.boardId] });
@@ -316,6 +318,7 @@ export function useMoveItem() {
           newColumnId: data.newColumnId,
           newPosition: data.newPosition,
         },
+        headers: getAuthHeaders(),
       }),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["kanban-board", variables.boardId] });
@@ -351,6 +354,7 @@ export function useMoveItemToBoard() {
           newColumnId: data.newColumnId,
           newPosition: data.newPosition,
         },
+        headers: getAuthHeaders(),
       }),
     onSuccess: (_, variables) => {
       toast.success("Item moved to another board!");
@@ -387,7 +391,7 @@ export function useCompleteItem() {
 
   return useMutation({
     mutationFn: (data: CompleteItemData) =>
-      completeItemFn({ data: { itemId: data.itemId } }),
+      completeItemFn({ data: { itemId: data.itemId }, headers: getAuthHeaders() }),
     onSuccess: (_, variables) => {
       // Invalidate the now items list, specific board, and review data
       queryClient.invalidateQueries({ queryKey: ["kanban-now-items"] });

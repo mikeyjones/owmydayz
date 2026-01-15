@@ -3,6 +3,7 @@ import {
   getMyProfileFn,
   getPublicProfileFn,
 } from "~/fn/profiles";
+import { getAuthHeaders } from "~/utils/server-fn-client";
 
 /**
  * Query for current user's profile
@@ -10,7 +11,7 @@ import {
 export const myProfileQueryOptions = () =>
   queryOptions({
     queryKey: ["my-profile"],
-    queryFn: () => getMyProfileFn(),
+    queryFn: () => getMyProfileFn({ headers: getAuthHeaders() }),
   });
 
 /**
@@ -19,5 +20,5 @@ export const myProfileQueryOptions = () =>
 export const publicProfileQueryOptions = (userId: string) =>
   queryOptions({
     queryKey: ["public-profile", userId],
-    queryFn: () => getPublicProfileFn({ data: { userId } }),
+    queryFn: () => getPublicProfileFn({ data: { userId }, headers: getAuthHeaders() }),
   });

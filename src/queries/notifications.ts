@@ -4,6 +4,7 @@ import {
   getRecentNotificationsFn,
   getUnreadCountFn,
 } from "~/fn/notifications";
+import { getAuthHeaders } from "~/utils/server-fn-client";
 
 export const notificationsQueryOptions = (
   limit: number = 20,
@@ -11,18 +12,18 @@ export const notificationsQueryOptions = (
 ) =>
   queryOptions({
     queryKey: ["notifications", { limit, offset }],
-    queryFn: () => getNotificationsFn({ data: { limit, offset } }),
+    queryFn: () => getNotificationsFn({ data: { limit, offset }, headers: getAuthHeaders() }),
   });
 
 export const recentNotificationsQueryOptions = () =>
   queryOptions({
     queryKey: ["notifications", "recent"],
-    queryFn: () => getRecentNotificationsFn(),
+    queryFn: () => getRecentNotificationsFn({ headers: getAuthHeaders() }),
   });
 
 export const unreadCountQueryOptions = () =>
   queryOptions({
     queryKey: ["notifications", "unread-count"],
-    queryFn: () => getUnreadCountFn(),
+    queryFn: () => getUnreadCountFn({ headers: getAuthHeaders() }),
     refetchInterval: 30000, // Refetch every 30 seconds
   });

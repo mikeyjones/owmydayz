@@ -25,7 +25,6 @@ import { Route as DashboardKanbanIndexRouteImport } from './routes/dashboard/kan
 import { Route as DashboardTeamsTeamIdRouteImport } from './routes/dashboard/teams/$teamId'
 import { Route as DashboardKanbanBoardIdRouteImport } from './routes/dashboard/kanban/$boardId'
 import { Route as ApiStripeWebhookRouteImport } from './routes/api/stripe/webhook'
-import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as DashboardTeamsTeamIdIndexRouteImport } from './routes/dashboard/teams/$teamId/index'
 import { Route as DashboardTeamsTeamIdSettingsRouteImport } from './routes/dashboard/teams/$teamId/settings'
 import { Route as DashboardTeamsTeamIdMembersRouteImport } from './routes/dashboard/teams/$teamId/members'
@@ -111,11 +110,6 @@ const ApiStripeWebhookRoute = ApiStripeWebhookRouteImport.update({
   path: '/api/stripe/webhook',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
-  id: '/api/auth/$',
-  path: '/api/auth/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const DashboardTeamsTeamIdIndexRoute =
   DashboardTeamsTeamIdIndexRouteImport.update({
     id: '/',
@@ -152,7 +146,6 @@ export interface FileRoutesByFullPath {
   '/dashboard/review': typeof DashboardReviewRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard/': typeof DashboardIndexRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
   '/dashboard/kanban/$boardId': typeof DashboardKanbanBoardIdRoute
   '/dashboard/teams/$teamId': typeof DashboardTeamsTeamIdRouteWithChildren
@@ -173,7 +166,6 @@ export interface FileRoutesByTo {
   '/dashboard/review': typeof DashboardReviewRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard': typeof DashboardIndexRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
   '/dashboard/kanban/$boardId': typeof DashboardKanbanBoardIdRoute
   '/dashboard/kanban': typeof DashboardKanbanIndexRoute
@@ -196,7 +188,6 @@ export interface FileRoutesById {
   '/dashboard/review': typeof DashboardReviewRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard/': typeof DashboardIndexRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
   '/dashboard/kanban/$boardId': typeof DashboardKanbanBoardIdRoute
   '/dashboard/teams/$teamId': typeof DashboardTeamsTeamIdRouteWithChildren
@@ -221,7 +212,6 @@ export interface FileRouteTypes {
     | '/dashboard/review'
     | '/dashboard/settings'
     | '/dashboard/'
-    | '/api/auth/$'
     | '/api/stripe/webhook'
     | '/dashboard/kanban/$boardId'
     | '/dashboard/teams/$teamId'
@@ -242,7 +232,6 @@ export interface FileRouteTypes {
     | '/dashboard/review'
     | '/dashboard/settings'
     | '/dashboard'
-    | '/api/auth/$'
     | '/api/stripe/webhook'
     | '/dashboard/kanban/$boardId'
     | '/dashboard/kanban'
@@ -264,7 +253,6 @@ export interface FileRouteTypes {
     | '/dashboard/review'
     | '/dashboard/settings'
     | '/dashboard/'
-    | '/api/auth/$'
     | '/api/stripe/webhook'
     | '/dashboard/kanban/$boardId'
     | '/dashboard/teams/$teamId'
@@ -283,7 +271,6 @@ export interface RootRouteChildren {
   SignInRoute: typeof SignInRoute
   SignUpRoute: typeof SignUpRoute
   UnauthenticatedRoute: typeof UnauthenticatedRoute
-  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiStripeWebhookRoute: typeof ApiStripeWebhookRoute
   ProfileUserIdIndexRoute: typeof ProfileUserIdIndexRoute
 }
@@ -402,13 +389,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiStripeWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/auth/$': {
-      id: '/api/auth/$'
-      path: '/api/auth/$'
-      fullPath: '/api/auth/$'
-      preLoaderRoute: typeof ApiAuthSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/dashboard/teams/$teamId/': {
       id: '/dashboard/teams/$teamId/'
       path: '/'
@@ -502,7 +482,6 @@ const rootRouteChildren: RootRouteChildren = {
   SignInRoute: SignInRoute,
   SignUpRoute: SignUpRoute,
   UnauthenticatedRoute: UnauthenticatedRoute,
-  ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiStripeWebhookRoute: ApiStripeWebhookRoute,
   ProfileUserIdIndexRoute: ProfileUserIdIndexRoute,
 }

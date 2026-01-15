@@ -1,5 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
 import { getMembersFn } from "~/fn/members";
+import { getAuthHeaders } from "~/utils/server-fn-client";
 
 export interface MembersQueryParams {
   searchQuery?: string;
@@ -17,5 +18,6 @@ export const getMembersQuery = (params: MembersQueryParams = {}) =>
           limit: params.limit,
           offset: params.offset,
         },
+        headers: getAuthHeaders(),
       }),
   });

@@ -4,6 +4,7 @@ import {
   getCommentRepliesFn,
   getPostCommentCountFn,
 } from "~/fn/comments";
+import { getAuthHeaders } from "~/utils/server-fn-client";
 
 export const postCommentsQueryOptions = (
   postId: string,
@@ -12,17 +13,17 @@ export const postCommentsQueryOptions = (
 ) =>
   queryOptions({
     queryKey: ["post-comments", postId, { limit, offset }],
-    queryFn: () => getPostCommentsFn({ data: { postId, limit, offset } }),
+    queryFn: () => getPostCommentsFn({ data: { postId, limit, offset }, headers: getAuthHeaders() }),
   });
 
 export const commentRepliesQueryOptions = (commentId: string) =>
   queryOptions({
     queryKey: ["comment-replies", commentId],
-    queryFn: () => getCommentRepliesFn({ data: { commentId } }),
+    queryFn: () => getCommentRepliesFn({ data: { commentId }, headers: getAuthHeaders() }),
   });
 
 export const postCommentCountQueryOptions = (postId: string) =>
   queryOptions({
     queryKey: ["post-comment-count", postId],
-    queryFn: () => getPostCommentCountFn({ data: { postId } }),
+    queryFn: () => getPostCommentCountFn({ data: { postId }, headers: getAuthHeaders() }),
   });

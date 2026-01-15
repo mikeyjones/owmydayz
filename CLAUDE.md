@@ -9,8 +9,8 @@ This is a TanStack Start full-stack React application with the following key arc
 ### Tech Stack
 
 - **Framework**: TanStack Start (full-stack React framework)
-- **Database**: PostgreSQL with Drizzle ORM for type-safe queries
-- **Authentication**: Better Auth with email/password authentication
+- **Database**: Convex for real-time data + PostgreSQL with Drizzle ORM for legacy data
+- **Authentication**: Better Auth with Convex adapter (runs on Convex HTTP)
 - **Styling**: Tailwind CSS with Radix UI components
 - **File Storage**: AWS S3/R2 with presigned URL uploads
 - **Payments**: Stripe integration for subscriptions

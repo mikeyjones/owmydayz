@@ -1,46 +1,78 @@
 # Authentication System Documentation
 
-This document explains how authentication works in this TanStack Start application using Better Auth.
+This document explains how authentication works in this TanStack Start application using Better Auth with Convex.
 
 ## Overview
 
-The project uses **Better Auth** for authentication, which provides a comprehensive, type-safe authentication solution with email/password authentication, session management, and database integration through Drizzle ORM.
+The project uses **Better Auth** for authentication with the **Convex adapter**. Authentication requests are handled by the Convex HTTP router, which stores auth data in Convex tables.
 
 ## Architecture Components
 
-### 1. Better Auth Configuration (`src/utils/auth.ts`)
+### 1. Better Auth Configuration (Convex - `convex/auth.ts`)
 
 ```typescript
+import { createClient } from "@convex-dev/better-auth";
 import { betterAuth } from "better-auth";
-import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { database } from "../db";
 
-export const auth = betterAuth({
-  database: drizzleAdapter(database, {
-    provider: "pg",
-  }),
-  emailAndPassword: {
-    enabled: true,
-  },
-});
+export const authComponent = createClient<DataModel>(components.betterAuth);
+
+export const createAuth = (ctx: GenericCtx<DataModel>) => {
+  return betterAuth({
+    baseURL: siteUrl,
+    database: authComponent.adapter(ctx),
+    secret: authSecret,
+    emailAndPassword: {
+      enabled: true,
+    },
+    // ...
+  });
+};
 ```
 
 **Key Features:**
 
-- Uses Drizzle ORM adapter with PostgreSQL
+- Uses Convex adapter for data storage
 - Email and password authentication enabled
-- Automatic session management
-- Type-safe API endpoints
+- Auth endpoints served from Convex HTTP router
 
-### 2. Client-Side Auth (`src/lib/auth-client.ts`)
+### 2. Convex HTTP Router (`convex/http.ts`)
+
+```typescript
+import { httpRouter } from "convex/server";
+import { authComponent, createAuth } from "./auth";
+
+const http = httpRouter();
+
+authComponent.registerRoutes(http, createAuth, {
+  cors: {
+    allowedOrigins: ["http://localhost:3000", /* ... */],
+    allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
+  },
+});
+
+export default http;
+```
+
+**Purpose:**
+
+- Registers better-auth API endpoints on Convex HTTP
+- Handles authentication requests at the Convex site URL
+- Manages CORS for cross-origin requests from the frontend
+
+### 3. Client-Side Auth (`src/lib/auth-client.ts`)
 
 ```typescript
 import { createAuthClient } from "better-auth/react";
 
 export const authClient = createAuthClient({
-  baseURL: "http://localhost:3000",
+  baseURL: import.meta.env.VITE_CONVEX_SITE_URL,
+  fetchOptions: {
+    credentials: "include", // Required for cross-origin cookies
+  },
 });
 ```
+
+**Important:** The auth client points to `VITE_CONVEX_SITE_URL`, NOT the TanStack Start URL. This ensures auth requests go to Convex.
 
 **Usage:**
 
@@ -48,212 +80,127 @@ export const authClient = createAuthClient({
 - Handles sign-in/sign-up operations
 - Manages client-side session state
 
-### 3. Database Schema
+### 4. Database Schema (Convex)
 
-The authentication system uses several database tables:
+The authentication system uses tables managed by the `@convex-dev/better-auth` component:
 
-#### User Table (`user`)
-
-```typescript
-export const user = pgTable("user", {
-  id: text("id").primaryKey(),
-  name: text("name").notNull(),
-  email: text("email").notNull().unique(),
-  emailVerified: boolean("email_verified").notNull(),
-  image: text("image"),
-  // ... subscription fields
-  createdAt: timestamp("created_at").notNull(),
-  updatedAt: timestamp("updated_at").notNull(),
-});
-```
-
-#### Session Table (`session`)
-
-```typescript
-export const session = pgTable("session", {
-  id: text("id").primaryKey(),
-  expiresAt: timestamp("expires_at").notNull(),
-  token: text("token").notNull().unique(),
-  userId: text("user_id")
-    .notNull()
-    .references(() => user.id),
-  ipAddress: text("ip_address"),
-  userAgent: text("user_agent"),
-  // ... timestamps
-});
-```
-
-#### Account Table (`account`)
-
-```typescript
-export const account = pgTable("account", {
-  id: text("id").primaryKey(),
-  accountId: text("account_id").notNull(),
-  providerId: text("provider_id").notNull(),
-  userId: text("user_id")
-    .notNull()
-    .references(() => user.id),
-  password: text("password"), // For email/password auth
-  // ... OAuth tokens and timestamps
-});
-```
-
-#### Verification Table (`verification`)
-
-```typescript
-export const verification = pgTable("verification", {
-  id: text("id").primaryKey(),
-  identifier: text("identifier").notNull(),
-  value: text("value").notNull(),
-  expiresAt: timestamp("expires_at").notNull(),
-  // ... timestamps
-});
-```
+- `user` - User accounts with email, name, etc.
+- `session` - Active sessions with tokens
+- `account` - OAuth/email providers linked to users
+- `verification` - Email verification tokens
 
 ## Authentication Flow
 
-### 1. Email Registration (`src/routes/sign-up.tsx`)
+### 1. Email Registration
 
 ```typescript
-const onSubmit = async (data: SignUpForm) => {
-  const result = await authClient.signUp.email({
-    email: data.email,
-    password: data.password,
-    name: data.name,
-  });
-
-  if (result.error) {
-    setAuthError(result.error.message);
-  } else {
-    // Redirect to home or specified URL
-    router.navigate({ to: "/" });
-  }
-};
-```
-
-**Process:**
-
-1. User submits registration form with email, password, and name
-2. `authClient.signUp.email()` creates user account and session
-3. Better Auth automatically handles password hashing and user creation
-4. Session is established and user is redirected
-
-### 2. Email Sign-In (`src/routes/sign-in.tsx`)
-
-```typescript
-const onSubmit = async (data: SignInForm) => {
-  await authClient.signIn.email(
-    {
-      email: data.email,
-      password: data.password,
-    },
-    {
-      onSuccess: () => {
-        router.navigate({ to: "/" });
-      },
-      onError: (error) => {
-        setAuthError(error.error.message);
-      },
-    }
-  );
-};
-```
-
-**Process:**
-
-1. User submits credentials
-2. Better Auth validates email/password against database
-3. Creates new session on successful authentication
-4. Session cookie is set automatically
-
-### 3. API Routes (`src/routes/api/auth/$.ts`)
-
-```typescript
-export const ServerRoute = createServerFileRoute("/api/auth/$").methods({
-  GET: ({ request }) => {
-    return auth.handler(request);
-  },
-  POST: ({ request }) => {
-    return auth.handler(request);
-  },
+const result = await authClient.signUp.email({
+  email: data.email,
+  password: data.password,
+  name: data.name,
 });
 ```
 
-**Purpose:**
+**Process:**
 
-- Catch-all route for Better Auth API endpoints
-- Handles authentication requests like `/api/auth/sign-in`, `/api/auth/sign-up`, etc.
-- Better Auth automatically generates these endpoints
+1. Client calls `authClient.signUp.email()`
+2. Request goes to Convex HTTP (`/api/auth/sign-up/email`)
+3. Better Auth creates user in Convex database
+4. Session cookie is set (with `sameSite: "none"` for cross-origin)
+5. User is redirected on success
 
-## Server-Side Authentication
-
-### 1. Authentication Middleware (`src/fn/middleware.ts`)
+### 2. Email Sign-In
 
 ```typescript
+await authClient.signIn.email(
+  { email, password },
+  {
+    onSuccess: () => router.navigate({ to: "/" }),
+    onError: (error) => setAuthError(error.error.message),
+  }
+);
+```
+
+### 3. Session Management
+
+Sessions are stored in Convex and validated via cookies. Since Convex runs on a different domain than the frontend, cookies use:
+
+```typescript
+defaultCookieAttributes: {
+  sameSite: "none",
+  secure: true,
+  httpOnly: true,
+}
+```
+
+## Server-Side Authentication (TanStack Start)
+
+### The Challenge
+
+TanStack Start server functions run on a different server than Convex. They cannot directly access Convex auth cookies. To work around this:
+
+1. The client includes the user ID in a custom header (`X-User-Id`)
+2. Server functions read this header to identify the user
+
+### Authentication Header Utility (`src/utils/server-fn-client.ts`)
+
+```typescript
+import { authClient } from "~/lib/auth-client";
+
+export function getAuthHeaders(): HeadersInit {
+  const session = authClient.$session?.get();
+  const userId = session?.user?.id;
+
+  if (!userId) return {};
+  return { "x-user-id": userId };
+}
+```
+
+### Authentication Middleware (`src/fn/middleware.ts`)
+
+```typescript
+async function getAuthenticatedUserId(): Promise<string> {
+  const request = getRequest();
+  const userId = request.headers.get("x-user-id");
+
+  if (!userId) {
+    throw new Error("No session - please sign in");
+  }
+
+  return userId;
+}
+
 export const authenticatedMiddleware = createMiddleware({
   type: "function",
 }).server(async ({ next }) => {
-  const request = getWebRequest();
-
-  if (!request?.headers) {
-    throw new Error("No headers");
-  }
-
-  const session = await auth.api.getSession({ headers: request.headers });
-
-  if (!session) {
-    throw new Error("No session");
-  }
-
-  return next({
-    context: { userId: session.user.id },
-  });
+  const userId = await getAuthenticatedUserId();
+  return next({ context: { userId } });
 });
 ```
 
-**Key Features:**
+### Using Auth in Server Functions
 
-- Validates session from request headers
-- Throws error if no valid session
-- Provides `userId` in context for authenticated operations
-- Used across all protected server functions
-
-### 2. Protected Server Functions
-
-Example from `src/fn/songs.ts`:
+All server function calls from hooks must include auth headers:
 
 ```typescript
-export const createSongFn = createServerFn({ method: "POST" })
-  .inputValidator(
-    z.object({
-      title: z.string().min(1),
-      artist: z.string().min(1),
-      // ... other fields
-    })
-  )
-  .middleware([authenticatedMiddleware])
-  .handler(async ({ data, context }) => {
-    const { userId } = context; // Available from middleware
-
-    const songData = {
-      ...data,
-      userId, // Associate song with authenticated user
-      id: crypto.randomUUID(),
-    };
-
-    return await createSong(songData);
+// In queries (src/queries/kanban.ts)
+export const boardsQueryOptions = () =>
+  queryOptions({
+    queryKey: ["kanban-boards"],
+    queryFn: () => getBoardsFn({ headers: getAuthHeaders() }),
   });
+
+// In mutations (src/hooks/useKanban.ts)
+export function useCreateBoard() {
+  return useMutation({
+    mutationFn: (data) => createBoardFn({ data, headers: getAuthHeaders() }),
+  });
+}
 ```
-
-**Pattern:**
-
-1. Apply `authenticatedMiddleware` to server functions
-2. Access `userId` from context
-3. Use `userId` for authorization and data association
 
 ## Client-Side Authentication State
 
-### 1. Session Hook
+### Session Hook
 
 ```typescript
 import { authClient } from "~/lib/auth-client";
@@ -262,91 +209,43 @@ function MyComponent() {
   const { data: session, isPending } = authClient.useSession();
 
   if (isPending) return <div>Loading...</div>;
-
-  if (!session) {
-    return <div>Please sign in</div>;
-  }
+  if (!session) return <div>Please sign in</div>;
 
   return <div>Welcome {session.user.name}!</div>;
 }
 ```
 
-### 2. Profile Management (`src/hooks/useProfile.ts`)
+### Current User Hook (`src/hooks/useCurrentUser.ts`)
 
 ```typescript
-export function useUpdateUserProfile() {
-  const { refetch: refetchSession } = authClient.useSession();
-
-  return useMutation({
-    mutationFn: updateUserProfileFn,
-    onSuccess: () => {
-      toast.success("Profile updated successfully");
-      refetchSession(); // Refresh session after profile update
-    },
-    onError: () => {
-      toast.error("Failed to update profile");
-    },
-  });
+export function useCurrentUser() {
+  const session = authClient.useSession();
+  
+  return {
+    user: session.data?.user ?? null,
+    userId: session.data?.user?.id ?? null,
+    isLoading: session.isPending,
+    isAuthenticated: !!session.data?.user,
+  };
 }
 ```
-
-## User Data Access (`src/data-access/users.ts`)
-
-```typescript
-export async function findUserById(id: string): Promise<User | null> {
-  const [result] = await database
-    .select()
-    .from(user)
-    .where(eq(user.id, id))
-    .limit(1);
-
-  return result || null;
-}
-
-export async function getUserPlan(userId: string): Promise<{
-  plan: SubscriptionPlan;
-  isActive: boolean;
-  expiresAt: Date | null;
-}> {
-  const userData = await findUserById(userId);
-
-  // ... plan logic
-
-  return { plan, isActive, expiresAt };
-}
-```
-
-## Authentication Utilities
-
-### 1. Session Validation
-
-- Better Auth automatically validates sessions via cookies
-- Sessions include user ID and expiration time
-- Session tokens are stored securely in database
-
-### 2. Password Security
-
-- Passwords are automatically hashed by Better Auth
-- Uses industry-standard bcrypt hashing
-- Salt rounds and security handled internally
-
-### 3. CSRF Protection
-
-- Better Auth includes CSRF protection by default
-- Validates requests using secure headers
-- Protects against cross-site request forgery
 
 ## Environment Variables
 
-Required environment variables for authentication:
+Required environment variables:
 
 ```bash
-# Database
-DATABASE_URL="postgresql://user:password@localhost:5433/dbname"
+# Convex
+VITE_CONVEX_URL="https://your-deployment.convex.cloud"
+VITE_CONVEX_SITE_URL="https://your-deployment.convex.site"
 
-# Better Auth (auto-generated)
+# Better Auth (set in Convex environment)
 BETTER_AUTH_SECRET="your-secret-key"
-BETTER_AUTH_URL="http://localhost:3000"
+SITE_URL="http://localhost:3000"
+
+# OAuth (optional)
+GOOGLE_CLIENT_ID="..."
+GOOGLE_CLIENT_SECRET="..."
 ```
 
 ## Common Patterns
@@ -354,7 +253,6 @@ BETTER_AUTH_URL="http://localhost:3000"
 ### 1. Protecting Routes
 
 ```typescript
-// In route component
 const { data: session } = authClient.useSession();
 
 if (!session) {
@@ -367,15 +265,7 @@ if (!session) {
 ```typescript
 const { data: session } = authClient.useSession();
 
-return (
-  <div>
-    {session ? (
-      <UserDashboard user={session.user} />
-    ) : (
-      <LoginPrompt />
-    )}
-  </div>
-);
+return session ? <UserDashboard /> : <LoginPrompt />;
 ```
 
 ### 3. Server Function Authorization
@@ -391,42 +281,42 @@ export const protectedFunction = createServerFn()
 
 ## Security Considerations
 
-1. **Session Management**: Sessions automatically expire and are securely stored
-2. **Password Hashing**: Better Auth handles secure password hashing
-3. **CSRF Protection**: Built-in protection against CSRF attacks
-4. **SQL Injection**: Drizzle ORM provides protection against SQL injection
-5. **Input Validation**: Zod schemas validate all authentication inputs
+1. **X-User-Id Header**: The middleware trusts the client-provided userId. For highly sensitive operations, implement additional verification.
+
+2. **Cross-Origin Cookies**: Requires HTTPS in production for `sameSite: "none"` cookies to work.
+
+3. **Session Validation**: Sessions are validated by Better Auth on the Convex side.
+
+4. **CORS Configuration**: The Convex HTTP router explicitly lists allowed origins.
 
 ## Troubleshooting
 
 ### Common Issues
 
-1. **"No session" errors**: Ensure `authenticatedMiddleware` is applied to protected functions
-2. **Authentication loops**: Check redirect logic in sign-in/sign-up flows
-3. **Session not persisting**: Verify cookie settings and database connection
-4. **Type errors**: Ensure Better Auth types are properly imported
+1. **"No session" errors in server functions**
+   - Ensure `headers: getAuthHeaders()` is passed to server function calls
+   - Check that the user is actually signed in
+
+2. **Auth requests failing**
+   - Verify `VITE_CONVEX_SITE_URL` is set correctly
+   - Check browser console for CORS errors
+   - Ensure Convex is deployed and running
+
+3. **Cookies not being set**
+   - In development, cookies may not work cross-origin over HTTP
+   - Use the Convex site URL directly or deploy to HTTPS
+
+4. **Session not persisting**
+   - Check that `credentials: "include"` is set in authClient
+   - Verify cookie settings in `convex/auth.ts`
 
 ### Debug Tools
 
 ```typescript
-// Check current session server-side
-const session = await auth.api.getSession({ headers: request.headers });
-console.log("Current session:", session);
-
-// Check session client-side
+// Check client session
 const { data: session } = authClient.useSession();
 console.log("Client session:", session);
+
+// Check headers being sent
+console.log("Auth headers:", getAuthHeaders());
 ```
-
-## Migration and Setup
-
-When setting up authentication:
-
-1. Run database migrations to create auth tables
-2. Set environment variables
-3. Configure Better Auth in `src/utils/auth.ts`
-4. Set up auth client in `src/lib/auth-client.ts`
-5. Create sign-in/sign-up routes
-6. Apply middleware to protected server functions
-
-This authentication system provides a robust, secure foundation for user management with type safety throughout the application.

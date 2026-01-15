@@ -20,6 +20,7 @@ import { Toaster } from "~/components/ui/sonner";
 import NProgress from "nprogress";
 import "nprogress/nprogress.css";
 import { Footer } from "~/components/Footer";
+import { AuthHeadersProvider } from "~/components/AuthHeadersProvider";
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
@@ -163,15 +164,17 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
-          <div className="min-h-screen bg-background pb-20">
-            <Header />
-            <main>{children}</main>
-            <Footer />
-          </div>
-          <TanStackRouterDevtools position="bottom-right" />
-          <ReactQueryDevtools buttonPosition="bottom-left" />
-          <Toaster />
-          <Scripts />
+          <AuthHeadersProvider>
+            <div className="min-h-screen bg-background pb-20">
+              <Header />
+              <main>{children}</main>
+              <Footer />
+            </div>
+            <TanStackRouterDevtools position="bottom-right" />
+            <ReactQueryDevtools buttonPosition="bottom-left" />
+            <Toaster />
+            <Scripts />
+          </AuthHeadersProvider>
         </ThemeProvider>
       </body>
     </html>

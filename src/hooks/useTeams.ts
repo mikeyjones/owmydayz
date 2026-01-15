@@ -19,6 +19,7 @@ import {
   removeMemberFn,
 } from "~/fn/teams";
 import { getErrorMessage } from "~/utils/error";
+import { getAuthHeaders } from "~/utils/server-fn-client";
 
 // =====================================================
 // Team Hooks
@@ -46,7 +47,7 @@ export function useCreateTeam() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: CreateTeamData) => createTeamFn({ data }),
+    mutationFn: (data: CreateTeamData) => createTeamFn({ data, headers: getAuthHeaders() }),
     onSuccess: () => {
       toast.success("Team created successfully!", {
         description: "Your new team is ready.",
@@ -70,7 +71,7 @@ export function useUpdateTeam() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: UpdateTeamData) => updateTeamFn({ data }),
+    mutationFn: (data: UpdateTeamData) => updateTeamFn({ data, headers: getAuthHeaders() }),
     onSuccess: (_, variables) => {
       toast.success("Team updated successfully!");
       queryClient.invalidateQueries({ queryKey: ["teams"] });
@@ -88,7 +89,7 @@ export function useDeleteTeam() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (teamId: string) => deleteTeamFn({ data: { id: teamId } }),
+    mutationFn: (teamId: string) => deleteTeamFn({ data: { id: teamId }, headers: getAuthHeaders() }),
     onSuccess: () => {
       toast.success("Team deleted successfully!");
       queryClient.invalidateQueries({ queryKey: ["teams"] });
@@ -123,7 +124,7 @@ export function useUpdateMemberRole() {
 
   return useMutation({
     mutationFn: (data: UpdateMemberRoleData) =>
-      updateMemberRoleFn({ data: { membershipId: data.membershipId, role: data.role } }),
+      updateMemberRoleFn({ data: { membershipId: data.membershipId, role: data.role }, headers: getAuthHeaders() }),
     onSuccess: (_, variables) => {
       toast.success("Member role updated!");
       queryClient.invalidateQueries({ queryKey: ["team-members", variables.teamId] });
@@ -146,7 +147,7 @@ export function useRemoveMember() {
 
   return useMutation({
     mutationFn: (data: RemoveMemberData) =>
-      removeMemberFn({ data: { membershipId: data.membershipId } }),
+      removeMemberFn({ data: { membershipId: data.membershipId }, headers: getAuthHeaders() }),
     onSuccess: (_, variables) => {
       toast.success("Member removed from team!");
       queryClient.invalidateQueries({ queryKey: ["team-members", variables.teamId] });
@@ -187,7 +188,7 @@ export function useInviteMember() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: InviteMemberData) => inviteMemberFn({ data }),
+    mutationFn: (data: InviteMemberData) => inviteMemberFn({ data, headers: getAuthHeaders() }),
     onSuccess: (_, variables) => {
       toast.success("Invitation sent!", {
         description: `An invitation has been sent to ${variables.email}`,
@@ -212,7 +213,7 @@ export function useRevokeInvitation() {
 
   return useMutation({
     mutationFn: (data: RevokeInvitationData) =>
-      revokeInvitationFn({ data: { invitationId: data.invitationId } }),
+      revokeInvitationFn({ data: { invitationId: data.invitationId }, headers: getAuthHeaders() }),
     onSuccess: (_, variables) => {
       toast.success("Invitation revoked!");
       queryClient.invalidateQueries({ queryKey: ["team-invitations", variables.teamId] });
@@ -230,7 +231,7 @@ export function useAcceptInvitation() {
 
   return useMutation({
     mutationFn: (invitationId: string) =>
-      acceptInvitationFn({ data: { invitationId } }),
+      acceptInvitationFn({ data: { invitationId }, headers: getAuthHeaders() }),
     onSuccess: () => {
       toast.success("You've joined the team!");
       queryClient.invalidateQueries({ queryKey: ["teams"] });
@@ -249,7 +250,7 @@ export function useDeclineInvitation() {
 
   return useMutation({
     mutationFn: (invitationId: string) =>
-      declineInvitationFn({ data: { invitationId } }),
+      declineInvitationFn({ data: { invitationId }, headers: getAuthHeaders() }),
     onSuccess: () => {
       toast.success("Invitation declined");
       queryClient.invalidateQueries({ queryKey: ["my-pending-invitations"] });

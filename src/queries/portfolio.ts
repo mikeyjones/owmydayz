@@ -4,6 +4,7 @@ import {
   getUserPortfolioItemsFn,
   getPortfolioItemFn,
 } from "~/fn/portfolio";
+import { getAuthHeaders } from "~/utils/server-fn-client";
 
 /**
  * Query for current user's portfolio items
@@ -11,7 +12,7 @@ import {
 export const myPortfolioQueryOptions = () =>
   queryOptions({
     queryKey: ["my-portfolio"],
-    queryFn: () => getMyPortfolioItemsFn(),
+    queryFn: () => getMyPortfolioItemsFn({ headers: getAuthHeaders() }),
   });
 
 /**
@@ -20,7 +21,7 @@ export const myPortfolioQueryOptions = () =>
 export const userPortfolioQueryOptions = (userId: string) =>
   queryOptions({
     queryKey: ["portfolio", userId],
-    queryFn: () => getUserPortfolioItemsFn({ data: { userId } }),
+    queryFn: () => getUserPortfolioItemsFn({ data: { userId }, headers: getAuthHeaders() }),
   });
 
 /**
@@ -29,5 +30,5 @@ export const userPortfolioQueryOptions = (userId: string) =>
 export const portfolioItemQueryOptions = (id: string) =>
   queryOptions({
     queryKey: ["portfolio-item", id],
-    queryFn: () => getPortfolioItemFn({ data: { id } }),
+    queryFn: () => getPortfolioItemFn({ data: { id }, headers: getAuthHeaders() }),
   });
