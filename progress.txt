@@ -128,3 +128,29 @@ Verification completed:
 ✅ Tests check edge cases like single-digit padding
 
 Next task: Example Tests - Create Badge component tests
+
+### Task 7: Example Tests - Badge Component ✅ COMPLETED
+**Date:** 2026-01-17
+
+Created src/components/ui/badge.test.tsx with comprehensive tests for all Badge variants:
+- Default variant: Tests bg-primary and text-primary-foreground classes
+- Secondary variant: Tests bg-secondary and text-secondary-foreground classes
+- Destructive variant: Tests bg-destructive and text-destructive-foreground classes
+- Outline variant: Tests text-foreground class (no background)
+- Custom className: Tests className merging with default variant classes
+- Additional props: Tests data-testid and role attributes pass through
+
+Test structure:
+- Uses render and screen from @testing-library/react
+- Uses toBeInTheDocument and toHaveClass matchers from jest-dom
+- Tests verify correct CSS classes for each variant
+- Total: 6 tests (matches requirement)
+
+Verification completed:
+✅ src/components/ui/badge.test.tsx file created
+✅ All 6 tests pass (npm test badge.test.tsx)
+✅ Tests use render and screen from @testing-library/react
+✅ Tests use toBeInTheDocument and toHaveClass matchers
+✅ Tests verify correct CSS classes for each variant
+
+Next task: Example Tests - Create useCurrentUser hook tests
