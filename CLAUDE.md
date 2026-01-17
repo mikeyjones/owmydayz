@@ -8,6 +8,7 @@ This is a TanStack Start full-stack React application with the following key arc
 
 ### Tech Stack
 
+- **Package Manager**: Bun (always use `bun` instead of `npm` or `yarn`)
 - **Framework**: TanStack Start (full-stack React framework)
 - **Database**: Convex for real-time data + PostgreSQL with Drizzle ORM for legacy data
 - **Authentication**: Better Auth with Convex adapter (runs on Convex HTTP)
@@ -15,6 +16,8 @@ This is a TanStack Start full-stack React application with the following key arc
 - **File Storage**: AWS S3/R2 with presigned URL uploads
 - **Payments**: Stripe integration for subscriptions
 - **TypeScript**: Full type safety throughout
+
+**IMPORTANT**: This project uses **bun** as its package manager. Never use `npm` or `yarn` commands. Always use `bun` equivalents (e.g., `bun install`, `bun run`, `bun add`).
 
 ### Project Structure
 
@@ -44,19 +47,24 @@ Core entities: `user`, `song`, `playlist`, `heart` (likes), with subscription an
 
 ```bash
 # Development
-npm run dev                 # Start development server on port 3000
-npm run build              # Build for production (includes type checking)
-npm run start              # Start production server
+bun run dev                 # Start development server on port 3000
+bun run build              # Build for production (includes type checking)
+bun run start              # Start production server
 
 # Database
-npm run db:up              # Start PostgreSQL Docker container
-npm run db:down            # Stop PostgreSQL Docker container
-npm run db:migrate         # Run database migrations
-npm run db:generate        # Generate new migration files
-npm run db:studio          # Open Drizzle Studio for database management
+bun run db:up              # Start PostgreSQL Docker container
+bun run db:down            # Stop PostgreSQL Docker container
+bun run db:migrate         # Run database migrations
+bun run db:generate        # Generate new migration files
+bun run db:studio          # Open Drizzle Studio for database management
 
 # Payments (if needed)
-npm run stripe:listen      # Listen for Stripe webhooks in development
+bun run stripe:listen      # Listen for Stripe webhooks in development
+
+# Installing dependencies
+bun install                # Install all dependencies
+bun add <package>          # Add a new dependency
+bun add -d <package>       # Add a dev dependency
 ```
 
 ## Environment Setup
@@ -69,8 +77,8 @@ npm run stripe:listen      # Listen for Stripe webhooks in development
 
 2. Start database and run migrations:
    ```bash
-   npm run db:up
-   npm run db:migrate
+   bun run db:up
+   bun run db:migrate
    ```
 
 ## Development Notes
