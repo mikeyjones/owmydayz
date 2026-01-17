@@ -87,3 +87,19 @@ Verification completed:
 ✅ Tests exit with code 1 when no test files exist (expected behavior)
 
 Next task: Configuration - Update .gitignore to exclude coverage artifacts
+
+### Task 5: Configuration - .gitignore ✅ COMPLETED
+**Date:** 2026-01-17
+
+Updated .gitignore to exclude Vitest coverage artifacts:
+- Added coverage/ directory to .gitignore
+- Added .vitest/ directory to .gitignore
+- Entries added under "# Vitest" section for clarity
+
+Verification completed:
+✅ .gitignore contains 'coverage/' entry
+✅ .gitignore contains '.vitest/' entry
+✅ Git status confirms coverage files will be ignored
+✅ Changes committed to git
+
+Next task: Example Tests - Create date utility function tests
