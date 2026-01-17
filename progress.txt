@@ -46,3 +46,25 @@ Verification completed:
 ✅ Changes committed to git
 
 Next task: Configuration - Create vitest.setup.ts
+
+### Task 3: Configuration - vitest.setup.ts ✅ COMPLETED
+**Date:** 2026-01-17
+
+Created vitest.setup.ts with global test setup and external dependency mocks:
+- Imports @testing-library/jest-dom/vitest for extended matchers
+- Calls cleanup() in afterEach hook for proper React component cleanup
+- Mocks ~/lib/auth-client with default useSession and getSession functions
+- Mocks convex/react with useQuery, useMutation, and useConvex
+- Mocks window.matchMedia for theme detection tests
+- All mocks return appropriate default values (null session, undefined queries)
+
+Verification completed:
+✅ vitest.setup.ts file created in project root
+✅ All required imports present
+✅ afterEach cleanup configured
+✅ auth-client mock configured with useSession/getSession
+✅ Convex mock configured with useQuery/useMutation/useConvex
+✅ window.matchMedia mock configured
+✅ Changes committed to git
+
+Next task: Configuration - Update package.json with test scripts

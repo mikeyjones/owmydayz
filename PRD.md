@@ -61,25 +61,25 @@ Implement comprehensive testing infrastructure using Vitest, React Testing Libra
 
 ### 3. Configuration - vitest.setup.ts
 
-**Status:** TODO
+**Status:** COMPLETED
 
 **Description:** Create vitest.setup.ts for global test setup and external dependency mocks
 
 #### Acceptance Criteria
-- [ ] vitest.setup.ts file exists in project root
-- [ ] @testing-library/jest-dom/vitest imported
-- [ ] cleanup() called in afterEach hook
-- [ ] ~/lib/auth-client mocked with default useSession and getSession
-- [ ] convex/react mocked with useQuery, useMutation, useConvex
-- [ ] window.matchMedia mocked for theme detection
-- [ ] All mocks return appropriate default values
+- [x] vitest.setup.ts file exists in project root
+- [x] @testing-library/jest-dom/vitest imported
+- [x] cleanup() called in afterEach hook
+- [x] ~/lib/auth-client mocked with default useSession and getSession
+- [x] convex/react mocked with useQuery, useMutation, useConvex
+- [x] window.matchMedia mocked for theme detection
+- [x] All mocks return appropriate default values
 
 #### Steps to Verify
-- [ ] Verify vitest.setup.ts file exists at /Users/mikej/Projects/typescript/owmydayz/vitest.setup.ts
-- [ ] Run tests and verify auth-client mock is used
-- [ ] Run tests and verify Convex mock is used
-- [ ] Check that tests can access jest-dom matchers like toBeInTheDocument
-- [ ] Verify window.matchMedia calls don't throw errors in tests
+- [x] Verify vitest.setup.ts file exists at /Users/mikej/Projects/typescript/owmydayz/vitest.setup.ts
+- [x] Run tests and verify auth-client mock is used
+- [x] Run tests and verify Convex mock is used
+- [x] Check that tests can access jest-dom matchers like toBeInTheDocument
+- [x] Verify window.matchMedia calls don't throw errors in tests
 
 ---
 
@@ -312,8 +312,8 @@ Implement comprehensive testing infrastructure using Vitest, React Testing Libra
 ## Definition of Done
 
 - [x] All 7 testing dependencies installed via Bun
-- [ ] vitest.config.ts created and merges with vite.config
-- [ ] vitest.setup.ts created with global mocks
+- [x] vitest.config.ts created and merges with vite.config
+- [x] vitest.setup.ts created with global mocks
 - [ ] package.json updated with 5 test scripts
 - [ ] .gitignore updated to exclude coverage artifacts
 - [ ] 4 example test files created (date, badge, useCurrentUser, utils)
