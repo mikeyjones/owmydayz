@@ -1,0 +1,329 @@
+# Product Requirements Document: Vitest Testing Infrastructure Setup
+
+## Overview
+
+Implement comprehensive testing infrastructure using Vitest, React Testing Library, and coverage reporting for the TanStack Start application.
+
+---
+
+## Requirements
+
+### 1. Dependencies ✅
+
+**Status:** COMPLETED
+
+**Description:** Install all required testing dependencies using Bun package manager
+
+#### Acceptance Criteria
+- [x] vitest package installed in devDependencies
+- [x] @vitest/ui package installed in devDependencies
+- [x] @vitest/coverage-v8 package installed in devDependencies
+- [x] @testing-library/react package installed in devDependencies
+- [x] @testing-library/jest-dom package installed in devDependencies
+- [x] @testing-library/user-event package installed in devDependencies
+- [x] happy-dom package installed in devDependencies
+
+#### Steps to Verify
+- [x] Run 'bun vitest --version' and confirm version is displayed
+- [x] Check package.json devDependencies contains all 7 packages
+- [x] Verify node_modules contains vitest directory
+- [x] Run 'bun test' and verify command is recognized
+
+---
+
+### 2. Configuration - vitest.config.ts
+
+**Status:** TODO
+
+**Description:** Create vitest.config.ts that merges with existing vite.config to inherit plugins and maintain consistency
+
+#### Acceptance Criteria
+- [ ] vitest.config.ts file exists in project root
+- [ ] Config merges with vite.config using mergeConfig
+- [ ] Test environment set to 'happy-dom'
+- [ ] Globals enabled for describe/it/expect
+- [ ] Setup file points to './vitest.setup.ts'
+- [ ] Include pattern set to 'src/**/*.{test,spec}.{ts,tsx}'
+- [ ] Exclude patterns include node_modules, dist, .output, convex
+- [ ] Coverage provider set to 'v8'
+- [ ] Coverage reporters include text, json, html, lcov
+- [ ] Coverage thresholds set to 70% for lines/functions/branches/statements
+- [ ] Pool set to 'threads' with parallelization enabled
+- [ ] Path aliases (~/) resolve correctly in tests
+
+#### Steps to Verify
+- [ ] Verify vitest.config.ts file exists at /Users/mikej/Projects/typescript/owmydayz/vitest.config.ts
+- [ ] Import and check that config extends viteConfig
+- [ ] Run 'bun test' with a simple test and verify path aliases work
+- [ ] Check that TypeScript can resolve the config file without errors
+
+---
+
+### 3. Configuration - vitest.setup.ts
+
+**Status:** TODO
+
+**Description:** Create vitest.setup.ts for global test setup and external dependency mocks
+
+#### Acceptance Criteria
+- [ ] vitest.setup.ts file exists in project root
+- [ ] @testing-library/jest-dom/vitest imported
+- [ ] cleanup() called in afterEach hook
+- [ ] ~/lib/auth-client mocked with default useSession and getSession
+- [ ] convex/react mocked with useQuery, useMutation, useConvex
+- [ ] window.matchMedia mocked for theme detection
+- [ ] All mocks return appropriate default values
+
+#### Steps to Verify
+- [ ] Verify vitest.setup.ts file exists at /Users/mikej/Projects/typescript/owmydayz/vitest.setup.ts
+- [ ] Run tests and verify auth-client mock is used
+- [ ] Run tests and verify Convex mock is used
+- [ ] Check that tests can access jest-dom matchers like toBeInTheDocument
+- [ ] Verify window.matchMedia calls don't throw errors in tests
+
+---
+
+### 4. Configuration - package.json Scripts
+
+**Status:** TODO
+
+**Description:** Update package.json with test scripts for running tests in different modes
+
+#### Acceptance Criteria
+- [ ] test script runs 'vitest run' (CI mode)
+- [ ] test:watch script runs 'vitest' (watch mode)
+- [ ] test:ui script runs 'vitest --ui' (visual UI)
+- [ ] test:coverage script runs 'vitest run --coverage'
+- [ ] test:coverage:watch script runs 'vitest --coverage' (watch with coverage)
+
+#### Steps to Verify
+- [ ] Run 'bun test' and verify tests execute once then exit
+- [ ] Run 'bun test:watch' and verify watch mode starts
+- [ ] Run 'bun test:ui' and verify browser opens with UI
+- [ ] Run 'bun test:coverage' and verify coverage report generates
+- [ ] Check that all scripts are in package.json scripts section
+
+---
+
+### 5. Configuration - .gitignore
+
+**Status:** TODO
+
+**Description:** Update .gitignore to exclude test coverage artifacts
+
+#### Acceptance Criteria
+- [ ] coverage/ directory added to .gitignore
+- [ ] .vitest/ directory added to .gitignore
+- [ ] Git status does not show coverage files as untracked
+
+#### Steps to Verify
+- [ ] Run 'bun test:coverage' to generate coverage
+- [ ] Run 'git status' and verify coverage/ is not listed
+- [ ] Verify .gitignore contains 'coverage/' entry
+- [ ] Verify .gitignore contains '.vitest/' entry
+
+---
+
+### 6. Example Tests - Date Utility
+
+**Status:** TODO
+
+**Description:** Create date utility function tests demonstrating pure function testing patterns
+
+#### Acceptance Criteria
+- [ ] src/utils/date.test.ts file exists
+- [ ] Tests for dateToLocalDateTime function (2 tests)
+- [ ] Tests for localDateTimeToISO function (1 test)
+- [ ] Tests for formatDateTime function (1 test)
+- [ ] Tests for formatTime function (1 test)
+- [ ] Tests for createDateWithTime function (2 tests)
+- [ ] All tests use describe/it/expect structure
+- [ ] Tests verify output formats with regex patterns
+- [ ] Tests check edge cases like single-digit padding
+
+#### Steps to Verify
+- [ ] Verify src/utils/date.test.ts exists
+- [ ] Run 'bun test date.test.ts' and verify all tests pass
+- [ ] Count tests: should have 6 total tests
+- [ ] Verify each test has descriptive names
+- [ ] Check that tests cover happy path and edge cases
+
+---
+
+### 7. Example Tests - Badge Component
+
+**Status:** TODO
+
+**Description:** Create Badge component tests demonstrating React component testing patterns
+
+#### Acceptance Criteria
+- [ ] src/components/ui/badge.test.tsx file exists
+- [ ] Tests for default variant rendering
+- [ ] Tests for secondary variant rendering
+- [ ] Tests for destructive variant rendering
+- [ ] Tests for outline variant rendering
+- [ ] Tests for custom className merging
+- [ ] Tests for passing additional props
+- [ ] All tests use render and screen from @testing-library/react
+- [ ] Tests use toBeInTheDocument and toHaveClass matchers
+
+#### Steps to Verify
+- [ ] Verify src/components/ui/badge.test.tsx exists
+- [ ] Run 'bun test badge.test.tsx' and verify all tests pass
+- [ ] Count tests: should have 6 total tests
+- [ ] Verify tests check for correct CSS classes
+- [ ] Verify component renders without errors
+
+---
+
+### 8. Example Tests - useCurrentUser Hook
+
+**Status:** TODO
+
+**Description:** Create useCurrentUser hook tests demonstrating custom hook testing patterns with mocks
+
+#### Acceptance Criteria
+- [ ] src/hooks/useCurrentUser.test.ts file exists
+- [ ] Tests for useCurrentUser hook (3 tests minimum)
+- [ ] Tests for useRequireAuth hook (2 tests minimum)
+- [ ] Uses renderHook from @testing-library/react
+- [ ] Mocks authClient.useSession with vi.mock
+- [ ] Tests unauthenticated state
+- [ ] Tests authenticated state with mock user data
+- [ ] Tests loading state
+- [ ] Tests requireUserId throws error when not authenticated
+- [ ] Tests requireUserId returns userId when authenticated
+- [ ] Uses beforeEach to clear mocks
+
+#### Steps to Verify
+- [ ] Verify src/hooks/useCurrentUser.test.ts exists
+- [ ] Run 'bun test useCurrentUser.test.ts' and verify all tests pass
+- [ ] Count tests: should have 5 total tests across 2 describe blocks
+- [ ] Verify mocks are properly cleared between tests
+- [ ] Verify all hook return values are tested
+
+---
+
+### 9. Example Tests - cn() Utility
+
+**Status:** TODO
+
+**Description:** Create cn() utility tests demonstrating className merging and Tailwind conflict resolution
+
+#### Acceptance Criteria
+- [ ] src/lib/utils.test.ts file exists
+- [ ] Tests for basic className merging
+- [ ] Tests for conditional className handling
+- [ ] Tests for Tailwind class conflict resolution
+- [ ] Tests for array of classNames
+- [ ] Tests for undefined and null value handling
+- [ ] Tests for class deduplication
+- [ ] All tests verify output matches expected string format
+
+#### Steps to Verify
+- [ ] Verify src/lib/utils.test.ts exists
+- [ ] Run 'bun test utils.test.ts' and verify all tests pass
+- [ ] Count tests: should have 6 total tests
+- [ ] Verify Tailwind conflicts (like p-4 vs p-6) resolve correctly
+- [ ] Verify conditional classes work as expected
+
+---
+
+### 10. Integration Testing
+
+**Status:** TODO
+
+**Description:** Verify all tests run successfully and generate coverage reports
+
+#### Acceptance Criteria
+- [ ] Running 'bun test' executes all 4 test files
+- [ ] All 23+ tests pass without errors
+- [ ] Test execution completes in reasonable time (<5 seconds)
+- [ ] No TypeScript errors in test files
+- [ ] Coverage report generates successfully
+- [ ] Coverage HTML report opens in browser
+- [ ] Coverage includes src/**/*.{ts,tsx} files
+- [ ] Coverage excludes test files, type definitions, and routes
+- [ ] Coverage thresholds are enforced (70%)
+
+#### Steps to Verify
+- [ ] Run 'bun test' and verify output shows '4 passed (4)' test files
+- [ ] Verify output shows '23 passed (23)' or more total tests
+- [ ] Run 'bun test:coverage' and verify coverage/index.html is generated
+- [ ] Open coverage/index.html and verify it displays coverage percentages
+- [ ] Verify coverage report excludes node_modules and test files
+- [ ] Run 'bun run build' and verify no TypeScript errors
+- [ ] Verify test files have proper TypeScript types and autocomplete
+
+---
+
+### 11. Developer Experience
+
+**Status:** TODO
+
+**Description:** Verify watch mode and UI mode provide good developer experience
+
+#### Acceptance Criteria
+- [ ] Watch mode starts without errors
+- [ ] File changes trigger automatic test re-run
+- [ ] Watch mode shows clear pass/fail indicators
+- [ ] UI mode opens in browser at localhost:51204/__vitest__/
+- [ ] UI displays all test files in tree structure
+- [ ] UI allows filtering tests by name or status
+- [ ] UI shows test duration and pass/fail status
+- [ ] UI provides detailed error messages on failure
+
+#### Steps to Verify
+- [ ] Run 'bun test:watch' and verify watch mode starts
+- [ ] Modify a test file and verify tests re-run automatically
+- [ ] Press 'a' in watch mode to run all tests
+- [ ] Press 'q' to quit watch mode
+- [ ] Run 'bun test:ui' and verify browser opens
+- [ ] Click through test files in UI to view results
+- [ ] Use filter box in UI to search for specific tests
+- [ ] Verify UI updates when test files change
+
+---
+
+### 12. CI/CD Ready
+
+**Status:** TODO
+
+**Description:** Verify testing setup works in CI environment
+
+#### Acceptance Criteria
+- [ ] Tests run in CI mode without interactive prompts
+- [ ] Process exits with code 0 on success
+- [ ] Process exits with code 1 on failure
+- [ ] LCOV coverage file generated for CI tools
+- [ ] Coverage can be uploaded to codecov or similar
+- [ ] Tests complete in reasonable time for CI
+- [ ] No dependency on local environment variables
+
+#### Steps to Verify
+- [ ] Run 'CI=true bun test' and verify tests run without watch mode
+- [ ] Run 'bun test' with a failing test and verify exit code is 1
+- [ ] Run 'bun test:coverage' and verify coverage/lcov.info exists
+- [ ] Check that test execution doesn't hang or wait for input
+- [ ] Verify all mocked dependencies work in CI environment
+
+---
+
+## Definition of Done
+
+- [x] All 7 testing dependencies installed via Bun
+- [ ] vitest.config.ts created and merges with vite.config
+- [ ] vitest.setup.ts created with global mocks
+- [ ] package.json updated with 5 test scripts
+- [ ] .gitignore updated to exclude coverage artifacts
+- [ ] 4 example test files created (date, badge, useCurrentUser, utils)
+- [ ] Running 'bun test' executes all tests successfully
+- [ ] Running 'bun test:coverage' generates HTML coverage report
+- [ ] Running 'bun test:watch' starts watch mode
+- [ ] Running 'bun test:ui' opens visual test UI in browser
+- [ ] All tests pass (23+ passing tests across 4 files)
+- [ ] Coverage thresholds set to 70% and enforced
+- [ ] Path aliases (~/) work correctly in test files
+- [ ] No TypeScript errors in any test files
+- [ ] Build process (bun run build) completes successfully with tests present
+- [ ] Documentation in plan file explains testing patterns and organization
