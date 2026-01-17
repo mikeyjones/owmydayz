@@ -154,3 +154,32 @@ Verification completed:
 ✅ Tests verify correct CSS classes for each variant
 
 Next task: Example Tests - Create useCurrentUser hook tests
+
+### Task 8: Example Tests - useCurrentUser Hook ✅ COMPLETED
+**Date:** 2026-01-17
+
+Created src/hooks/useCurrentUser.test.ts with comprehensive tests for useCurrentUser and useRequireAuth hooks:
+
+**useCurrentUser tests (3 tests):**
+- Unauthenticated state: Returns null user/userId, isLoading false, isAuthenticated false
+- Authenticated state: Returns user object, userId, isLoading false, isAuthenticated true
+- Loading state: Returns null user/userId, isLoading true, isAuthenticated false
+
+**useRequireAuth tests (2 tests):**
+- Throws error when requireUserId called without authentication
+- Returns userId when requireUserId called with authentication
+
+Test structure:
+- Uses renderHook from @testing-library/react
+- Mocks authClient.useSession with vi.mocked for type-safe mocking
+- Uses beforeEach to clear mocks between tests
+- Total: 5 tests across 2 describe blocks
+
+Verification completed:
+✅ src/hooks/useCurrentUser.test.ts file created
+✅ All 5 tests pass (npm test useCurrentUser.test.ts)
+✅ Full test suite passes (18 tests: 7 date + 6 badge + 5 useCurrentUser)
+✅ Tests use renderHook and vi.mocked patterns
+✅ Mocks are properly cleared between tests
+
+Next task: Example Tests - Create cn() utility tests

@@ -178,29 +178,29 @@ Implement comprehensive testing infrastructure using Vitest, React Testing Libra
 
 ### 8. Example Tests - useCurrentUser Hook
 
-**Status:** TODO
+**Status:** COMPLETED
 
 **Description:** Create useCurrentUser hook tests demonstrating custom hook testing patterns with mocks
 
 #### Acceptance Criteria
-- [ ] src/hooks/useCurrentUser.test.ts file exists
-- [ ] Tests for useCurrentUser hook (3 tests minimum)
-- [ ] Tests for useRequireAuth hook (2 tests minimum)
-- [ ] Uses renderHook from @testing-library/react
-- [ ] Mocks authClient.useSession with vi.mock
-- [ ] Tests unauthenticated state
-- [ ] Tests authenticated state with mock user data
-- [ ] Tests loading state
-- [ ] Tests requireUserId throws error when not authenticated
-- [ ] Tests requireUserId returns userId when authenticated
-- [ ] Uses beforeEach to clear mocks
+- [x] src/hooks/useCurrentUser.test.ts file exists
+- [x] Tests for useCurrentUser hook (3 tests minimum)
+- [x] Tests for useRequireAuth hook (2 tests minimum)
+- [x] Uses renderHook from @testing-library/react
+- [x] Mocks authClient.useSession with vi.mock
+- [x] Tests unauthenticated state
+- [x] Tests authenticated state with mock user data
+- [x] Tests loading state
+- [x] Tests requireUserId throws error when not authenticated
+- [x] Tests requireUserId returns userId when authenticated
+- [x] Uses beforeEach to clear mocks
 
 #### Steps to Verify
-- [ ] Verify src/hooks/useCurrentUser.test.ts exists
-- [ ] Run 'bun test useCurrentUser.test.ts' and verify all tests pass
-- [ ] Count tests: should have 5 total tests across 2 describe blocks
-- [ ] Verify mocks are properly cleared between tests
-- [ ] Verify all hook return values are tested
+- [x] Verify src/hooks/useCurrentUser.test.ts exists
+- [x] Run 'bun test useCurrentUser.test.ts' and verify all tests pass
+- [x] Count tests: should have 5 total tests across 2 describe blocks
+- [x] Verify mocks are properly cleared between tests
+- [x] Verify all hook return values are tested
 
 ---
 
