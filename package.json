@@ -7,6 +7,11 @@
     "dev": "vite dev",
     "build": "vite build && tsc --noEmit",
     "start": "node .output/server/index.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage",
+    "test:coverage:watch": "vitest --coverage",
     "convex:dev": "convex dev",
     "convex:deploy": "convex deploy",
     "stripe:listen": "stripe listen --forward-to localhost:3000/api/stripe/webhook"
