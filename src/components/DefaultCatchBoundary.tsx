@@ -5,6 +5,7 @@ import {
   useRouterState,
 } from '@tanstack/react-router'
 import type { ErrorComponentProps } from '@tanstack/react-router'
+import { Button } from '~/components/ui/button'
 
 export function DefaultCatchBoundary({ error }: ErrorComponentProps) {
   const router = useRouter()
@@ -20,28 +21,25 @@ export function DefaultCatchBoundary({ error }: ErrorComponentProps) {
     <div className="min-w-0 flex-1 p-4 flex flex-col items-center justify-center gap-6">
       <ErrorComponent error={error} />
       <div className="flex gap-2 items-center flex-wrap">
-        <button
+        <Button
           onClick={() => {
             router.invalidate()
           }}
-          className={`px-2 py-1 bg-gray-600 dark:bg-gray-700 rounded text-white uppercase font-extrabold`}
         >
           Try Again
-        </button>
+        </Button>
         {isAuthPage ? (
-          <Link
-            to="/"
-            className={`px-2 py-1 bg-gray-600 dark:bg-gray-700 rounded text-white uppercase font-extrabold`}
-          >
-            Home
-          </Link>
+          <Button asChild>
+            <Link to="/">
+              Home
+            </Link>
+          </Button>
         ) : (
-          <Link
-            to="/dashboard"
-            className={`px-2 py-1 bg-gray-600 dark:bg-gray-700 rounded text-white uppercase font-extrabold`}
-          >
-            Dashboard
-          </Link>
+          <Button asChild>
+            <Link to="/dashboard">
+              Dashboard
+            </Link>
+          </Button>
         )}
       </div>
     </div>

@@ -414,11 +414,16 @@ interface UpdateTeamItemData {
   boardId: string; // For context
 }
 
+interface MutationCallbacks<T> {
+  onSuccess?: (data: T) => void;
+  onError?: (error: Error) => void;
+}
+
 export function useUpdateTeamItem() {
   const updateTeamItem = useMutation(api.teamBoards.updateTeamItem);
 
   return {
-    mutate: async (data: UpdateTeamItemData) => {
+    mutate: async (data: UpdateTeamItemData, callbacks?: MutationCallbacks<void>) => {
       try {
         await updateTeamItem({
           id: data.id as Id<"teamItems">,
@@ -429,10 +434,13 @@ export function useUpdateTeamItem() {
           tags: data.tags,
         });
         toast.success("Item updated successfully!");
+        callbacks?.onSuccess?.();
       } catch (error) {
+        const err = error instanceof Error ? error : new Error("Unknown error");
         toast.error("Failed to update item", {
-          description: error instanceof Error ? error.message : "Unknown error",
+          description: err.message,
         });
+        callbacks?.onError?.(err);
         throw error;
       }
     },

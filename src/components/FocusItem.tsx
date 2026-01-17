@@ -101,8 +101,8 @@ export function FocusItem({ item, onComplete, isCompleting = false }: FocusItemP
     <div
       className={cn(
         "group flex items-start gap-4 p-4 rounded-xl transition-all duration-300",
-        "bg-white/5 border border-white/10 hover:border-white/20",
-        "hover:bg-white/[0.07]",
+        "bg-card/50 border border-border hover:border-border/60",
+        "hover:bg-card/80",
         isAnimatingOut && "opacity-0 scale-95 translate-x-4",
         isChecked && !isAnimatingOut && "bg-emerald-500/10 border-emerald-500/30"
       )}
@@ -116,12 +116,12 @@ export function FocusItem({ item, onComplete, isCompleting = false }: FocusItemP
           "flex items-center justify-center",
           isChecked
             ? "bg-emerald-500 border-emerald-500"
-            : "border-white/30 hover:border-emerald-400 hover:bg-emerald-500/10",
+            : "border-border hover:border-emerald-400 hover:bg-emerald-500/10",
           (isCompleting || isChecked) && "cursor-not-allowed"
         )}
       >
         {isCompleting ? (
-          <Loader2 className="h-3 w-3 animate-spin text-white/70" />
+          <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
         ) : isChecked ? (
           <Check className="h-3.5 w-3.5 text-white" strokeWidth={3} />
         ) : null}
@@ -133,7 +133,7 @@ export function FocusItem({ item, onComplete, isCompleting = false }: FocusItemP
           <h3
             className={cn(
               "font-medium text-[15px] leading-tight transition-all duration-200",
-              isChecked ? "text-white/50 line-through" : "text-white/90"
+              isChecked ? "text-muted-foreground line-through" : "text-foreground"
             )}
           >
             {item.name}
@@ -153,7 +153,7 @@ export function FocusItem({ item, onComplete, isCompleting = false }: FocusItemP
           <p
             className={cn(
               "text-sm mt-1.5 line-clamp-2 transition-colors duration-200",
-              isChecked ? "text-white/30" : "text-white/50"
+              isChecked ? "text-muted-foreground/50" : "text-muted-foreground"
             )}
           >
             {item.description}
@@ -161,7 +161,7 @@ export function FocusItem({ item, onComplete, isCompleting = false }: FocusItemP
         )}
 
         <div className="flex items-center gap-2 mt-2">
-          <span className="text-xs text-white/40 bg-white/5 px-2 py-0.5 rounded">
+          <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded">
             {item.boardName}
           </span>
         </div>

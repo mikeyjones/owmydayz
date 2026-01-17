@@ -486,9 +486,10 @@ export function useUpdateItem() {
   const updateItem = useMutation(api.kanban.updateItem);
 
   return {
-    mutate: async (data: UpdateItemData) => {
+    mutate: async (data: UpdateItemData, callbacks?: MutationCallbacks<void>) => {
       if (!userId) {
         toast.error("You must be logged in to update an item");
+        callbacks?.onError?.(new Error("You must be logged in to update an item"));
         return;
       }
       try {
@@ -502,10 +503,13 @@ export function useUpdateItem() {
           userId,
         });
         toast.success("Item updated successfully!");
+        callbacks?.onSuccess?.();
       } catch (error) {
+        const err = error instanceof Error ? error : new Error("Unknown error");
         toast.error("Failed to update item", {
-          description: error instanceof Error ? error.message : "Unknown error",
+          description: err.message,
         });
+        callbacks?.onError?.(err);
         throw error;
       }
     },

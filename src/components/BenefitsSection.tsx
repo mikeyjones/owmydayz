@@ -81,7 +81,7 @@ export function BenefitsSection() {
                <h3 className="text-2xl font-bold text-foreground mb-4">Real-World Projects</h3>
                <p className="text-muted-foreground mb-8">Build portfolio projects that showcase your skills. Learn by doing, not just watching tutorials.</p>
                
-               <div className="mt-auto bg-slate-950 p-4 rounded-lg border border-border font-mono text-xs text-slate-300 overflow-hidden shadow-inner group-hover:border-primary/30 transition-colors">
+               <div className="mt-auto bg-slate-950 dark:bg-slate-950 p-4 rounded-lg border border-border font-mono text-xs text-white dark:text-slate-300 overflow-hidden shadow-inner group-hover:border-primary/30 transition-colors">
                   <div className="opacity-70 select-none space-y-1">
                     <p><span className="text-purple-400">git</span> commit -m <span className="text-green-400">"feat: initial commit"</span></p>
                     <p><span className="text-purple-400">git</span> push origin main</p>

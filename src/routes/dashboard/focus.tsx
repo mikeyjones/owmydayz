@@ -89,8 +89,8 @@ function FocusPage() {
           <div className="p-4 rounded-full bg-emerald-500/10 border border-emerald-500/20 mb-4">
             <CheckCircle2 className="h-12 w-12 text-emerald-400" />
           </div>
-          <h2 className="text-xl font-semibold text-white/90 mb-2">All Clear!</h2>
-          <p className="text-white/50 text-center max-w-md">
+          <h2 className="text-xl font-semibold text-foreground mb-2">All Clear!</h2>
+          <p className="text-muted-foreground text-center max-w-md">
             You don't have any items in your "Now" columns. Add items to a board's
             "Now" column to see them here.
           </p>
@@ -102,10 +102,10 @@ function FocusPage() {
         <div className="space-y-8">
           {Object.entries(groupedItems).map(([boardName, boardItems]) => (
             <div key={boardName}>
-              <h2 className="text-sm font-semibold uppercase tracking-wider text-white/40 mb-3 flex items-center gap-2">
+              <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500" />
                 {boardName}
-                <span className="text-white/20">({boardItems.length})</span>
+                <span className="text-muted-foreground/50">({boardItems.length})</span>
               </h2>
               <div className="space-y-2">
                 {boardItems.map((item) => (

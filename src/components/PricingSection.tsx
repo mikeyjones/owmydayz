@@ -61,10 +61,10 @@ export function PricingSection({ showTitle = true }: PricingSectionProps) {
         {showTitle && (
           <FadeIn>
             <div className="text-center mb-16">
-              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl mb-6 text-white">
+              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl mb-6 text-foreground">
                 Invest in Your <span className="text-gradient-primary">Future</span>
               </h2>
-              <p className="text-lg text-slate-400 sm:text-xl max-w-3xl mx-auto leading-relaxed">
+              <p className="text-lg text-muted-foreground sm:text-xl max-w-3xl mx-auto leading-relaxed">
                 Start your journey to becoming a full stack engineer. With average salaries of $130k+, 
                 this investment pays for itself in months. Choose the plan that fits your learning style.
               </p>
@@ -115,12 +115,12 @@ export function PricingSection({ showTitle = true }: PricingSectionProps) {
         <FadeIn delay={400}>
           <div className="mt-16 max-w-2xl mx-auto">
             <div className="glass-card p-8 rounded-2xl text-center">
-              <h3 className="text-xl font-bold text-white mb-3">ROI Calculator</h3>
-              <p className="text-slate-400 mb-4 text-lg">
+              <h3 className="text-xl font-bold text-foreground mb-3">ROI Calculator</h3>
+              <p className="text-muted-foreground mb-4 text-lg">
                 If you increase your salary by just $30k (from $50k to $80k), 
                 a $99/month plan pays for itself in <span className="font-bold text-primary">3.3 months</span>.
               </p>
-              <p className="text-sm text-slate-500 font-medium">
+              <p className="text-sm text-muted-foreground font-medium">
                 Average full stack engineer salary: $130k. Most members see salary increases of $40k-$80k+.
               </p>
             </div>
