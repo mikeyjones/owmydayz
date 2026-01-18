@@ -4,15 +4,18 @@ import { Loader2, Plus, Settings } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "~/components/ui/button";
 import {
+	applyOptimisticTeamColumnReorder,
 	applyOptimisticTeamMoves,
 	type PendingTeamMove,
 	useDeleteTeamColumn,
 	useDeleteTeamItem,
 	useMoveTeamItem,
+	useReorderTeamColumns,
 	useTeamBoardWithColumns,
 } from "~/hooks/useTeamBoards";
 import type { TeamColumnWithItems, TeamItem } from "~/types";
-import { getColumnColor } from "~/utils/columnColors";
+import { getColumnColorById } from "~/utils/columnColors";
+import { calculateNewColumnOrder } from "~/utils/columnReordering";
 import { TeamBoardDialog } from "./TeamBoardDialog";
 import { TeamCreateColumnDialog } from "./TeamCreateColumnDialog";
 import { TeamCreateItemDialog } from "./TeamCreateItemDialog";
@@ -32,6 +35,7 @@ export function TeamKanbanBoard({ boardId, teamId }: TeamKanbanBoardProps) {
 	const moveItemMutation = useMoveTeamItem();
 	const deleteItemMutation = useDeleteTeamItem();
 	const deleteColumnMutation = useDeleteTeamColumn();
+	const reorderColumnsMutation = useReorderTeamColumns();
 
 	const [createItemDialog, setCreateItemDialog] = useState<{
 		open: boolean;
@@ -50,6 +54,11 @@ export function TeamKanbanBoard({ boardId, teamId }: TeamKanbanBoardProps) {
 		Map<string, PendingTeamMove>
 	>(new Map());
 
+	// Optimistic state: track pending column reorder
+	const [pendingColumnReorder, setPendingColumnReorder] = useState<
+		string[] | null
+	>(null);
+
 	// Focus mode state: track which non-"Now" column is currently expanded
 	const [expandedColumnId, setExpandedColumnId] = useState<string | null>(null);
 
@@ -57,7 +66,8 @@ export function TeamKanbanBoard({ boardId, teamId }: TeamKanbanBoardProps) {
 	const defaultExpandedColumn = useMemo(() => {
 		if (!board?.columns) return null;
 		return board.columns.find(
-			(col) => !col.isSystem || col.name !== SYSTEM_COLUMN_NOW,
+			(col: TeamColumnWithItems) =>
+				!col.isSystem || col.name !== SYSTEM_COLUMN_NOW,
 		);
 	}, [board?.columns]);
 
@@ -71,15 +81,26 @@ export function TeamKanbanBoard({ boardId, teamId }: TeamKanbanBoardProps) {
 	// Apply optimistic updates to board columns
 	const optimisticBoard = useMemo(() => {
 		if (!board?.columns) return board;
-		const optimisticColumns = applyOptimisticTeamMoves(
+
+		// First, apply item moves
+		let optimisticColumns = applyOptimisticTeamMoves(
 			board.columns,
 			pendingMoves,
 		);
+
+		// Then, apply column reordering if pending
+		if (pendingColumnReorder) {
+			optimisticColumns = applyOptimisticTeamColumnReorder(
+				optimisticColumns,
+				pendingColumnReorder,
+			);
+		}
+
 		return {
 			...board,
 			columns: optimisticColumns,
 		};
-	}, [board, pendingMoves]);
+	}, [board, pendingMoves, pendingColumnReorder]);
 
 	// Clear pending moves when Convex data reflects the change
 	useEffect(() => {
@@ -88,8 +109,8 @@ export function TeamKanbanBoard({ boardId, teamId }: TeamKanbanBoardProps) {
 		const movesToClear: string[] = [];
 		pendingMoves.forEach((move, itemId) => {
 			const item = board.columns
-				.flatMap((col) => col.items)
-				.find((i) => i.id === itemId);
+				.flatMap((col: TeamColumnWithItems) => col.items)
+				.find((i: TeamItem) => i.id === itemId);
 
 			// Clear if item is in the expected position
 			if (
@@ -112,6 +133,31 @@ export function TeamKanbanBoard({ boardId, teamId }: TeamKanbanBoardProps) {
 		}
 	}, [board, pendingMoves]);
 
+	// Clear pending column reorder when Convex data reflects the change
+	useEffect(() => {
+		if (!board || !pendingColumnReorder) return;
+
+		// Get user columns only (exclude system columns) and sort by position
+		const userColumns = board.columns
+			.filter((col: TeamColumnWithItems) => !col.isSystem)
+			.sort(
+				(a: TeamColumnWithItems, b: TeamColumnWithItems) =>
+					a.position - b.position,
+			);
+
+		// Check if the current column order matches the pending order
+		const currentOrder = userColumns.map((col: TeamColumnWithItems) => col.id);
+		const ordersMatch =
+			currentOrder.length === pendingColumnReorder.length &&
+			currentOrder.every(
+				(id: string, index: number) => id === pendingColumnReorder[index],
+			);
+
+		if (ordersMatch) {
+			setPendingColumnReorder(null);
+		}
+	}, [board, pendingColumnReorder]);
+
 	// Monitor for drag and drop events
 	useEffect(() => {
 		return monitorForElements({
@@ -122,14 +168,52 @@ export function TeamKanbanBoard({ boardId, teamId }: TeamKanbanBoardProps) {
 				const sourceData = source.data;
 				const destData = destination.data;
 
-				// Only handle item drops
+				// Handle column reordering
+				if (sourceData.type === "column") {
+					const draggedColumnId = sourceData.columnId as string;
+					const targetColumnId = destData.columnId as string;
+
+					// Can't drop a column on itself
+					if (draggedColumnId === targetColumnId) return;
+
+					// Determine if we're dropping before or after the target
+					const closestEdge = extractClosestEdge(destData);
+					const dropAfter = closestEdge === "right";
+
+					// Calculate new column order
+					const newColumnOrder = calculateNewColumnOrder(
+						optimisticBoard.columns,
+						draggedColumnId,
+						targetColumnId,
+						dropAfter,
+					);
+
+					// Apply optimistic update
+					setPendingColumnReorder(newColumnOrder);
+
+					// Prepare columnOrder array with positions for mutation
+					const columnOrder = newColumnOrder.map((columnId, index) => ({
+						id: columnId,
+						position: index,
+					}));
+
+					// Fire mutation
+					reorderColumnsMutation.mutate({
+						boardId,
+						columnOrder,
+					});
+
+					return;
+				}
+
+				// Handle item drops
 				if (sourceData.type !== "item") return;
 
 				const sourceItemId = sourceData.itemId as string;
 				// Get current item position from optimistic board (accounts for previous optimistic moves)
 				const currentItem = optimisticBoard.columns
-					.flatMap((col) => col.items)
-					.find((item) => item.id === sourceItemId);
+					.flatMap((col: TeamColumnWithItems) => col.items)
+					.find((item: TeamItem) => item.id === sourceItemId);
 
 				if (!currentItem) return;
 
@@ -141,18 +225,20 @@ export function TeamKanbanBoard({ boardId, teamId }: TeamKanbanBoardProps) {
 					// Dropped directly on a column (empty area)
 					targetColumnId = destData.columnId as string;
 					const targetColumn = optimisticBoard.columns.find(
-						(c) => c.id === targetColumnId,
+						(c: TeamColumnWithItems) => c.id === targetColumnId,
 					);
 					newPosition = targetColumn?.items.length || 0;
 				} else if (destData.type === "item") {
 					// Dropped on another item
 					targetColumnId = destData.columnId as string;
 					const targetColumn = optimisticBoard.columns.find(
-						(c) => c.id === targetColumnId,
+						(c: TeamColumnWithItems) => c.id === targetColumnId,
 					);
 					const targetItemId = destData.itemId as string;
 					const targetIndex =
-						targetColumn?.items.findIndex((i) => i.id === targetItemId) ?? -1;
+						targetColumn?.items.findIndex(
+							(i: TeamItem) => i.id === targetItemId,
+						) ?? -1;
 
 					// Determine position based on closest edge
 					const closestEdge = extractClosestEdge(destData);
@@ -166,8 +252,9 @@ export function TeamKanbanBoard({ boardId, teamId }: TeamKanbanBoardProps) {
 						// Use currentItem.columnId (from optimistic board) not sourceItem.columnId
 						if (currentItem.columnId === targetColumnId) {
 							const sourceIndex =
-								targetColumn?.items.findIndex((i) => i.id === sourceItemId) ??
-								-1;
+								targetColumn?.items.findIndex(
+									(i: TeamItem) => i.id === sourceItemId,
+								) ?? -1;
 							if (sourceIndex >= 0 && sourceIndex < newPosition) {
 								newPosition -= 1;
 							}
@@ -208,7 +295,7 @@ export function TeamKanbanBoard({ boardId, teamId }: TeamKanbanBoardProps) {
 				}
 			},
 		});
-	}, [optimisticBoard, boardId, moveItemMutation]);
+	}, [optimisticBoard, boardId, moveItemMutation, reorderColumnsMutation]);
 
 	// Handler for unfolding a column in focus mode
 	const handleUnfoldColumn = useCallback((columnId: string) => {
@@ -307,7 +394,7 @@ export function TeamKanbanBoard({ boardId, teamId }: TeamKanbanBoardProps) {
 			{/* Kanban Columns */}
 			<div className="flex-1 overflow-x-auto pb-4">
 				<div className="flex gap-4 h-full min-h-[400px]">
-					{displayBoard.columns.map((column, index) => (
+					{displayBoard.columns.map((column: TeamColumnWithItems) => (
 						<TeamKanbanColumn
 							key={column.id}
 							column={column}
@@ -317,7 +404,7 @@ export function TeamKanbanBoard({ boardId, teamId }: TeamKanbanBoardProps) {
 							onDeleteColumn={handleDeleteColumn}
 							isFolded={isColumnFolded(column)}
 							onUnfold={handleUnfoldColumn}
-							columnColor={getColumnColor(index)}
+							columnColor={getColumnColorById(column.id)}
 						/>
 					))}
 

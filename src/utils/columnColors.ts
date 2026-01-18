@@ -103,6 +103,29 @@ export function getColumnColor(index: number): ColumnColor {
 }
 
 /**
+ * Simple hash function to convert a string to a number
+ * Used to consistently map column IDs to colors
+ */
+function hashString(str: string): number {
+	let hash = 0;
+	for (let i = 0; i < str.length; i++) {
+		const char = str.charCodeAt(i);
+		hash = (hash << 5) - hash + char;
+		hash = hash & hash; // Convert to 32-bit integer
+	}
+	return Math.abs(hash);
+}
+
+/**
+ * Get a column color based on its ID
+ * This ensures colors remain consistent even when columns are reordered
+ */
+export function getColumnColorById(columnId: string): ColumnColor {
+	const hash = hashString(columnId);
+	return COLUMN_COLORS[hash % COLUMN_COLORS.length];
+}
+
+/**
  * Default color for system columns or fallback
  */
 export const DEFAULT_COLUMN_COLOR: ColumnColor = {

@@ -4,15 +4,18 @@ import { Loader2, Plus, Settings } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "~/components/ui/button";
 import {
+	applyOptimisticColumnReorder,
 	applyOptimisticMoves,
 	type PendingMove,
 	useBoardWithColumns,
 	useDeleteColumn,
 	useDeleteItem,
 	useMoveItem,
+	useReorderColumns,
 } from "~/hooks/useKanban";
 import type { KanbanColumnWithItems, KanbanItem } from "~/types";
-import { getColumnColor } from "~/utils/columnColors";
+import { getColumnColorById } from "~/utils/columnColors";
+import { calculateNewColumnOrder } from "~/utils/columnReordering";
 import { BoardDialog } from "./BoardDialog";
 import { CreateColumnDialog } from "./CreateColumnDialog";
 import { CreateItemDialog } from "./CreateItemDialog";
@@ -31,6 +34,7 @@ export function KanbanBoard({ boardId }: KanbanBoardProps) {
 	const moveItemMutation = useMoveItem();
 	const deleteItemMutation = useDeleteItem();
 	const deleteColumnMutation = useDeleteColumn();
+	const reorderColumnsMutation = useReorderColumns();
 
 	const [createItemDialog, setCreateItemDialog] = useState<{
 		open: boolean;
@@ -48,6 +52,11 @@ export function KanbanBoard({ boardId }: KanbanBoardProps) {
 	const [pendingMoves, setPendingMoves] = useState<Map<string, PendingMove>>(
 		new Map(),
 	);
+
+	// Optimistic state: track pending column reorder
+	const [pendingColumnReorder, setPendingColumnReorder] = useState<
+		string[] | null
+	>(null);
 
 	// Focus mode state: track which non-"Now" column is currently expanded
 	const [expandedColumnId, setExpandedColumnId] = useState<string | null>(null);
@@ -70,12 +79,23 @@ export function KanbanBoard({ boardId }: KanbanBoardProps) {
 	// Apply optimistic updates to board columns
 	const optimisticBoard = useMemo(() => {
 		if (!board?.columns) return board;
-		const optimisticColumns = applyOptimisticMoves(board.columns, pendingMoves);
+
+		// First, apply item moves
+		let optimisticColumns = applyOptimisticMoves(board.columns, pendingMoves);
+
+		// Then, apply column reordering if pending
+		if (pendingColumnReorder) {
+			optimisticColumns = applyOptimisticColumnReorder(
+				optimisticColumns,
+				pendingColumnReorder,
+			);
+		}
+
 		return {
 			...board,
 			columns: optimisticColumns,
 		};
-	}, [board, pendingMoves]);
+	}, [board, pendingMoves, pendingColumnReorder]);
 
 	// Clear pending moves when Convex data reflects the change
 	useEffect(() => {
@@ -108,6 +128,26 @@ export function KanbanBoard({ boardId }: KanbanBoardProps) {
 		}
 	}, [board, pendingMoves]);
 
+	// Clear pending column reorder when Convex data reflects the change
+	useEffect(() => {
+		if (!board || !pendingColumnReorder) return;
+
+		// Get user columns only (exclude system columns) and sort by position
+		const userColumns = board.columns
+			.filter((col) => !col.isSystem)
+			.sort((a, b) => a.position - b.position);
+
+		// Check if the current column order matches the pending order
+		const currentOrder = userColumns.map((col) => col.id);
+		const ordersMatch =
+			currentOrder.length === pendingColumnReorder.length &&
+			currentOrder.every((id, index) => id === pendingColumnReorder[index]);
+
+		if (ordersMatch) {
+			setPendingColumnReorder(null);
+		}
+	}, [board, pendingColumnReorder]);
+
 	// Monitor for drag and drop events
 	useEffect(() => {
 		return monitorForElements({
@@ -118,7 +158,45 @@ export function KanbanBoard({ boardId }: KanbanBoardProps) {
 				const sourceData = source.data;
 				const destData = destination.data;
 
-				// Only handle item drops
+				// Handle column reordering
+				if (sourceData.type === "column") {
+					const draggedColumnId = sourceData.columnId as string;
+					const targetColumnId = destData.columnId as string;
+
+					// Can't drop a column on itself
+					if (draggedColumnId === targetColumnId) return;
+
+					// Determine if we're dropping before or after the target
+					const closestEdge = extractClosestEdge(destData);
+					const dropAfter = closestEdge === "right";
+
+					// Calculate new column order
+					const newColumnOrder = calculateNewColumnOrder(
+						optimisticBoard.columns,
+						draggedColumnId,
+						targetColumnId,
+						dropAfter,
+					);
+
+					// Apply optimistic update
+					setPendingColumnReorder(newColumnOrder);
+
+					// Prepare columnOrder array with positions for mutation
+					const columnOrder = newColumnOrder.map((columnId, index) => ({
+						id: columnId,
+						position: index,
+					}));
+
+					// Fire mutation
+					reorderColumnsMutation.mutate({
+						boardId,
+						columnOrder,
+					});
+
+					return;
+				}
+
+				// Handle item drops
 				if (sourceData.type !== "item") return;
 
 				const sourceItemId = sourceData.itemId as string;
@@ -204,7 +282,7 @@ export function KanbanBoard({ boardId }: KanbanBoardProps) {
 				}
 			},
 		});
-	}, [optimisticBoard, boardId, moveItemMutation]);
+	}, [optimisticBoard, boardId, moveItemMutation, reorderColumnsMutation]);
 
 	// Handler for unfolding a column in focus mode
 	const handleUnfoldColumn = useCallback((columnId: string) => {
@@ -278,11 +356,11 @@ export function KanbanBoard({ boardId }: KanbanBoardProps) {
 	const displayBoard = optimisticBoard || board;
 
 	return (
-		<div className="h-full flex flex-col">
+		<div className="h-full flex flex-col" role="main" aria-label="Kanban board">
 			{/* Board Header */}
 			<div className="flex items-center justify-between mb-4 px-1">
 				<div>
-					<h2 className="text-xl font-bold">{displayBoard.name}</h2>
+					<h1 className="text-xl font-bold">{displayBoard.name}</h1>
 					{displayBoard.description && (
 						<p className="text-sm text-muted-foreground">
 							{displayBoard.description}
@@ -294,6 +372,7 @@ export function KanbanBoard({ boardId }: KanbanBoardProps) {
 						variant="outline"
 						size="sm"
 						onClick={() => setCreateColumnDialog(true)}
+						aria-label="Add new column to board"
 					>
 						<Plus className="h-4 w-4 mr-1" />
 						Add Column
@@ -302,6 +381,7 @@ export function KanbanBoard({ boardId }: KanbanBoardProps) {
 						variant="ghost"
 						size="icon"
 						onClick={() => setBoardSettingsDialog(true)}
+						aria-label="Board settings"
 					>
 						<Settings className="h-4 w-4" />
 					</Button>
@@ -309,9 +389,13 @@ export function KanbanBoard({ boardId }: KanbanBoardProps) {
 			</div>
 
 			{/* Kanban Columns */}
-			<div className="flex-1 overflow-x-auto pb-4">
+			<div
+				className="flex-1 overflow-x-auto pb-4"
+				role="region"
+				aria-label="Board columns"
+			>
 				<div className="flex gap-4 h-full min-h-[400px]">
-					{displayBoard.columns.map((column, index) => (
+					{displayBoard.columns.map((column) => (
 						<KanbanColumnComponent
 							key={column.id}
 							column={column}
@@ -321,7 +405,7 @@ export function KanbanBoard({ boardId }: KanbanBoardProps) {
 							onDeleteColumn={handleDeleteColumn}
 							isFolded={isColumnFolded(column)}
 							onUnfold={handleUnfoldColumn}
-							columnColor={getColumnColor(index)}
+							columnColor={getColumnColorById(column.id)}
 						/>
 					))}
 
