@@ -4,7 +4,9 @@
       "Bash(find:*)",
       "Bash(bd doctor)",
       "Bash(bd stats:*)",
-      "Bash(jj diff:*)"
+      "Bash(jj diff:*)",
+      "Bash(jj log:*)",
+      "Bash(jj bookmark:*)"
     ]
   }
 }
