@@ -7,19 +7,27 @@ if [ -z "$1" ]; then
 fi
 
 for ((i=1; i<=$1; i++)); do
-  result=$(docker sandbox run claude --permission-mode acceptEdits -p "@PRD.md @progress.txt \
-  1. Find the highest-priority task and implement it. \
-  2. Run your tests and type checks. \
-  3. Update the PRD with what was done. \
-  4. Append your progress to progress.txt. \
-  5. Commit your changes. \
-  ONLY WORK ON A SINGLE TASK. \
-  If the PRD is complete, output <promise>COMPLETE</promise>.")
+  echo "=== Iteration $i/$1 ==="
+
+  result=$(docker sandbox run claude --permission-mode acceptEdits -p "\
+  1. Run 'bd ready' to find the next available task. \
+  2. If no tasks are ready, list open issues with 'bd list --status=open'. \
+  3. Pick ONE task and implement it completely. \
+  4. Run quality gates: bun run typecheck && bun run lint && bun run test. \
+  5. Use jj to commit your changes (jj describe -m 'message'). \
+  6. Close the completed task with 'bd close <id>'. \
+  7. Run 'bd sync' to sync beads changes. \
+  ONLY WORK ON A SINGLE TASK. Work is not complete until you run bd sync. \
+  If there are no more tasks available, output <promise>COMPLETE</promise>.")
 
   echo "$result"
 
   if [[ "$result" == *"<promise>COMPLETE</promise>"* ]]; then
-    echo "PRD complete after $i iterations."
+    echo "All tasks complete after $i iterations."
     exit 0
   fi
+
+  echo ""
 done
+
+echo "Completed $1 iterations. Check 'bd ready' for remaining work."
