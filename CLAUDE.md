@@ -55,6 +55,12 @@ bun run dev                 # Start development server on port 3000
 bun run build              # Build for production (includes type checking)
 bun run start              # Start production server
 
+# Testing (REQUIRED - see Testing section below)
+bun run test                # Run all tests once
+bun run test:watch          # Run tests in watch mode
+bun run test:ui             # Run tests with UI
+bun run test:coverage       # Run tests with coverage report
+
 # Database
 bun run db:up              # Start PostgreSQL Docker container
 bun run db:down            # Stop PostgreSQL Docker container
@@ -84,6 +90,51 @@ bun add -d <package>       # Add a dev dependency
    bun run db:up
    bun run db:migrate
    ```
+
+## Testing & TDD
+
+**CRITICAL**: This project follows **Test-Driven Development (TDD)** principles. You MUST write tests for all new code.
+
+### Testing Requirements
+
+1. **Write tests FIRST** - Before implementing features, write failing tests
+2. **Run tests OFTEN** - Use `bun run test` after every significant change
+3. **All tests must pass** - NEVER commit code with failing tests
+4. **Maintain coverage** - Use `bun run test:coverage` to check coverage
+
+### Testing Workflow
+
+```bash
+# TDD Red-Green-Refactor cycle:
+1. Write a failing test for the new functionality
+2. Run: bun run test (test should fail - RED)
+3. Write minimal code to make the test pass
+4. Run: bun run test (test should pass - GREEN)
+5. Refactor code while keeping tests passing
+6. Run: bun run test (tests should still pass)
+```
+
+### When to Write Tests
+
+- **New features**: Write tests before implementation
+- **Bug fixes**: Write a test that reproduces the bug, then fix it
+- **Refactoring**: Ensure existing tests pass, add tests for edge cases
+- **API changes**: Update tests to match new API contracts
+
+### Test Files Location
+
+- Unit tests: Place `*.test.ts` or `*.test.tsx` files next to the code they test
+- Integration tests: Use `src/__tests__/` directory
+- E2E tests: Use Playwright in `tests/` directory
+
+### Testing Tools
+
+- **Vitest**: Unit and integration testing framework
+- **@testing-library/react**: React component testing
+- **happy-dom**: DOM implementation for tests
+- **Playwright**: E2E testing (when needed)
+
+**Remember**: If you write code, you MUST write tests. If tests fail, you MUST fix them before committing.
 
 ## Development Notes
 
