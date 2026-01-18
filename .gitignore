@@ -25,3 +25,6 @@ dist/
 coverage/
 .vitest/
 .beads/
+
+# bv (beads viewer) local config and caches
+.bv/
