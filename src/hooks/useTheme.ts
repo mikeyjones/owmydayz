@@ -1,15 +1,15 @@
-import { useSuspenseQuery, useMutation } from "@tanstack/react-query";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { getThemeFn, setThemeFn } from "~/components/theme-provider";
 
 export function useThemeQuery() {
-  return useSuspenseQuery({
-    queryKey: ["theme"],
-    queryFn: () => getThemeFn(),
-  });
+	return useSuspenseQuery({
+		queryKey: ["theme"],
+		queryFn: () => getThemeFn(),
+	});
 }
 
 export function useSetTheme() {
-  return useMutation({
-    mutationFn: setThemeFn,
-  });
+	return useMutation({
+		mutationFn: setThemeFn,
+	});
 }

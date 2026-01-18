@@ -6,12 +6,12 @@ import { authClient } from "~/lib/auth-client";
  * This is a client-side check that verifies the session.
  */
 export async function assertAuthenticated(): Promise<void> {
-  // Get the current session
-  const session = await authClient.getSession();
-  
-  if (!session?.data?.user) {
-    throw redirect({ to: "/unauthenticated" });
-  }
+	// Get the current session
+	const session = await authClient.getSession();
+
+	if (!session?.data?.user) {
+		throw redirect({ to: "/unauthenticated" });
+	}
 }
 
 /**

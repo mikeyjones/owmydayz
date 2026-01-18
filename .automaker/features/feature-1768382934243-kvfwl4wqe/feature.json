@@ -1,30 +1,28 @@
 {
-  "category": "feature",
-  "description": "Display a view showing completion statistics (items completed) for day, week, month, and year. Include celebratory messages like 'Well done, you've achieved X items on your to-do list. Keep up the good work!' with positive reinforcement.",
-  "title": "Achievement statistics view with celebration messages",
-  "dependencies": [
-    "create-and-manage-kanban-items"
-  ],
-  "priority": 3,
-  "status": "verified",
-  "branchName": "main",
-  "id": "feature-1768382934243-kvfwl4wqe",
-  "descriptionHistory": [
-    {
-      "description": "Display a view showing completion statistics (items completed) for day, week, month, and year. Include celebratory messages like 'Well done, you've achieved X items on your to-do list. Keep up the good work!' with positive reinforcement.",
-      "timestamp": "2026-01-14T09:28:54.243Z",
-      "source": "initial"
-    }
-  ],
-  "skipTests": false,
-  "model": "composer-1",
-  "thinkingLevel": "none",
-  "reasoningEffort": "none",
-  "imagePaths": [],
-  "textFilePaths": [],
-  "planningMode": "skip",
-  "requirePlanApproval": false,
-  "workMode": "custom",
-  "startedAt": "2026-01-14T16:35:55.457Z",
-  "updatedAt": "2026-01-14T16:35:56.370Z"
+	"category": "feature",
+	"description": "Display a view showing completion statistics (items completed) for day, week, month, and year. Include celebratory messages like 'Well done, you've achieved X items on your to-do list. Keep up the good work!' with positive reinforcement.",
+	"title": "Achievement statistics view with celebration messages",
+	"dependencies": ["create-and-manage-kanban-items"],
+	"priority": 3,
+	"status": "verified",
+	"branchName": "main",
+	"id": "feature-1768382934243-kvfwl4wqe",
+	"descriptionHistory": [
+		{
+			"description": "Display a view showing completion statistics (items completed) for day, week, month, and year. Include celebratory messages like 'Well done, you've achieved X items on your to-do list. Keep up the good work!' with positive reinforcement.",
+			"timestamp": "2026-01-14T09:28:54.243Z",
+			"source": "initial"
+		}
+	],
+	"skipTests": false,
+	"model": "composer-1",
+	"thinkingLevel": "none",
+	"reasoningEffort": "none",
+	"imagePaths": [],
+	"textFilePaths": [],
+	"planningMode": "skip",
+	"requirePlanApproval": false,
+	"workMode": "custom",
+	"startedAt": "2026-01-14T16:35:55.457Z",
+	"updatedAt": "2026-01-14T16:35:56.370Z"
 }

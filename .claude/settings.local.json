@@ -1,15 +1,15 @@
 {
-  "permissions": {
-    "allow": [
-      "Bash(find:*)",
-      "Bash(bd doctor)",
-      "Bash(bd stats:*)",
-      "Bash(jj diff:*)",
-      "Bash(jj log:*)",
-      "Bash(jj bookmark:*)",
-      "Bash(jj describe:*)",
-      "Bash(jj status:*)",
-      "Bash(bd sync:*)"
-    ]
-  }
+	"permissions": {
+		"allow": [
+			"Bash(find:*)",
+			"Bash(bd doctor)",
+			"Bash(bd stats:*)",
+			"Bash(jj diff:*)",
+			"Bash(jj log:*)",
+			"Bash(jj bookmark:*)",
+			"Bash(jj describe:*)",
+			"Bash(jj status:*)",
+			"Bash(bd sync:*)"
+		]
+	}
 }

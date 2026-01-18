@@ -1,36 +1,36 @@
 {
-  "category": "feature",
-  "description": "Provide a dedicated view that shows all Kanban items currently in the 'Now' column across all boards. Display items in a list with checkbox, name, description, importance indicator, and effort indicator. When a user checks the checkbox, the item is automatically moved to the 'Completed' column.",
-  "title": "Unified 'Now' view across all boards",
-  "dependencies": [
-    "create-and-manage-kanban-items",
-    "enforce-mandatory-now-and-completed-columns"
-  ],
-  "priority": 1,
-  "status": "verified",
-  "branchName": "main",
-  "id": "feature-1768382934242-5dwo219a0",
-  "descriptionHistory": [
-    {
-      "description": "Provide a dedicated view that shows all Kanban items currently in the 'Now' column across all boards. Display items in a list with checkbox, name, description, importance indicator, and effort indicator.",
-      "timestamp": "2026-01-14T09:28:54.242Z",
-      "source": "initial"
-    },
-    {
-      "description": "Provide a dedicated view that shows all Kanban items currently in the 'Now' column across all boards. Display items in a list with checkbox, name, description, importance indicator, and effort indicator. When a user checks the checkbox, the item is automatically moved to the 'Completed' column.",
-      "timestamp": "2026-01-14T16:45:40.148Z",
-      "source": "edit"
-    }
-  ],
-  "skipTests": false,
-  "model": "composer-1",
-  "thinkingLevel": "none",
-  "reasoningEffort": "none",
-  "imagePaths": [],
-  "textFilePaths": [],
-  "planningMode": "skip",
-  "requirePlanApproval": false,
-  "workMode": "custom",
-  "startedAt": "2026-01-14T16:33:56.581Z",
-  "updatedAt": "2026-01-14T16:33:57.533Z"
+	"category": "feature",
+	"description": "Provide a dedicated view that shows all Kanban items currently in the 'Now' column across all boards. Display items in a list with checkbox, name, description, importance indicator, and effort indicator. When a user checks the checkbox, the item is automatically moved to the 'Completed' column.",
+	"title": "Unified 'Now' view across all boards",
+	"dependencies": [
+		"create-and-manage-kanban-items",
+		"enforce-mandatory-now-and-completed-columns"
+	],
+	"priority": 1,
+	"status": "verified",
+	"branchName": "main",
+	"id": "feature-1768382934242-5dwo219a0",
+	"descriptionHistory": [
+		{
+			"description": "Provide a dedicated view that shows all Kanban items currently in the 'Now' column across all boards. Display items in a list with checkbox, name, description, importance indicator, and effort indicator.",
+			"timestamp": "2026-01-14T09:28:54.242Z",
+			"source": "initial"
+		},
+		{
+			"description": "Provide a dedicated view that shows all Kanban items currently in the 'Now' column across all boards. Display items in a list with checkbox, name, description, importance indicator, and effort indicator. When a user checks the checkbox, the item is automatically moved to the 'Completed' column.",
+			"timestamp": "2026-01-14T16:45:40.148Z",
+			"source": "edit"
+		}
+	],
+	"skipTests": false,
+	"model": "composer-1",
+	"thinkingLevel": "none",
+	"reasoningEffort": "none",
+	"imagePaths": [],
+	"textFilePaths": [],
+	"planningMode": "skip",
+	"requirePlanApproval": false,
+	"workMode": "custom",
+	"startedAt": "2026-01-14T16:33:56.581Z",
+	"updatedAt": "2026-01-14T16:33:57.533Z"
 }

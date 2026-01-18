@@ -2,47 +2,47 @@
 // TODO: Implement events in Convex
 
 export function useEvents() {
-  return {
-    data: [],
-    isLoading: false,
-    error: null,
-  };
+	return {
+		data: [],
+		isLoading: false,
+		error: null,
+	};
 }
 
 export function useEvent(eventId: string) {
-  return {
-    data: null,
-    isLoading: false,
-    error: null,
-  };
+	return {
+		data: null,
+		isLoading: false,
+		error: null,
+	};
 }
 
 export function useCreateEvent() {
-  return {
-    mutate: async () => {
-      console.warn("Events not yet implemented in Convex");
-    },
-    isPending: false,
-    isError: false,
-  };
+	return {
+		mutate: async () => {
+			console.warn("Events not yet implemented in Convex");
+		},
+		isPending: false,
+		isError: false,
+	};
 }
 
 export function useUpdateEvent() {
-  return {
-    mutate: async () => {
-      console.warn("Events not yet implemented in Convex");
-    },
-    isPending: false,
-    isError: false,
-  };
+	return {
+		mutate: async () => {
+			console.warn("Events not yet implemented in Convex");
+		},
+		isPending: false,
+		isError: false,
+	};
 }
 
 export function useDeleteEvent() {
-  return {
-    mutate: async () => {
-      console.warn("Events not yet implemented in Convex");
-    },
-    isPending: false,
-    isError: false,
-  };
+	return {
+		mutate: async () => {
+			console.warn("Events not yet implemented in Convex");
+		},
+		isPending: false,
+		isError: false,
+	};
 }

@@ -55,6 +55,11 @@ bun run dev                 # Start development server on port 3000
 bun run build              # Build for production (includes type checking)
 bun run start              # Start production server
 
+# Linting & Formatting (REQUIRED - see Linting section below)
+bun run lint                # Check for linting errors
+bun run lint:fix            # Fix linting errors automatically
+bun run format              # Format code with Biome
+
 # Testing (REQUIRED - see Testing section below)
 bun run test                # Run all tests once
 bun run test:watch          # Run tests in watch mode
@@ -90,6 +95,37 @@ bun add -d <package>       # Add a dev dependency
    bun run db:up
    bun run db:migrate
    ```
+
+## Linting & Code Quality
+
+**CRITICAL**: This project uses **Biome** for linting and formatting. You MUST run lint checks and fix all errors.
+
+### Linting Requirements
+
+1. **Run lint before committing** - Always run `bun run lint` before committing code
+2. **Fix ALL errors** - NEVER commit code with linting errors
+3. **Use auto-fix** - Run `bun run lint:fix` to automatically fix issues
+4. **Format code** - Run `bun run format` to format code consistently
+
+### Linting Workflow
+
+```bash
+# After making code changes:
+1. Run: bun run lint        # Check for errors
+2. Run: bun run lint:fix    # Auto-fix what can be fixed
+3. Manually fix remaining errors
+4. Run: bun run lint        # Verify all errors are fixed
+5. Commit your changes
+```
+
+### What Biome Checks
+
+- **Code style**: Consistent formatting and indentation
+- **Best practices**: Common mistakes and anti-patterns
+- **Import organization**: Sorted and organized imports
+- **Suspicious code**: Potential bugs and issues
+
+**Remember**: Linting errors = broken build. Fix them immediately.
 
 ## Testing & TDD
 

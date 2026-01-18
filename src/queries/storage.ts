@@ -3,10 +3,11 @@ import { getImageUrlFn } from "~/fn/storage";
 import { getAuthHeaders } from "~/utils/server-fn-client";
 
 export const getImageUrlQuery = (imageKey: string) =>
-  queryOptions({
-    queryKey: ["image-url", imageKey],
-    queryFn: () => getImageUrlFn({ data: { imageKey }, headers: getAuthHeaders() }),
-    // Cache for a shorter time since presigned URLs expire
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
-  });
+	queryOptions({
+		queryKey: ["image-url", imageKey],
+		queryFn: () =>
+			getImageUrlFn({ data: { imageKey }, headers: getAuthHeaders() }),
+		// Cache for a shorter time since presigned URLs expire
+		staleTime: 5 * 60 * 1000, // 5 minutes
+		gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
+	});

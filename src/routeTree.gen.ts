@@ -8,463 +8,464 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './routes/__root'
-import { Route as UnauthenticatedRouteImport } from './routes/unauthenticated'
-import { Route as SignUpRouteImport } from './routes/sign-up'
-import { Route as SignInRouteImport } from './routes/sign-in'
-import { Route as DashboardRouteImport } from './routes/dashboard'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
-import { Route as DashboardSettingsRouteImport } from './routes/dashboard/settings'
-import { Route as DashboardReviewRouteImport } from './routes/dashboard/review'
-import { Route as DashboardFocusRouteImport } from './routes/dashboard/focus'
-import { Route as ProfileUserIdIndexRouteImport } from './routes/profile/$userId/index'
-import { Route as DashboardTeamsIndexRouteImport } from './routes/dashboard/teams/index'
-import { Route as DashboardKanbanIndexRouteImport } from './routes/dashboard/kanban/index'
-import { Route as DashboardTeamsTeamIdRouteImport } from './routes/dashboard/teams/$teamId'
-import { Route as DashboardKanbanBoardIdRouteImport } from './routes/dashboard/kanban/$boardId'
-import { Route as ApiStripeWebhookRouteImport } from './routes/api/stripe/webhook'
-import { Route as DashboardTeamsTeamIdIndexRouteImport } from './routes/dashboard/teams/$teamId/index'
-import { Route as DashboardTeamsTeamIdSettingsRouteImport } from './routes/dashboard/teams/$teamId/settings'
-import { Route as DashboardTeamsTeamIdMembersRouteImport } from './routes/dashboard/teams/$teamId/members'
-import { Route as DashboardTeamsTeamIdBoardsBoardIdRouteImport } from './routes/dashboard/teams/$teamId/boards/$boardId'
+import { Route as rootRouteImport } from "./routes/__root";
+import { Route as ApiStripeWebhookRouteImport } from "./routes/api/stripe/webhook";
+import { Route as DashboardRouteImport } from "./routes/dashboard";
+import { Route as DashboardFocusRouteImport } from "./routes/dashboard/focus";
+import { Route as DashboardIndexRouteImport } from "./routes/dashboard/index";
+import { Route as DashboardKanbanBoardIdRouteImport } from "./routes/dashboard/kanban/$boardId";
+import { Route as DashboardKanbanIndexRouteImport } from "./routes/dashboard/kanban/index";
+import { Route as DashboardReviewRouteImport } from "./routes/dashboard/review";
+import { Route as DashboardSettingsRouteImport } from "./routes/dashboard/settings";
+import { Route as DashboardTeamsTeamIdRouteImport } from "./routes/dashboard/teams/$teamId";
+import { Route as DashboardTeamsTeamIdBoardsBoardIdRouteImport } from "./routes/dashboard/teams/$teamId/boards/$boardId";
+import { Route as DashboardTeamsTeamIdIndexRouteImport } from "./routes/dashboard/teams/$teamId/index";
+import { Route as DashboardTeamsTeamIdMembersRouteImport } from "./routes/dashboard/teams/$teamId/members";
+import { Route as DashboardTeamsTeamIdSettingsRouteImport } from "./routes/dashboard/teams/$teamId/settings";
+import { Route as DashboardTeamsIndexRouteImport } from "./routes/dashboard/teams/index";
+import { Route as IndexRouteImport } from "./routes/index";
+import { Route as ProfileUserIdIndexRouteImport } from "./routes/profile/$userId/index";
+import { Route as SignInRouteImport } from "./routes/sign-in";
+import { Route as SignUpRouteImport } from "./routes/sign-up";
+import { Route as UnauthenticatedRouteImport } from "./routes/unauthenticated";
 
 const UnauthenticatedRoute = UnauthenticatedRouteImport.update({
-  id: '/unauthenticated',
-  path: '/unauthenticated',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: "/unauthenticated",
+	path: "/unauthenticated",
+	getParentRoute: () => rootRouteImport,
+} as any);
 const SignUpRoute = SignUpRouteImport.update({
-  id: '/sign-up',
-  path: '/sign-up',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: "/sign-up",
+	path: "/sign-up",
+	getParentRoute: () => rootRouteImport,
+} as any);
 const SignInRoute = SignInRouteImport.update({
-  id: '/sign-in',
-  path: '/sign-in',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: "/sign-in",
+	path: "/sign-in",
+	getParentRoute: () => rootRouteImport,
+} as any);
 const DashboardRoute = DashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: "/dashboard",
+	path: "/dashboard",
+	getParentRoute: () => rootRouteImport,
+} as any);
 const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: "/",
+	path: "/",
+	getParentRoute: () => rootRouteImport,
+} as any);
 const DashboardIndexRoute = DashboardIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => DashboardRoute,
-} as any)
+	id: "/",
+	path: "/",
+	getParentRoute: () => DashboardRoute,
+} as any);
 const DashboardSettingsRoute = DashboardSettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => DashboardRoute,
-} as any)
+	id: "/settings",
+	path: "/settings",
+	getParentRoute: () => DashboardRoute,
+} as any);
 const DashboardReviewRoute = DashboardReviewRouteImport.update({
-  id: '/review',
-  path: '/review',
-  getParentRoute: () => DashboardRoute,
-} as any)
+	id: "/review",
+	path: "/review",
+	getParentRoute: () => DashboardRoute,
+} as any);
 const DashboardFocusRoute = DashboardFocusRouteImport.update({
-  id: '/focus',
-  path: '/focus',
-  getParentRoute: () => DashboardRoute,
-} as any)
+	id: "/focus",
+	path: "/focus",
+	getParentRoute: () => DashboardRoute,
+} as any);
 const ProfileUserIdIndexRoute = ProfileUserIdIndexRouteImport.update({
-  id: '/profile/$userId/',
-  path: '/profile/$userId/',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: "/profile/$userId/",
+	path: "/profile/$userId/",
+	getParentRoute: () => rootRouteImport,
+} as any);
 const DashboardTeamsIndexRoute = DashboardTeamsIndexRouteImport.update({
-  id: '/teams/',
-  path: '/teams/',
-  getParentRoute: () => DashboardRoute,
-} as any)
+	id: "/teams/",
+	path: "/teams/",
+	getParentRoute: () => DashboardRoute,
+} as any);
 const DashboardKanbanIndexRoute = DashboardKanbanIndexRouteImport.update({
-  id: '/kanban/',
-  path: '/kanban/',
-  getParentRoute: () => DashboardRoute,
-} as any)
+	id: "/kanban/",
+	path: "/kanban/",
+	getParentRoute: () => DashboardRoute,
+} as any);
 const DashboardTeamsTeamIdRoute = DashboardTeamsTeamIdRouteImport.update({
-  id: '/teams/$teamId',
-  path: '/teams/$teamId',
-  getParentRoute: () => DashboardRoute,
-} as any)
+	id: "/teams/$teamId",
+	path: "/teams/$teamId",
+	getParentRoute: () => DashboardRoute,
+} as any);
 const DashboardKanbanBoardIdRoute = DashboardKanbanBoardIdRouteImport.update({
-  id: '/kanban/$boardId',
-  path: '/kanban/$boardId',
-  getParentRoute: () => DashboardRoute,
-} as any)
+	id: "/kanban/$boardId",
+	path: "/kanban/$boardId",
+	getParentRoute: () => DashboardRoute,
+} as any);
 const ApiStripeWebhookRoute = ApiStripeWebhookRouteImport.update({
-  id: '/api/stripe/webhook',
-  path: '/api/stripe/webhook',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: "/api/stripe/webhook",
+	path: "/api/stripe/webhook",
+	getParentRoute: () => rootRouteImport,
+} as any);
 const DashboardTeamsTeamIdIndexRoute =
-  DashboardTeamsTeamIdIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => DashboardTeamsTeamIdRoute,
-  } as any)
+	DashboardTeamsTeamIdIndexRouteImport.update({
+		id: "/",
+		path: "/",
+		getParentRoute: () => DashboardTeamsTeamIdRoute,
+	} as any);
 const DashboardTeamsTeamIdSettingsRoute =
-  DashboardTeamsTeamIdSettingsRouteImport.update({
-    id: '/settings',
-    path: '/settings',
-    getParentRoute: () => DashboardTeamsTeamIdRoute,
-  } as any)
+	DashboardTeamsTeamIdSettingsRouteImport.update({
+		id: "/settings",
+		path: "/settings",
+		getParentRoute: () => DashboardTeamsTeamIdRoute,
+	} as any);
 const DashboardTeamsTeamIdMembersRoute =
-  DashboardTeamsTeamIdMembersRouteImport.update({
-    id: '/members',
-    path: '/members',
-    getParentRoute: () => DashboardTeamsTeamIdRoute,
-  } as any)
+	DashboardTeamsTeamIdMembersRouteImport.update({
+		id: "/members",
+		path: "/members",
+		getParentRoute: () => DashboardTeamsTeamIdRoute,
+	} as any);
 const DashboardTeamsTeamIdBoardsBoardIdRoute =
-  DashboardTeamsTeamIdBoardsBoardIdRouteImport.update({
-    id: '/boards/$boardId',
-    path: '/boards/$boardId',
-    getParentRoute: () => DashboardTeamsTeamIdRoute,
-  } as any)
+	DashboardTeamsTeamIdBoardsBoardIdRouteImport.update({
+		id: "/boards/$boardId",
+		path: "/boards/$boardId",
+		getParentRoute: () => DashboardTeamsTeamIdRoute,
+	} as any);
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRouteWithChildren
-  '/sign-in': typeof SignInRoute
-  '/sign-up': typeof SignUpRoute
-  '/unauthenticated': typeof UnauthenticatedRoute
-  '/dashboard/focus': typeof DashboardFocusRoute
-  '/dashboard/review': typeof DashboardReviewRoute
-  '/dashboard/settings': typeof DashboardSettingsRoute
-  '/dashboard/': typeof DashboardIndexRoute
-  '/api/stripe/webhook': typeof ApiStripeWebhookRoute
-  '/dashboard/kanban/$boardId': typeof DashboardKanbanBoardIdRoute
-  '/dashboard/teams/$teamId': typeof DashboardTeamsTeamIdRouteWithChildren
-  '/dashboard/kanban': typeof DashboardKanbanIndexRoute
-  '/dashboard/teams': typeof DashboardTeamsIndexRoute
-  '/profile/$userId': typeof ProfileUserIdIndexRoute
-  '/dashboard/teams/$teamId/members': typeof DashboardTeamsTeamIdMembersRoute
-  '/dashboard/teams/$teamId/settings': typeof DashboardTeamsTeamIdSettingsRoute
-  '/dashboard/teams/$teamId/': typeof DashboardTeamsTeamIdIndexRoute
-  '/dashboard/teams/$teamId/boards/$boardId': typeof DashboardTeamsTeamIdBoardsBoardIdRoute
+	"/": typeof IndexRoute;
+	"/dashboard": typeof DashboardRouteWithChildren;
+	"/sign-in": typeof SignInRoute;
+	"/sign-up": typeof SignUpRoute;
+	"/unauthenticated": typeof UnauthenticatedRoute;
+	"/dashboard/focus": typeof DashboardFocusRoute;
+	"/dashboard/review": typeof DashboardReviewRoute;
+	"/dashboard/settings": typeof DashboardSettingsRoute;
+	"/dashboard/": typeof DashboardIndexRoute;
+	"/api/stripe/webhook": typeof ApiStripeWebhookRoute;
+	"/dashboard/kanban/$boardId": typeof DashboardKanbanBoardIdRoute;
+	"/dashboard/teams/$teamId": typeof DashboardTeamsTeamIdRouteWithChildren;
+	"/dashboard/kanban": typeof DashboardKanbanIndexRoute;
+	"/dashboard/teams": typeof DashboardTeamsIndexRoute;
+	"/profile/$userId": typeof ProfileUserIdIndexRoute;
+	"/dashboard/teams/$teamId/members": typeof DashboardTeamsTeamIdMembersRoute;
+	"/dashboard/teams/$teamId/settings": typeof DashboardTeamsTeamIdSettingsRoute;
+	"/dashboard/teams/$teamId/": typeof DashboardTeamsTeamIdIndexRoute;
+	"/dashboard/teams/$teamId/boards/$boardId": typeof DashboardTeamsTeamIdBoardsBoardIdRoute;
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/sign-in': typeof SignInRoute
-  '/sign-up': typeof SignUpRoute
-  '/unauthenticated': typeof UnauthenticatedRoute
-  '/dashboard/focus': typeof DashboardFocusRoute
-  '/dashboard/review': typeof DashboardReviewRoute
-  '/dashboard/settings': typeof DashboardSettingsRoute
-  '/dashboard': typeof DashboardIndexRoute
-  '/api/stripe/webhook': typeof ApiStripeWebhookRoute
-  '/dashboard/kanban/$boardId': typeof DashboardKanbanBoardIdRoute
-  '/dashboard/kanban': typeof DashboardKanbanIndexRoute
-  '/dashboard/teams': typeof DashboardTeamsIndexRoute
-  '/profile/$userId': typeof ProfileUserIdIndexRoute
-  '/dashboard/teams/$teamId/members': typeof DashboardTeamsTeamIdMembersRoute
-  '/dashboard/teams/$teamId/settings': typeof DashboardTeamsTeamIdSettingsRoute
-  '/dashboard/teams/$teamId': typeof DashboardTeamsTeamIdIndexRoute
-  '/dashboard/teams/$teamId/boards/$boardId': typeof DashboardTeamsTeamIdBoardsBoardIdRoute
+	"/": typeof IndexRoute;
+	"/sign-in": typeof SignInRoute;
+	"/sign-up": typeof SignUpRoute;
+	"/unauthenticated": typeof UnauthenticatedRoute;
+	"/dashboard/focus": typeof DashboardFocusRoute;
+	"/dashboard/review": typeof DashboardReviewRoute;
+	"/dashboard/settings": typeof DashboardSettingsRoute;
+	"/dashboard": typeof DashboardIndexRoute;
+	"/api/stripe/webhook": typeof ApiStripeWebhookRoute;
+	"/dashboard/kanban/$boardId": typeof DashboardKanbanBoardIdRoute;
+	"/dashboard/kanban": typeof DashboardKanbanIndexRoute;
+	"/dashboard/teams": typeof DashboardTeamsIndexRoute;
+	"/profile/$userId": typeof ProfileUserIdIndexRoute;
+	"/dashboard/teams/$teamId/members": typeof DashboardTeamsTeamIdMembersRoute;
+	"/dashboard/teams/$teamId/settings": typeof DashboardTeamsTeamIdSettingsRoute;
+	"/dashboard/teams/$teamId": typeof DashboardTeamsTeamIdIndexRoute;
+	"/dashboard/teams/$teamId/boards/$boardId": typeof DashboardTeamsTeamIdBoardsBoardIdRoute;
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRouteWithChildren
-  '/sign-in': typeof SignInRoute
-  '/sign-up': typeof SignUpRoute
-  '/unauthenticated': typeof UnauthenticatedRoute
-  '/dashboard/focus': typeof DashboardFocusRoute
-  '/dashboard/review': typeof DashboardReviewRoute
-  '/dashboard/settings': typeof DashboardSettingsRoute
-  '/dashboard/': typeof DashboardIndexRoute
-  '/api/stripe/webhook': typeof ApiStripeWebhookRoute
-  '/dashboard/kanban/$boardId': typeof DashboardKanbanBoardIdRoute
-  '/dashboard/teams/$teamId': typeof DashboardTeamsTeamIdRouteWithChildren
-  '/dashboard/kanban/': typeof DashboardKanbanIndexRoute
-  '/dashboard/teams/': typeof DashboardTeamsIndexRoute
-  '/profile/$userId/': typeof ProfileUserIdIndexRoute
-  '/dashboard/teams/$teamId/members': typeof DashboardTeamsTeamIdMembersRoute
-  '/dashboard/teams/$teamId/settings': typeof DashboardTeamsTeamIdSettingsRoute
-  '/dashboard/teams/$teamId/': typeof DashboardTeamsTeamIdIndexRoute
-  '/dashboard/teams/$teamId/boards/$boardId': typeof DashboardTeamsTeamIdBoardsBoardIdRoute
+	__root__: typeof rootRouteImport;
+	"/": typeof IndexRoute;
+	"/dashboard": typeof DashboardRouteWithChildren;
+	"/sign-in": typeof SignInRoute;
+	"/sign-up": typeof SignUpRoute;
+	"/unauthenticated": typeof UnauthenticatedRoute;
+	"/dashboard/focus": typeof DashboardFocusRoute;
+	"/dashboard/review": typeof DashboardReviewRoute;
+	"/dashboard/settings": typeof DashboardSettingsRoute;
+	"/dashboard/": typeof DashboardIndexRoute;
+	"/api/stripe/webhook": typeof ApiStripeWebhookRoute;
+	"/dashboard/kanban/$boardId": typeof DashboardKanbanBoardIdRoute;
+	"/dashboard/teams/$teamId": typeof DashboardTeamsTeamIdRouteWithChildren;
+	"/dashboard/kanban/": typeof DashboardKanbanIndexRoute;
+	"/dashboard/teams/": typeof DashboardTeamsIndexRoute;
+	"/profile/$userId/": typeof ProfileUserIdIndexRoute;
+	"/dashboard/teams/$teamId/members": typeof DashboardTeamsTeamIdMembersRoute;
+	"/dashboard/teams/$teamId/settings": typeof DashboardTeamsTeamIdSettingsRoute;
+	"/dashboard/teams/$teamId/": typeof DashboardTeamsTeamIdIndexRoute;
+	"/dashboard/teams/$teamId/boards/$boardId": typeof DashboardTeamsTeamIdBoardsBoardIdRoute;
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/dashboard'
-    | '/sign-in'
-    | '/sign-up'
-    | '/unauthenticated'
-    | '/dashboard/focus'
-    | '/dashboard/review'
-    | '/dashboard/settings'
-    | '/dashboard/'
-    | '/api/stripe/webhook'
-    | '/dashboard/kanban/$boardId'
-    | '/dashboard/teams/$teamId'
-    | '/dashboard/kanban'
-    | '/dashboard/teams'
-    | '/profile/$userId'
-    | '/dashboard/teams/$teamId/members'
-    | '/dashboard/teams/$teamId/settings'
-    | '/dashboard/teams/$teamId/'
-    | '/dashboard/teams/$teamId/boards/$boardId'
-  fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/sign-in'
-    | '/sign-up'
-    | '/unauthenticated'
-    | '/dashboard/focus'
-    | '/dashboard/review'
-    | '/dashboard/settings'
-    | '/dashboard'
-    | '/api/stripe/webhook'
-    | '/dashboard/kanban/$boardId'
-    | '/dashboard/kanban'
-    | '/dashboard/teams'
-    | '/profile/$userId'
-    | '/dashboard/teams/$teamId/members'
-    | '/dashboard/teams/$teamId/settings'
-    | '/dashboard/teams/$teamId'
-    | '/dashboard/teams/$teamId/boards/$boardId'
-  id:
-    | '__root__'
-    | '/'
-    | '/dashboard'
-    | '/sign-in'
-    | '/sign-up'
-    | '/unauthenticated'
-    | '/dashboard/focus'
-    | '/dashboard/review'
-    | '/dashboard/settings'
-    | '/dashboard/'
-    | '/api/stripe/webhook'
-    | '/dashboard/kanban/$boardId'
-    | '/dashboard/teams/$teamId'
-    | '/dashboard/kanban/'
-    | '/dashboard/teams/'
-    | '/profile/$userId/'
-    | '/dashboard/teams/$teamId/members'
-    | '/dashboard/teams/$teamId/settings'
-    | '/dashboard/teams/$teamId/'
-    | '/dashboard/teams/$teamId/boards/$boardId'
-  fileRoutesById: FileRoutesById
+	fileRoutesByFullPath: FileRoutesByFullPath;
+	fullPaths:
+		| "/"
+		| "/dashboard"
+		| "/sign-in"
+		| "/sign-up"
+		| "/unauthenticated"
+		| "/dashboard/focus"
+		| "/dashboard/review"
+		| "/dashboard/settings"
+		| "/dashboard/"
+		| "/api/stripe/webhook"
+		| "/dashboard/kanban/$boardId"
+		| "/dashboard/teams/$teamId"
+		| "/dashboard/kanban"
+		| "/dashboard/teams"
+		| "/profile/$userId"
+		| "/dashboard/teams/$teamId/members"
+		| "/dashboard/teams/$teamId/settings"
+		| "/dashboard/teams/$teamId/"
+		| "/dashboard/teams/$teamId/boards/$boardId";
+	fileRoutesByTo: FileRoutesByTo;
+	to:
+		| "/"
+		| "/sign-in"
+		| "/sign-up"
+		| "/unauthenticated"
+		| "/dashboard/focus"
+		| "/dashboard/review"
+		| "/dashboard/settings"
+		| "/dashboard"
+		| "/api/stripe/webhook"
+		| "/dashboard/kanban/$boardId"
+		| "/dashboard/kanban"
+		| "/dashboard/teams"
+		| "/profile/$userId"
+		| "/dashboard/teams/$teamId/members"
+		| "/dashboard/teams/$teamId/settings"
+		| "/dashboard/teams/$teamId"
+		| "/dashboard/teams/$teamId/boards/$boardId";
+	id:
+		| "__root__"
+		| "/"
+		| "/dashboard"
+		| "/sign-in"
+		| "/sign-up"
+		| "/unauthenticated"
+		| "/dashboard/focus"
+		| "/dashboard/review"
+		| "/dashboard/settings"
+		| "/dashboard/"
+		| "/api/stripe/webhook"
+		| "/dashboard/kanban/$boardId"
+		| "/dashboard/teams/$teamId"
+		| "/dashboard/kanban/"
+		| "/dashboard/teams/"
+		| "/profile/$userId/"
+		| "/dashboard/teams/$teamId/members"
+		| "/dashboard/teams/$teamId/settings"
+		| "/dashboard/teams/$teamId/"
+		| "/dashboard/teams/$teamId/boards/$boardId";
+	fileRoutesById: FileRoutesById;
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  DashboardRoute: typeof DashboardRouteWithChildren
-  SignInRoute: typeof SignInRoute
-  SignUpRoute: typeof SignUpRoute
-  UnauthenticatedRoute: typeof UnauthenticatedRoute
-  ApiStripeWebhookRoute: typeof ApiStripeWebhookRoute
-  ProfileUserIdIndexRoute: typeof ProfileUserIdIndexRoute
+	IndexRoute: typeof IndexRoute;
+	DashboardRoute: typeof DashboardRouteWithChildren;
+	SignInRoute: typeof SignInRoute;
+	SignUpRoute: typeof SignUpRoute;
+	UnauthenticatedRoute: typeof UnauthenticatedRoute;
+	ApiStripeWebhookRoute: typeof ApiStripeWebhookRoute;
+	ProfileUserIdIndexRoute: typeof ProfileUserIdIndexRoute;
 }
 
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {
-    '/unauthenticated': {
-      id: '/unauthenticated'
-      path: '/unauthenticated'
-      fullPath: '/unauthenticated'
-      preLoaderRoute: typeof UnauthenticatedRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sign-up': {
-      id: '/sign-up'
-      path: '/sign-up'
-      fullPath: '/sign-up'
-      preLoaderRoute: typeof SignUpRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sign-in': {
-      id: '/sign-in'
-      path: '/sign-in'
-      fullPath: '/sign-in'
-      preLoaderRoute: typeof SignInRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dashboard/': {
-      id: '/dashboard/'
-      path: '/'
-      fullPath: '/dashboard/'
-      preLoaderRoute: typeof DashboardIndexRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/settings': {
-      id: '/dashboard/settings'
-      path: '/settings'
-      fullPath: '/dashboard/settings'
-      preLoaderRoute: typeof DashboardSettingsRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/review': {
-      id: '/dashboard/review'
-      path: '/review'
-      fullPath: '/dashboard/review'
-      preLoaderRoute: typeof DashboardReviewRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/focus': {
-      id: '/dashboard/focus'
-      path: '/focus'
-      fullPath: '/dashboard/focus'
-      preLoaderRoute: typeof DashboardFocusRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/profile/$userId/': {
-      id: '/profile/$userId/'
-      path: '/profile/$userId'
-      fullPath: '/profile/$userId'
-      preLoaderRoute: typeof ProfileUserIdIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dashboard/teams/': {
-      id: '/dashboard/teams/'
-      path: '/teams'
-      fullPath: '/dashboard/teams'
-      preLoaderRoute: typeof DashboardTeamsIndexRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/kanban/': {
-      id: '/dashboard/kanban/'
-      path: '/kanban'
-      fullPath: '/dashboard/kanban'
-      preLoaderRoute: typeof DashboardKanbanIndexRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/teams/$teamId': {
-      id: '/dashboard/teams/$teamId'
-      path: '/teams/$teamId'
-      fullPath: '/dashboard/teams/$teamId'
-      preLoaderRoute: typeof DashboardTeamsTeamIdRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/kanban/$boardId': {
-      id: '/dashboard/kanban/$boardId'
-      path: '/kanban/$boardId'
-      fullPath: '/dashboard/kanban/$boardId'
-      preLoaderRoute: typeof DashboardKanbanBoardIdRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/api/stripe/webhook': {
-      id: '/api/stripe/webhook'
-      path: '/api/stripe/webhook'
-      fullPath: '/api/stripe/webhook'
-      preLoaderRoute: typeof ApiStripeWebhookRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dashboard/teams/$teamId/': {
-      id: '/dashboard/teams/$teamId/'
-      path: '/'
-      fullPath: '/dashboard/teams/$teamId/'
-      preLoaderRoute: typeof DashboardTeamsTeamIdIndexRouteImport
-      parentRoute: typeof DashboardTeamsTeamIdRoute
-    }
-    '/dashboard/teams/$teamId/settings': {
-      id: '/dashboard/teams/$teamId/settings'
-      path: '/settings'
-      fullPath: '/dashboard/teams/$teamId/settings'
-      preLoaderRoute: typeof DashboardTeamsTeamIdSettingsRouteImport
-      parentRoute: typeof DashboardTeamsTeamIdRoute
-    }
-    '/dashboard/teams/$teamId/members': {
-      id: '/dashboard/teams/$teamId/members'
-      path: '/members'
-      fullPath: '/dashboard/teams/$teamId/members'
-      preLoaderRoute: typeof DashboardTeamsTeamIdMembersRouteImport
-      parentRoute: typeof DashboardTeamsTeamIdRoute
-    }
-    '/dashboard/teams/$teamId/boards/$boardId': {
-      id: '/dashboard/teams/$teamId/boards/$boardId'
-      path: '/boards/$boardId'
-      fullPath: '/dashboard/teams/$teamId/boards/$boardId'
-      preLoaderRoute: typeof DashboardTeamsTeamIdBoardsBoardIdRouteImport
-      parentRoute: typeof DashboardTeamsTeamIdRoute
-    }
-  }
+declare module "@tanstack/react-router" {
+	interface FileRoutesByPath {
+		"/unauthenticated": {
+			id: "/unauthenticated";
+			path: "/unauthenticated";
+			fullPath: "/unauthenticated";
+			preLoaderRoute: typeof UnauthenticatedRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/sign-up": {
+			id: "/sign-up";
+			path: "/sign-up";
+			fullPath: "/sign-up";
+			preLoaderRoute: typeof SignUpRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/sign-in": {
+			id: "/sign-in";
+			path: "/sign-in";
+			fullPath: "/sign-in";
+			preLoaderRoute: typeof SignInRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/dashboard": {
+			id: "/dashboard";
+			path: "/dashboard";
+			fullPath: "/dashboard";
+			preLoaderRoute: typeof DashboardRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/": {
+			id: "/";
+			path: "/";
+			fullPath: "/";
+			preLoaderRoute: typeof IndexRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/dashboard/": {
+			id: "/dashboard/";
+			path: "/";
+			fullPath: "/dashboard/";
+			preLoaderRoute: typeof DashboardIndexRouteImport;
+			parentRoute: typeof DashboardRoute;
+		};
+		"/dashboard/settings": {
+			id: "/dashboard/settings";
+			path: "/settings";
+			fullPath: "/dashboard/settings";
+			preLoaderRoute: typeof DashboardSettingsRouteImport;
+			parentRoute: typeof DashboardRoute;
+		};
+		"/dashboard/review": {
+			id: "/dashboard/review";
+			path: "/review";
+			fullPath: "/dashboard/review";
+			preLoaderRoute: typeof DashboardReviewRouteImport;
+			parentRoute: typeof DashboardRoute;
+		};
+		"/dashboard/focus": {
+			id: "/dashboard/focus";
+			path: "/focus";
+			fullPath: "/dashboard/focus";
+			preLoaderRoute: typeof DashboardFocusRouteImport;
+			parentRoute: typeof DashboardRoute;
+		};
+		"/profile/$userId/": {
+			id: "/profile/$userId/";
+			path: "/profile/$userId";
+			fullPath: "/profile/$userId";
+			preLoaderRoute: typeof ProfileUserIdIndexRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/dashboard/teams/": {
+			id: "/dashboard/teams/";
+			path: "/teams";
+			fullPath: "/dashboard/teams";
+			preLoaderRoute: typeof DashboardTeamsIndexRouteImport;
+			parentRoute: typeof DashboardRoute;
+		};
+		"/dashboard/kanban/": {
+			id: "/dashboard/kanban/";
+			path: "/kanban";
+			fullPath: "/dashboard/kanban";
+			preLoaderRoute: typeof DashboardKanbanIndexRouteImport;
+			parentRoute: typeof DashboardRoute;
+		};
+		"/dashboard/teams/$teamId": {
+			id: "/dashboard/teams/$teamId";
+			path: "/teams/$teamId";
+			fullPath: "/dashboard/teams/$teamId";
+			preLoaderRoute: typeof DashboardTeamsTeamIdRouteImport;
+			parentRoute: typeof DashboardRoute;
+		};
+		"/dashboard/kanban/$boardId": {
+			id: "/dashboard/kanban/$boardId";
+			path: "/kanban/$boardId";
+			fullPath: "/dashboard/kanban/$boardId";
+			preLoaderRoute: typeof DashboardKanbanBoardIdRouteImport;
+			parentRoute: typeof DashboardRoute;
+		};
+		"/api/stripe/webhook": {
+			id: "/api/stripe/webhook";
+			path: "/api/stripe/webhook";
+			fullPath: "/api/stripe/webhook";
+			preLoaderRoute: typeof ApiStripeWebhookRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/dashboard/teams/$teamId/": {
+			id: "/dashboard/teams/$teamId/";
+			path: "/";
+			fullPath: "/dashboard/teams/$teamId/";
+			preLoaderRoute: typeof DashboardTeamsTeamIdIndexRouteImport;
+			parentRoute: typeof DashboardTeamsTeamIdRoute;
+		};
+		"/dashboard/teams/$teamId/settings": {
+			id: "/dashboard/teams/$teamId/settings";
+			path: "/settings";
+			fullPath: "/dashboard/teams/$teamId/settings";
+			preLoaderRoute: typeof DashboardTeamsTeamIdSettingsRouteImport;
+			parentRoute: typeof DashboardTeamsTeamIdRoute;
+		};
+		"/dashboard/teams/$teamId/members": {
+			id: "/dashboard/teams/$teamId/members";
+			path: "/members";
+			fullPath: "/dashboard/teams/$teamId/members";
+			preLoaderRoute: typeof DashboardTeamsTeamIdMembersRouteImport;
+			parentRoute: typeof DashboardTeamsTeamIdRoute;
+		};
+		"/dashboard/teams/$teamId/boards/$boardId": {
+			id: "/dashboard/teams/$teamId/boards/$boardId";
+			path: "/boards/$boardId";
+			fullPath: "/dashboard/teams/$teamId/boards/$boardId";
+			preLoaderRoute: typeof DashboardTeamsTeamIdBoardsBoardIdRouteImport;
+			parentRoute: typeof DashboardTeamsTeamIdRoute;
+		};
+	}
 }
 
 interface DashboardTeamsTeamIdRouteChildren {
-  DashboardTeamsTeamIdMembersRoute: typeof DashboardTeamsTeamIdMembersRoute
-  DashboardTeamsTeamIdSettingsRoute: typeof DashboardTeamsTeamIdSettingsRoute
-  DashboardTeamsTeamIdIndexRoute: typeof DashboardTeamsTeamIdIndexRoute
-  DashboardTeamsTeamIdBoardsBoardIdRoute: typeof DashboardTeamsTeamIdBoardsBoardIdRoute
+	DashboardTeamsTeamIdMembersRoute: typeof DashboardTeamsTeamIdMembersRoute;
+	DashboardTeamsTeamIdSettingsRoute: typeof DashboardTeamsTeamIdSettingsRoute;
+	DashboardTeamsTeamIdIndexRoute: typeof DashboardTeamsTeamIdIndexRoute;
+	DashboardTeamsTeamIdBoardsBoardIdRoute: typeof DashboardTeamsTeamIdBoardsBoardIdRoute;
 }
 
 const DashboardTeamsTeamIdRouteChildren: DashboardTeamsTeamIdRouteChildren = {
-  DashboardTeamsTeamIdMembersRoute: DashboardTeamsTeamIdMembersRoute,
-  DashboardTeamsTeamIdSettingsRoute: DashboardTeamsTeamIdSettingsRoute,
-  DashboardTeamsTeamIdIndexRoute: DashboardTeamsTeamIdIndexRoute,
-  DashboardTeamsTeamIdBoardsBoardIdRoute:
-    DashboardTeamsTeamIdBoardsBoardIdRoute,
-}
+	DashboardTeamsTeamIdMembersRoute: DashboardTeamsTeamIdMembersRoute,
+	DashboardTeamsTeamIdSettingsRoute: DashboardTeamsTeamIdSettingsRoute,
+	DashboardTeamsTeamIdIndexRoute: DashboardTeamsTeamIdIndexRoute,
+	DashboardTeamsTeamIdBoardsBoardIdRoute:
+		DashboardTeamsTeamIdBoardsBoardIdRoute,
+};
 
 const DashboardTeamsTeamIdRouteWithChildren =
-  DashboardTeamsTeamIdRoute._addFileChildren(DashboardTeamsTeamIdRouteChildren)
+	DashboardTeamsTeamIdRoute._addFileChildren(DashboardTeamsTeamIdRouteChildren);
 
 interface DashboardRouteChildren {
-  DashboardFocusRoute: typeof DashboardFocusRoute
-  DashboardReviewRoute: typeof DashboardReviewRoute
-  DashboardSettingsRoute: typeof DashboardSettingsRoute
-  DashboardIndexRoute: typeof DashboardIndexRoute
-  DashboardKanbanBoardIdRoute: typeof DashboardKanbanBoardIdRoute
-  DashboardTeamsTeamIdRoute: typeof DashboardTeamsTeamIdRouteWithChildren
-  DashboardKanbanIndexRoute: typeof DashboardKanbanIndexRoute
-  DashboardTeamsIndexRoute: typeof DashboardTeamsIndexRoute
+	DashboardFocusRoute: typeof DashboardFocusRoute;
+	DashboardReviewRoute: typeof DashboardReviewRoute;
+	DashboardSettingsRoute: typeof DashboardSettingsRoute;
+	DashboardIndexRoute: typeof DashboardIndexRoute;
+	DashboardKanbanBoardIdRoute: typeof DashboardKanbanBoardIdRoute;
+	DashboardTeamsTeamIdRoute: typeof DashboardTeamsTeamIdRouteWithChildren;
+	DashboardKanbanIndexRoute: typeof DashboardKanbanIndexRoute;
+	DashboardTeamsIndexRoute: typeof DashboardTeamsIndexRoute;
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
-  DashboardFocusRoute: DashboardFocusRoute,
-  DashboardReviewRoute: DashboardReviewRoute,
-  DashboardSettingsRoute: DashboardSettingsRoute,
-  DashboardIndexRoute: DashboardIndexRoute,
-  DashboardKanbanBoardIdRoute: DashboardKanbanBoardIdRoute,
-  DashboardTeamsTeamIdRoute: DashboardTeamsTeamIdRouteWithChildren,
-  DashboardKanbanIndexRoute: DashboardKanbanIndexRoute,
-  DashboardTeamsIndexRoute: DashboardTeamsIndexRoute,
-}
+	DashboardFocusRoute: DashboardFocusRoute,
+	DashboardReviewRoute: DashboardReviewRoute,
+	DashboardSettingsRoute: DashboardSettingsRoute,
+	DashboardIndexRoute: DashboardIndexRoute,
+	DashboardKanbanBoardIdRoute: DashboardKanbanBoardIdRoute,
+	DashboardTeamsTeamIdRoute: DashboardTeamsTeamIdRouteWithChildren,
+	DashboardKanbanIndexRoute: DashboardKanbanIndexRoute,
+	DashboardTeamsIndexRoute: DashboardTeamsIndexRoute,
+};
 
 const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
-  DashboardRouteChildren,
-)
+	DashboardRouteChildren,
+);
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  DashboardRoute: DashboardRouteWithChildren,
-  SignInRoute: SignInRoute,
-  SignUpRoute: SignUpRoute,
-  UnauthenticatedRoute: UnauthenticatedRoute,
-  ApiStripeWebhookRoute: ApiStripeWebhookRoute,
-  ProfileUserIdIndexRoute: ProfileUserIdIndexRoute,
-}
+	IndexRoute: IndexRoute,
+	DashboardRoute: DashboardRouteWithChildren,
+	SignInRoute: SignInRoute,
+	SignUpRoute: SignUpRoute,
+	UnauthenticatedRoute: UnauthenticatedRoute,
+	ApiStripeWebhookRoute: ApiStripeWebhookRoute,
+	ProfileUserIdIndexRoute: ProfileUserIdIndexRoute,
+};
 export const routeTree = rootRouteImport
-  ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
+	._addFileChildren(rootRouteChildren)
+	._addFileTypes<FileRouteTypes>();
 
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
+import type { createStart } from "@tanstack/react-start";
+import type { getRouter } from "./router.tsx";
+
+declare module "@tanstack/react-start" {
+	interface Register {
+		ssr: true;
+		router: Awaited<ReturnType<typeof getRouter>>;
+	}
 }

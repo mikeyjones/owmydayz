@@ -2,9 +2,9 @@
 // TODO: Implement subscriptions in Convex
 
 export function useSubscriptionStatus() {
-  return {
-    data: { isSubscribed: false, plan: "free" },
-    isLoading: false,
-    error: null,
-  };
+	return {
+		data: { isSubscribed: false, plan: "free" },
+		isLoading: false,
+		error: null,
+	};
 }

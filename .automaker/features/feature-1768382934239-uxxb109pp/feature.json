@@ -1,30 +1,28 @@
 {
-  "category": "feature",
-  "description": "Enable users to create, edit, delete, and reorder custom columns within each Kanban board. Each column should have a name and position.",
-  "title": "Custom column management for Kanban boards",
-  "dependencies": [
-    "create-and-manage-multiple-kanban-boards"
-  ],
-  "priority": 2,
-  "status": "verified",
-  "branchName": "main",
-  "id": "feature-1768382934239-uxxb109pp",
-  "descriptionHistory": [
-    {
-      "description": "Enable users to create, edit, delete, and reorder custom columns within each Kanban board. Each column should have a name and position.",
-      "timestamp": "2026-01-14T09:28:54.239Z",
-      "source": "initial"
-    }
-  ],
-  "skipTests": false,
-  "model": "composer-1",
-  "thinkingLevel": "none",
-  "reasoningEffort": "none",
-  "imagePaths": [],
-  "textFilePaths": [],
-  "planningMode": "skip",
-  "requirePlanApproval": false,
-  "workMode": "custom",
-  "startedAt": "2026-01-14T16:34:14.510Z",
-  "updatedAt": "2026-01-14T16:34:15.403Z"
+	"category": "feature",
+	"description": "Enable users to create, edit, delete, and reorder custom columns within each Kanban board. Each column should have a name and position.",
+	"title": "Custom column management for Kanban boards",
+	"dependencies": ["create-and-manage-multiple-kanban-boards"],
+	"priority": 2,
+	"status": "verified",
+	"branchName": "main",
+	"id": "feature-1768382934239-uxxb109pp",
+	"descriptionHistory": [
+		{
+			"description": "Enable users to create, edit, delete, and reorder custom columns within each Kanban board. Each column should have a name and position.",
+			"timestamp": "2026-01-14T09:28:54.239Z",
+			"source": "initial"
+		}
+	],
+	"skipTests": false,
+	"model": "composer-1",
+	"thinkingLevel": "none",
+	"reasoningEffort": "none",
+	"imagePaths": [],
+	"textFilePaths": [],
+	"planningMode": "skip",
+	"requirePlanApproval": false,
+	"workMode": "custom",
+	"startedAt": "2026-01-14T16:34:14.510Z",
+	"updatedAt": "2026-01-14T16:34:15.403Z"
 }

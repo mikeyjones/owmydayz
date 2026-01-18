@@ -1,149 +1,149 @@
-import { useQuery, useMutation } from "convex/react";
-import { api } from "../../convex/_generated/api";
-import { useCurrentUser } from "./useCurrentUser";
+import { useMutation, useQuery } from "convex/react";
 import { toast } from "sonner";
+import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
+import { useCurrentUser } from "./useCurrentUser";
 
 // =====================================================
 // Team Hooks
 // =====================================================
 
 export function useTeams(enabled = true) {
-  const { userId } = useCurrentUser();
-  
-  const teams = useQuery(
-    enabled && userId ? api.teams.getTeams : "skip",
-    userId ? { userId } : "skip"
-  );
+	const { userId } = useCurrentUser();
 
-  return {
-    data: teams,
-    isLoading: teams === undefined && enabled && !!userId,
-    error: null,
-  };
+	const teams = useQuery(
+		enabled && userId ? api.teams.getTeams : "skip",
+		userId ? { userId } : "skip",
+	);
+
+	return {
+		data: teams,
+		isLoading: teams === undefined && enabled && !!userId,
+		error: null,
+	};
 }
 
 export function useTeam(teamId: string, enabled = true) {
-  const { userId } = useCurrentUser();
-  
-  const team = useQuery(
-    enabled && teamId && userId ? api.teams.getTeamById : "skip",
-    enabled && teamId && userId
-      ? { id: teamId as Id<"teams">, userId }
-      : "skip"
-  );
+	const { userId } = useCurrentUser();
 
-  return {
-    data: team,
-    isLoading: team === undefined && enabled && !!teamId && !!userId,
-    error: null,
-  };
+	const team = useQuery(
+		enabled && teamId && userId ? api.teams.getTeamById : "skip",
+		enabled && teamId && userId
+			? { id: teamId as Id<"teams">, userId }
+			: "skip",
+	);
+
+	return {
+		data: team,
+		isLoading: team === undefined && enabled && !!teamId && !!userId,
+		error: null,
+	};
 }
 
 interface CreateTeamData {
-  name: string;
+	name: string;
 }
 
 export function useCreateTeam() {
-  const { userId } = useCurrentUser();
-  const createTeam = useMutation(api.teams.createTeam);
+	const { userId } = useCurrentUser();
+	const createTeam = useMutation(api.teams.createTeam);
 
-  return {
-    mutate: async (data: CreateTeamData) => {
-      if (!userId) {
-        toast.error("You must be logged in to create a team");
-        return;
-      }
-      try {
-        await createTeam({
-          name: data.name,
-          userId,
-        });
-        toast.success("Team created successfully!", {
-          description: "Your new team is ready.",
-        });
-      } catch (error) {
-        toast.error("Failed to create team", {
-          description: error instanceof Error ? error.message : "Unknown error",
-        });
-        throw error;
-      }
-    },
-    mutateAsync: async (data: CreateTeamData) => {
-      if (!userId) {
-        throw new Error("You must be logged in to create a team");
-      }
-      const result = await createTeam({
-        name: data.name,
-        userId,
-      });
-      toast.success("Team created successfully!", {
-        description: "Your new team is ready.",
-      });
-      return result;
-    },
-    isPending: false,
-  };
+	return {
+		mutate: async (data: CreateTeamData) => {
+			if (!userId) {
+				toast.error("You must be logged in to create a team");
+				return;
+			}
+			try {
+				await createTeam({
+					name: data.name,
+					userId,
+				});
+				toast.success("Team created successfully!", {
+					description: "Your new team is ready.",
+				});
+			} catch (error) {
+				toast.error("Failed to create team", {
+					description: error instanceof Error ? error.message : "Unknown error",
+				});
+				throw error;
+			}
+		},
+		mutateAsync: async (data: CreateTeamData) => {
+			if (!userId) {
+				throw new Error("You must be logged in to create a team");
+			}
+			const result = await createTeam({
+				name: data.name,
+				userId,
+			});
+			toast.success("Team created successfully!", {
+				description: "Your new team is ready.",
+			});
+			return result;
+		},
+		isPending: false,
+	};
 }
 
 interface UpdateTeamData {
-  id: string;
-  name: string;
+	id: string;
+	name: string;
 }
 
 export function useUpdateTeam() {
-  const { userId } = useCurrentUser();
-  const updateTeam = useMutation(api.teams.updateTeam);
+	const { userId } = useCurrentUser();
+	const updateTeam = useMutation(api.teams.updateTeam);
 
-  return {
-    mutate: async (data: UpdateTeamData) => {
-      if (!userId) {
-        toast.error("You must be logged in to update a team");
-        return;
-      }
-      try {
-        await updateTeam({
-          id: data.id as Id<"teams">,
-          name: data.name,
-          userId,
-        });
-        toast.success("Team updated successfully!");
-      } catch (error) {
-        toast.error("Failed to update team", {
-          description: error instanceof Error ? error.message : "Unknown error",
-        });
-        throw error;
-      }
-    },
-    isPending: false,
-  };
+	return {
+		mutate: async (data: UpdateTeamData) => {
+			if (!userId) {
+				toast.error("You must be logged in to update a team");
+				return;
+			}
+			try {
+				await updateTeam({
+					id: data.id as Id<"teams">,
+					name: data.name,
+					userId,
+				});
+				toast.success("Team updated successfully!");
+			} catch (error) {
+				toast.error("Failed to update team", {
+					description: error instanceof Error ? error.message : "Unknown error",
+				});
+				throw error;
+			}
+		},
+		isPending: false,
+	};
 }
 
 export function useDeleteTeam() {
-  const { userId } = useCurrentUser();
-  const deleteTeam = useMutation(api.teams.deleteTeam);
+	const { userId } = useCurrentUser();
+	const deleteTeam = useMutation(api.teams.deleteTeam);
 
-  return {
-    mutate: async (teamId: string) => {
-      if (!userId) {
-        toast.error("You must be logged in to delete a team");
-        return;
-      }
-      try {
-        await deleteTeam({
-          id: teamId as Id<"teams">,
-          userId,
-        });
-        toast.success("Team deleted successfully!");
-      } catch (error) {
-        toast.error("Failed to delete team", {
-          description: error instanceof Error ? error.message : "Unknown error",
-        });
-        throw error;
-      }
-    },
-    isPending: false,
-  };
+	return {
+		mutate: async (teamId: string) => {
+			if (!userId) {
+				toast.error("You must be logged in to delete a team");
+				return;
+			}
+			try {
+				await deleteTeam({
+					id: teamId as Id<"teams">,
+					userId,
+				});
+				toast.success("Team deleted successfully!");
+			} catch (error) {
+				toast.error("Failed to delete team", {
+					description: error instanceof Error ? error.message : "Unknown error",
+				});
+				throw error;
+			}
+		},
+		isPending: false,
+	};
 }
 
 // =====================================================
@@ -151,90 +151,90 @@ export function useDeleteTeam() {
 // =====================================================
 
 export function useTeamMembers(teamId: string, enabled = true) {
-  const { userId } = useCurrentUser();
-  
-  const members = useQuery(
-    enabled && teamId && userId ? api.teams.getTeamMembers : "skip",
-    enabled && teamId && userId
-      ? { teamId: teamId as Id<"teams">, userId }
-      : "skip"
-  );
+	const { userId } = useCurrentUser();
 
-  return {
-    data: members,
-    isLoading: members === undefined && enabled && !!teamId && !!userId,
-    error: null,
-  };
+	const members = useQuery(
+		enabled && teamId && userId ? api.teams.getTeamMembers : "skip",
+		enabled && teamId && userId
+			? { teamId: teamId as Id<"teams">, userId }
+			: "skip",
+	);
+
+	return {
+		data: members,
+		isLoading: members === undefined && enabled && !!teamId && !!userId,
+		error: null,
+	};
 }
 
 interface UpdateMemberRoleData {
-  membershipId: string;
-  role: "admin" | "member";
-  teamId: string; // For context
-  targetUserId: string;
+	membershipId: string;
+	role: "admin" | "member";
+	teamId: string; // For context
+	targetUserId: string;
 }
 
 export function useUpdateMemberRole() {
-  const { userId } = useCurrentUser();
-  const updateMemberRole = useMutation(api.teams.updateMemberRole);
+	const { userId } = useCurrentUser();
+	const updateMemberRole = useMutation(api.teams.updateMemberRole);
 
-  return {
-    mutate: async (data: UpdateMemberRoleData) => {
-      if (!userId) {
-        toast.error("You must be logged in to update member role");
-        return;
-      }
-      try {
-        await updateMemberRole({
-          teamId: data.teamId as Id<"teams">,
-          targetUserId: data.targetUserId,
-          role: data.role,
-          currentUserId: userId,
-        });
-        toast.success("Member role updated!");
-      } catch (error) {
-        toast.error("Failed to update member role", {
-          description: error instanceof Error ? error.message : "Unknown error",
-        });
-        throw error;
-      }
-    },
-    isPending: false,
-  };
+	return {
+		mutate: async (data: UpdateMemberRoleData) => {
+			if (!userId) {
+				toast.error("You must be logged in to update member role");
+				return;
+			}
+			try {
+				await updateMemberRole({
+					teamId: data.teamId as Id<"teams">,
+					targetUserId: data.targetUserId,
+					role: data.role,
+					currentUserId: userId,
+				});
+				toast.success("Member role updated!");
+			} catch (error) {
+				toast.error("Failed to update member role", {
+					description: error instanceof Error ? error.message : "Unknown error",
+				});
+				throw error;
+			}
+		},
+		isPending: false,
+	};
 }
 
 interface RemoveMemberData {
-  membershipId: string;
-  teamId: string;
-  targetUserId: string;
+	membershipId: string;
+	teamId: string;
+	targetUserId: string;
 }
 
 export function useRemoveMember() {
-  const { userId } = useCurrentUser();
-  const removeMember = useMutation(api.teams.removeMember);
+	const { userId } = useCurrentUser();
+	const removeMember = useMutation(api.teams.removeMember);
 
-  return {
-    mutate: async (data: RemoveMemberData) => {
-      if (!userId) {
-        toast.error("You must be logged in to remove a member");
-        return;
-      }
-      try {
-        await removeMember({
-          teamId: data.teamId as Id<"teams">,
-          targetUserId: data.targetUserId,
-          currentUserId: userId,
-        });
-        toast.success("Member removed from team!");
-      } catch (error) {
-        toast.error("Failed to remove member", {
-          description: error instanceof Error ? error.message : "Unknown error",
-        });
-        throw error;
-      }
-    },
-    isPending: false,
-  };
+	return {
+		mutate: async (data: RemoveMemberData) => {
+			if (!userId) {
+				toast.error("You must be logged in to remove a member");
+				return;
+			}
+			try {
+				await removeMember({
+					teamId: data.teamId as Id<"teams">,
+					targetUserId: data.targetUserId,
+					currentUserId: userId,
+				});
+				toast.success("Member removed from team!");
+			} catch (error) {
+				toast.error("Failed to remove member", {
+					description: error instanceof Error ? error.message : "Unknown error",
+				});
+				throw error;
+			}
+		},
+		isPending: false,
+	};
 }
 
 // =====================================================
@@ -242,158 +242,158 @@ export function useRemoveMember() {
 // =====================================================
 
 export function useTeamInvitations(teamId: string, enabled = true) {
-  const { userId } = useCurrentUser();
-  
-  const invitations = useQuery(
-    enabled && teamId && userId ? api.teams.getTeamInvitations : "skip",
-    enabled && teamId && userId
-      ? { teamId: teamId as Id<"teams">, userId }
-      : "skip"
-  );
+	const { userId } = useCurrentUser();
 
-  return {
-    data: invitations,
-    isLoading: invitations === undefined && enabled && !!teamId && !!userId,
-    error: null,
-  };
+	const invitations = useQuery(
+		enabled && teamId && userId ? api.teams.getTeamInvitations : "skip",
+		enabled && teamId && userId
+			? { teamId: teamId as Id<"teams">, userId }
+			: "skip",
+	);
+
+	return {
+		data: invitations,
+		isLoading: invitations === undefined && enabled && !!teamId && !!userId,
+		error: null,
+	};
 }
 
 export function useMyPendingInvitations(enabled = true) {
-  const { userId } = useCurrentUser();
-  
-  const invitations = useQuery(
-    enabled && userId ? api.teams.getPendingInvitationsForUser : "skip",
-    userId ? { userId } : "skip"
-  );
+	const { userId } = useCurrentUser();
 
-  return {
-    data: invitations,
-    isLoading: invitations === undefined && enabled && !!userId,
-    error: null,
-  };
+	const invitations = useQuery(
+		enabled && userId ? api.teams.getPendingInvitationsForUser : "skip",
+		userId ? { userId } : "skip",
+	);
+
+	return {
+		data: invitations,
+		isLoading: invitations === undefined && enabled && !!userId,
+		error: null,
+	};
 }
 
 interface InviteMemberData {
-  teamId: string;
-  email: string;
-  role?: "admin" | "member";
+	teamId: string;
+	email: string;
+	role?: "admin" | "member";
 }
 
 export function useInviteMember() {
-  const { userId } = useCurrentUser();
-  const createInvitation = useMutation(api.teams.createInvitation);
+	const { userId } = useCurrentUser();
+	const createInvitation = useMutation(api.teams.createInvitation);
 
-  return {
-    mutate: async (data: InviteMemberData) => {
-      if (!userId) {
-        toast.error("You must be logged in to invite a member");
-        return;
-      }
-      try {
-        await createInvitation({
-          teamId: data.teamId as Id<"teams">,
-          email: data.email,
-          role: data.role,
-          userId,
-        });
-        toast.success("Invitation sent!", {
-          description: `An invitation has been sent to ${data.email}`,
-        });
-      } catch (error) {
-        toast.error("Failed to send invitation", {
-          description: error instanceof Error ? error.message : "Unknown error",
-        });
-        throw error;
-      }
-    },
-    isPending: false,
-  };
+	return {
+		mutate: async (data: InviteMemberData) => {
+			if (!userId) {
+				toast.error("You must be logged in to invite a member");
+				return;
+			}
+			try {
+				await createInvitation({
+					teamId: data.teamId as Id<"teams">,
+					email: data.email,
+					role: data.role,
+					userId,
+				});
+				toast.success("Invitation sent!", {
+					description: `An invitation has been sent to ${data.email}`,
+				});
+			} catch (error) {
+				toast.error("Failed to send invitation", {
+					description: error instanceof Error ? error.message : "Unknown error",
+				});
+				throw error;
+			}
+		},
+		isPending: false,
+	};
 }
 
 interface RevokeInvitationData {
-  invitationId: string;
-  teamId: string; // For context
+	invitationId: string;
+	teamId: string; // For context
 }
 
 export function useRevokeInvitation() {
-  const { userId } = useCurrentUser();
-  const deleteInvitation = useMutation(api.teams.deleteInvitation);
+	const { userId } = useCurrentUser();
+	const deleteInvitation = useMutation(api.teams.deleteInvitation);
 
-  return {
-    mutate: async (data: RevokeInvitationData) => {
-      if (!userId) {
-        toast.error("You must be logged in to revoke an invitation");
-        return;
-      }
-      try {
-        await deleteInvitation({
-          id: data.invitationId as Id<"teamInvitations">,
-          userId,
-        });
-        toast.success("Invitation revoked!");
-      } catch (error) {
-        toast.error("Failed to revoke invitation", {
-          description: error instanceof Error ? error.message : "Unknown error",
-        });
-        throw error;
-      }
-    },
-    isPending: false,
-  };
+	return {
+		mutate: async (data: RevokeInvitationData) => {
+			if (!userId) {
+				toast.error("You must be logged in to revoke an invitation");
+				return;
+			}
+			try {
+				await deleteInvitation({
+					id: data.invitationId as Id<"teamInvitations">,
+					userId,
+				});
+				toast.success("Invitation revoked!");
+			} catch (error) {
+				toast.error("Failed to revoke invitation", {
+					description: error instanceof Error ? error.message : "Unknown error",
+				});
+				throw error;
+			}
+		},
+		isPending: false,
+	};
 }
 
 export function useAcceptInvitation() {
-  const { userId } = useCurrentUser();
-  const acceptInvitation = useMutation(api.teams.acceptInvitation);
+	const { userId } = useCurrentUser();
+	const acceptInvitation = useMutation(api.teams.acceptInvitation);
 
-  return {
-    mutate: async (token: string) => {
-      if (!userId) {
-        toast.error("You must be logged in to accept an invitation");
-        return;
-      }
-      try {
-        await acceptInvitation({
-          token,
-          userId,
-        });
-        toast.success("You've joined the team!");
-      } catch (error) {
-        toast.error("Failed to accept invitation", {
-          description: error instanceof Error ? error.message : "Unknown error",
-        });
-        throw error;
-      }
-    },
-    isPending: false,
-  };
+	return {
+		mutate: async (token: string) => {
+			if (!userId) {
+				toast.error("You must be logged in to accept an invitation");
+				return;
+			}
+			try {
+				await acceptInvitation({
+					token,
+					userId,
+				});
+				toast.success("You've joined the team!");
+			} catch (error) {
+				toast.error("Failed to accept invitation", {
+					description: error instanceof Error ? error.message : "Unknown error",
+				});
+				throw error;
+			}
+		},
+		isPending: false,
+	};
 }
 
 export function useDeclineInvitation() {
-  const { userId } = useCurrentUser();
-  const deleteInvitation = useMutation(api.teams.deleteInvitation);
+	const { userId } = useCurrentUser();
+	const deleteInvitation = useMutation(api.teams.deleteInvitation);
 
-  return {
-    mutate: async (invitationId: string) => {
-      if (!userId) {
-        toast.error("You must be logged in to decline an invitation");
-        return;
-      }
-      try {
-        await deleteInvitation({
-          id: invitationId as Id<"teamInvitations">,
-          userId,
-        });
-        toast.success("Invitation declined");
-      } catch (error) {
-        toast.error("Failed to decline invitation", {
-          description: error instanceof Error ? error.message : "Unknown error",
-        });
-        throw error;
-      }
-    },
-    isPending: false,
-  };
+	return {
+		mutate: async (invitationId: string) => {
+			if (!userId) {
+				toast.error("You must be logged in to decline an invitation");
+				return;
+			}
+			try {
+				await deleteInvitation({
+					id: invitationId as Id<"teamInvitations">,
+					userId,
+				});
+				toast.success("Invitation declined");
+			} catch (error) {
+				toast.error("Failed to decline invitation", {
+					description: error instanceof Error ? error.message : "Unknown error",
+				});
+				throw error;
+			}
+		},
+		isPending: false,
+	};
 }
 
 // =====================================================
@@ -401,33 +401,37 @@ export function useDeclineInvitation() {
 // =====================================================
 
 export function useIsTeamMember(teamId: string, enabled = true) {
-  const { userId } = useCurrentUser();
-  
-  const isMember = useQuery(
-    enabled && teamId && userId ? api.teams.isTeamMember : "skip",
-    enabled && teamId && userId
-      ? { teamId: teamId as Id<"teams">, userId }
-      : "skip"
-  );
+	const { userId } = useCurrentUser();
 
-  return {
-    data: isMember,
-    isLoading: isMember === undefined && enabled && !!teamId && !!userId,
-  };
+	const isMember = useQuery(
+		enabled && teamId && userId ? api.teams.isTeamMember : "skip",
+		enabled && teamId && userId
+			? { teamId: teamId as Id<"teams">, userId }
+			: "skip",
+	);
+
+	return {
+		data: isMember,
+		isLoading: isMember === undefined && enabled && !!teamId && !!userId,
+	};
 }
 
-export function useHasTeamRole(teamId: string, requiredRole: string, enabled = true) {
-  const { userId } = useCurrentUser();
-  
-  const hasRole = useQuery(
-    enabled && teamId && userId ? api.teams.hasTeamRole : "skip",
-    enabled && teamId && userId
-      ? { teamId: teamId as Id<"teams">, requiredRole, userId }
-      : "skip"
-  );
+export function useHasTeamRole(
+	teamId: string,
+	requiredRole: string,
+	enabled = true,
+) {
+	const { userId } = useCurrentUser();
 
-  return {
-    data: hasRole,
-    isLoading: hasRole === undefined && enabled && !!teamId && !!userId,
-  };
+	const hasRole = useQuery(
+		enabled && teamId && userId ? api.teams.hasTeamRole : "skip",
+		enabled && teamId && userId
+			? { teamId: teamId as Id<"teams">, requiredRole, userId }
+			: "skip",
+	);
+
+	return {
+		data: hasRole,
+		isLoading: hasRole === undefined && enabled && !!teamId && !!userId,
+	};
 }

@@ -1,8 +1,8 @@
 import { queryOptions } from "@tanstack/react-query";
 import {
-  getMyPortfolioItemsFn,
-  getUserPortfolioItemsFn,
-  getPortfolioItemFn,
+	getMyPortfolioItemsFn,
+	getPortfolioItemFn,
+	getUserPortfolioItemsFn,
 } from "~/fn/portfolio";
 import { getAuthHeaders } from "~/utils/server-fn-client";
 
@@ -10,25 +10,27 @@ import { getAuthHeaders } from "~/utils/server-fn-client";
  * Query for current user's portfolio items
  */
 export const myPortfolioQueryOptions = () =>
-  queryOptions({
-    queryKey: ["my-portfolio"],
-    queryFn: () => getMyPortfolioItemsFn({ headers: getAuthHeaders() }),
-  });
+	queryOptions({
+		queryKey: ["my-portfolio"],
+		queryFn: () => getMyPortfolioItemsFn({ headers: getAuthHeaders() }),
+	});
 
 /**
  * Query for a specific user's portfolio items
  */
 export const userPortfolioQueryOptions = (userId: string) =>
-  queryOptions({
-    queryKey: ["portfolio", userId],
-    queryFn: () => getUserPortfolioItemsFn({ data: { userId }, headers: getAuthHeaders() }),
-  });
+	queryOptions({
+		queryKey: ["portfolio", userId],
+		queryFn: () =>
+			getUserPortfolioItemsFn({ data: { userId }, headers: getAuthHeaders() }),
+	});
 
 /**
  * Query for a single portfolio item
  */
 export const portfolioItemQueryOptions = (id: string) =>
-  queryOptions({
-    queryKey: ["portfolio-item", id],
-    queryFn: () => getPortfolioItemFn({ data: { id }, headers: getAuthHeaders() }),
-  });
+	queryOptions({
+		queryKey: ["portfolio-item", id],
+		queryFn: () =>
+			getPortfolioItemFn({ data: { id }, headers: getAuthHeaders() }),
+	});

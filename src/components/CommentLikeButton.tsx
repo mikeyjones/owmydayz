@@ -1,36 +1,36 @@
-import { LikeButton } from "./LikeButton";
 import {
-  useCommentReactionStatus,
-  useToggleCommentReaction,
+	useCommentReactionStatus,
+	useToggleCommentReaction,
 } from "~/hooks/useReactions";
+import { LikeButton } from "./LikeButton";
 
 interface CommentLikeButtonProps {
-  commentId: string;
-  size?: "sm" | "default";
-  className?: string;
+	commentId: string;
+	size?: "sm" | "default";
+	className?: string;
 }
 
 export function CommentLikeButton({
-  commentId,
-  size = "sm",
-  className,
+	commentId,
+	size = "sm",
+	className,
 }: CommentLikeButtonProps) {
-  const { data: reactionStatus, isLoading: statusLoading } =
-    useCommentReactionStatus(commentId);
-  const toggleReaction = useToggleCommentReaction();
+	const { data: reactionStatus, isLoading: statusLoading } =
+		useCommentReactionStatus(commentId);
+	const toggleReaction = useToggleCommentReaction();
 
-  const handleToggle = () => {
-    toggleReaction.mutate(commentId);
-  };
+	const handleToggle = () => {
+		toggleReaction.mutate(commentId);
+	};
 
-  return (
-    <LikeButton
-      isLiked={reactionStatus?.isLiked ?? false}
-      likeCount={reactionStatus?.likeCount ?? 0}
-      isLoading={statusLoading || toggleReaction.isPending}
-      onClick={handleToggle}
-      size={size}
-      className={className}
-    />
-  );
+	return (
+		<LikeButton
+			isLiked={reactionStatus?.isLiked ?? false}
+			likeCount={reactionStatus?.likeCount ?? 0}
+			isLoading={statusLoading || toggleReaction.isPending}
+			onClick={handleToggle}
+			size={size}
+			className={className}
+		/>
+	);
 }

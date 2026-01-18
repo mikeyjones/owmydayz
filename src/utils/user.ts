@@ -4,11 +4,11 @@
  * @returns Up to 2 uppercase initials, or "?" if name is null/empty
  */
 export function getInitials(name: string | null): string {
-  if (!name) return "?";
-  return name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
+	if (!name) return "?";
+	return name
+		.split(" ")
+		.map((n) => n[0])
+		.join("")
+		.toUpperCase()
+		.slice(0, 2);
 }

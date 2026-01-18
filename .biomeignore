@@ -1,0 +1,7 @@
+node_modules
+.output
+dist
+build
+convex/_generated
+.automaker
+bun.lockb
