@@ -147,16 +147,12 @@ function RouteComponent() {
 							Continue building amazing tech content
 						</p>
 
-						<div
+						<section
 							className="flex justify-center space-x-8 pt-8"
-							role="region"
 							aria-label="Platform statistics"
 						>
 							<div className="text-center">
-								<div
-									className="text-2xl font-bold text-slate-800 dark:text-white"
-									aria-label="50,000 plus creators"
-								>
+								<div className="text-2xl font-bold text-slate-800 dark:text-white">
 									50K+
 								</div>
 								<div className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wide">
@@ -164,10 +160,7 @@ function RouteComponent() {
 								</div>
 							</div>
 							<div className="text-center">
-								<div
-									className="text-2xl font-bold text-slate-800 dark:text-white"
-									aria-label="2 million plus videos"
-								>
+								<div className="text-2xl font-bold text-slate-800 dark:text-white">
 									2M+
 								</div>
 								<div className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wide">
@@ -175,17 +168,14 @@ function RouteComponent() {
 								</div>
 							</div>
 							<div className="text-center">
-								<div
-									className="text-2xl font-bold text-slate-800 dark:text-white"
-									aria-label="98 percent user satisfaction"
-								>
+								<div className="text-2xl font-bold text-slate-800 dark:text-white">
 									98%
 								</div>
 								<div className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wide">
 									Happy
 								</div>
 							</div>
-						</div>
+						</section>
 					</div>
 				</main>
 
@@ -333,7 +323,13 @@ function RouteComponent() {
 							{isLoading ? (
 								<div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
 							) : (
-								<svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
+								<svg
+									className="mr-2 h-4 w-4"
+									viewBox="0 0 24 24"
+									role="img"
+									aria-labelledby="google-sign-in-icon"
+								>
+									<title id="google-sign-in-icon">Google Logo</title>
 									<path
 										d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
 										fill="#4285F4"

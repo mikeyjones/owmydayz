@@ -75,6 +75,9 @@ function MediaItemWithUrl({
 	isActive: boolean;
 	urlMap?: Record<string, string>;
 }) {
+	// Always call hook at top level
+	const { data: url, isLoading } = useAttachmentUrl(attachment.fileKey);
+
 	// If URL is provided in map, use it directly
 	if (urlMap?.[attachment.fileKey]) {
 		return (
@@ -86,9 +89,7 @@ function MediaItemWithUrl({
 		);
 	}
 
-	// Otherwise fetch it
-	const { data: url, isLoading } = useAttachmentUrl(attachment.fileKey);
-
+	// Otherwise use fetched URL
 	if (isLoading) {
 		return (
 			<div className="flex items-center justify-center h-full">

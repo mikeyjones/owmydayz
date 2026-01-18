@@ -1,9 +1,1 @@
-node_modules
-.output
-dist
-build
-convex/_generated
-.automaker
-bun.lockb
-**/_generated/**
-**/generated/**
+src/styles/app.css

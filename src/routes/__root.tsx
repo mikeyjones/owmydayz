@@ -108,10 +108,11 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 	}, [routerState.status, routerState.location.pathname]);
 
 	return (
-		<html suppressHydrationWarning>
+		<html lang="en" suppressHydrationWarning>
 			<head>
 				<HeadContent />
 				<script
+					// biome-ignore lint/security/noDangerouslySetInnerHtml: Required for theme initialization
 					dangerouslySetInnerHTML={{
 						__html: `
               (function() {
