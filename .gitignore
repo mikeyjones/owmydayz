@@ -24,3 +24,4 @@ dist/
 # Vitest
 coverage/
 .vitest/
+.beads/
