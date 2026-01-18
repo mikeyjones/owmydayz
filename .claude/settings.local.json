@@ -1,18 +1,19 @@
 {
-	"permissions": {
-		"allow": [
-			"Bash(find:*)",
-			"Bash(bd doctor)",
-			"Bash(bd stats:*)",
-			"Bash(jj diff:*)",
-			"Bash(jj log:*)",
-			"Bash(jj bookmark:*)",
-			"Bash(jj describe:*)",
-			"Bash(jj status:*)",
-			"Bash(bd sync:*)",
-			"Bash(bun run lint:*)",
-			"Bash(bun run lint:fix:*)",
-			"Bash(jj git fetch:*)"
-		]
-	}
+  "permissions": {
+    "allow": [
+      "Bash(find:*)",
+      "Bash(bd doctor)",
+      "Bash(bd stats:*)",
+      "Bash(jj diff:*)",
+      "Bash(jj log:*)",
+      "Bash(jj bookmark:*)",
+      "Bash(jj describe:*)",
+      "Bash(jj status:*)",
+      "Bash(bd sync:*)",
+      "Bash(bun run lint:*)",
+      "Bash(bun run lint:fix:*)",
+      "Bash(jj git fetch:*)",
+      "Bash(bun run test:*)"
+    ]
+  }
 }
