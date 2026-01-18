@@ -209,56 +209,54 @@ export function Header() {
 								<div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
 							</div>
 						) : session ? (
-							<>
-								<DropdownMenu>
-									<DropdownMenuTrigger asChild>
-										<Button
-											variant="ghost"
-											className="relative h-8 w-8 rounded-full"
+							<DropdownMenu>
+								<DropdownMenuTrigger asChild>
+									<Button
+										variant="ghost"
+										className="relative h-8 w-8 rounded-full"
+									>
+										<UserAvatar
+											imageKey={session?.user?.image || null}
+											name={session?.user?.name || null}
+											email={session?.user?.email || null}
+											size="sm"
+										/>
+									</Button>
+								</DropdownMenuTrigger>
+								<DropdownMenuContent className="w-56" align="end" forceMount>
+									<DropdownMenuLabel className="font-normal">
+										<div className="flex flex-col space-y-1">
+											<p className="text-sm font-medium leading-none">
+												Account
+											</p>
+											<p className="text-xs leading-none text-muted-foreground">
+												{session.user.email}
+											</p>
+										</div>
+									</DropdownMenuLabel>
+									<DropdownMenuSeparator />
+									<DropdownMenuItem asChild>
+										<Link
+											to="/profile/$userId"
+											params={{ userId: session.user.id }}
 										>
-											<UserAvatar
-												imageKey={session?.user?.image || null}
-												name={session?.user?.name || null}
-												email={session?.user?.email || null}
-												size="sm"
-											/>
-										</Button>
-									</DropdownMenuTrigger>
-									<DropdownMenuContent className="w-56" align="end" forceMount>
-										<DropdownMenuLabel className="font-normal">
-											<div className="flex flex-col space-y-1">
-												<p className="text-sm font-medium leading-none">
-													Account
-												</p>
-												<p className="text-xs leading-none text-muted-foreground">
-													{session.user.email}
-												</p>
-											</div>
-										</DropdownMenuLabel>
-										<DropdownMenuSeparator />
-										<DropdownMenuItem asChild>
-											<Link
-												to="/profile/$userId"
-												params={{ userId: session.user.id }}
-											>
-												<User className="mr-2 h-4 w-4" />
-												<span>Profile</span>
-											</Link>
-										</DropdownMenuItem>
-										<DropdownMenuSeparator />
-										<DropdownMenuItem asChild>
-											<Link to="/dashboard/settings">
-												<Settings className="mr-2 h-4 w-4" />
-												<span>Settings</span>
-											</Link>
-										</DropdownMenuItem>
-										<DropdownMenuItem onClick={handleSignOut}>
-											<LogOut className="mr-2 h-4 w-4" />
-											<span>Log out</span>
-										</DropdownMenuItem>
-									</DropdownMenuContent>
-								</DropdownMenu>
-							</>
+											<User className="mr-2 h-4 w-4" />
+											<span>Profile</span>
+										</Link>
+									</DropdownMenuItem>
+									<DropdownMenuSeparator />
+									<DropdownMenuItem asChild>
+										<Link to="/dashboard/settings">
+											<Settings className="mr-2 h-4 w-4" />
+											<span>Settings</span>
+										</Link>
+									</DropdownMenuItem>
+									<DropdownMenuItem onClick={handleSignOut}>
+										<LogOut className="mr-2 h-4 w-4" />
+										<span>Log out</span>
+									</DropdownMenuItem>
+								</DropdownMenuContent>
+							</DropdownMenu>
 						) : (
 							<>
 								<Link

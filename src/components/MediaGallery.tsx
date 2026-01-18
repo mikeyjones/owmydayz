@@ -42,6 +42,7 @@ function MediaThumbnail({
 	if (attachment.type === "video") {
 		return (
 			<button
+				type="button"
 				className={cn(
 					"relative bg-muted overflow-hidden group cursor-pointer",
 					className,
@@ -75,6 +76,7 @@ function MediaThumbnail({
 
 	return (
 		<button
+			type="button"
 			className={cn(
 				"relative bg-muted overflow-hidden group cursor-pointer",
 				className,
@@ -100,7 +102,8 @@ export function MediaGallery({
 }: MediaGalleryProps) {
 	const [lightboxOpen, setLightboxOpen] = useState(false);
 	const [lightboxIndex, setLightboxIndex] = useState(0);
-	const { data: urlMap, isLoading } = useAttachmentUrls(attachments);
+	const { data: urlMap, isLoading: _isLoading } =
+		useAttachmentUrls(attachments);
 
 	if (attachments.length === 0) return null;
 
@@ -140,6 +143,7 @@ export function MediaGallery({
 							{/* Overlay for showing remaining count on last visible item */}
 							{index === maxVisible - 1 && remainingCount > 0 && (
 								<button
+									type="button"
 									className="absolute inset-0 bg-black/60 flex items-center justify-center cursor-pointer hover:bg-black/70 transition-colors rounded-lg"
 									onClick={() => handleOpenLightbox(index)}
 								>
@@ -279,6 +283,7 @@ export function MediaGallery({
 						{/* Overlay for showing remaining count on last visible item */}
 						{index === maxVisible - 1 && remainingCount > 0 && (
 							<button
+								type="button"
 								className="absolute inset-0 bg-black/60 flex items-center justify-center cursor-pointer hover:bg-black/70 transition-colors"
 								onClick={() => handleOpenLightbox(index)}
 							>

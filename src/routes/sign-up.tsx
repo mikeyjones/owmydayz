@@ -68,7 +68,7 @@ function RouteComponent() {
 					router.navigate({ to: "/" });
 				}
 			}
-		} catch (err) {
+		} catch (_err) {
 			setAuthError("An unexpected error occurred");
 		} finally {
 			setIsLoading(false);
@@ -80,7 +80,6 @@ function RouteComponent() {
 			<aside
 				className="relative hidden h-full flex-col bg-gradient-to-br from-orange-50 to-red-50 dark:from-slate-900 dark:to-slate-800 p-12 text-slate-800 dark:text-white lg:flex border-r border-border overflow-hidden"
 				aria-label="SoundStation branding and platform information"
-				role="complementary"
 			>
 				<div className="absolute inset-0 bg-gradient-to-br from-red-600/8 via-orange-600/6 to-yellow-600/4 dark:from-red-600/6 dark:via-orange-600/4 dark:to-yellow-600/6" />
 				<div className="absolute top-32 right-32 h-48 w-48 rounded-full bg-gradient-to-br from-red-400/15 to-orange-400/10 dark:from-red-400/12 dark:to-orange-400/8 blur-2xl animate-pulse" />

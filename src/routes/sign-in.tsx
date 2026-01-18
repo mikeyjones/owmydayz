@@ -1,14 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
-import {
-	CheckCircle,
-	Eye,
-	EyeOff,
-	LogIn,
-	Shield,
-	TrendingUp,
-	Users,
-} from "lucide-react";
+import { Eye, EyeOff, LogIn, Shield, TrendingUp, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -44,7 +36,7 @@ function RouteComponent() {
 	const [isLoading, setIsLoading] = useState(false);
 	const [authError, setAuthError] = useState("");
 	const [showPassword, setShowPassword] = useState(false);
-	const [currentTestimonial, setCurrentTestimonial] = useState(0);
+	const [_currentTestimonial, setCurrentTestimonial] = useState(0);
 
 	// Debug logging
 	useEffect(() => {
@@ -83,7 +75,7 @@ function RouteComponent() {
 			setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
 		}, 5000);
 		return () => clearInterval(interval);
-	}, [testimonials.length]);
+	}, []);
 
 	const form = useForm<SignInForm>({
 		resolver: zodResolver(signInSchema),
@@ -117,7 +109,7 @@ function RouteComponent() {
 					},
 				},
 			);
-		} catch (error) {
+		} catch (_error) {
 			setAuthError("An unexpected error occurred. Please try again.");
 		} finally {
 			setIsLoading(false);
@@ -129,7 +121,6 @@ function RouteComponent() {
 			<aside
 				className="relative hidden h-full flex-col bg-gradient-to-br from-slate-50 to-red-50 dark:from-slate-900 dark:to-slate-800 p-12 text-slate-800 dark:text-white lg:flex border-r border-border overflow-hidden"
 				aria-label="SoundStation branding and platform information"
-				role="complementary"
 			>
 				<div className="absolute inset-0 bg-gradient-to-br from-red-600/8 via-orange-600/6 to-red-600/4 dark:from-red-600/6 dark:to-orange-600/4" />
 				<div className="absolute top-32 right-32 h-48 w-48 rounded-full bg-gradient-to-br from-red-400/15 to-orange-400/10 dark:from-red-400/12 dark:to-orange-400/8 blur-2xl animate-pulse" />

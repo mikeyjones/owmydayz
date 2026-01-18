@@ -98,7 +98,7 @@ export function EditCommentDialog({
 				}
 			});
 		};
-	}, []);
+	}, [uploadedMedia.forEach]);
 
 	const handleUploadsComplete = (results: MediaUploadResult[]) => {
 		setUploadedMedia((prev) => [...prev, ...results]);

@@ -25,7 +25,7 @@ export function useDeleteAttachment() {
 	};
 }
 
-export function useCommentAttachments(commentId: string) {
+export function useCommentAttachments(_commentId: string) {
 	return {
 		data: [],
 		isLoading: false,
@@ -33,7 +33,7 @@ export function useCommentAttachments(commentId: string) {
 	};
 }
 
-export function useAttachmentUrls(attachments: any[]) {
+export function useAttachmentUrls(_attachments: any[]) {
 	return {
 		data: [],
 		isLoading: false,
@@ -41,7 +41,7 @@ export function useAttachmentUrls(attachments: any[]) {
 	};
 }
 
-export function useAttachmentUrl(fileKey: string) {
+export function useAttachmentUrl(_fileKey: string) {
 	return {
 		data: null,
 		isLoading: false,

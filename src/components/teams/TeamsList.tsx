@@ -1,4 +1,4 @@
-import { Mail, Plus, Users } from "lucide-react";
+import { Plus, Users } from "lucide-react";
 import { useState } from "react";
 import {
 	AlertDialog,

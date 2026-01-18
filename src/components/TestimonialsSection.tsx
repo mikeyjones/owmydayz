@@ -1,6 +1,4 @@
 import { Quote, Star } from "lucide-react";
-import { Avatar, AvatarFallback } from "~/components/ui/avatar";
-import { Card, CardContent } from "~/components/ui/card";
 import { FadeIn } from "~/components/ui/fade-in";
 
 const testimonials = [

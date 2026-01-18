@@ -53,7 +53,7 @@ type ProfileSettingsFormData = z.infer<typeof profileSettingsSchema>;
 function ProfileSettings() {
 	const { data: session } = authClient.useSession();
 	const [isUploading, setIsUploading] = useState(false);
-	const { avatarUrl } = useUserAvatar();
+	const { avatarUrl: _avatarUrl } = useUserAvatar();
 
 	const updateProfileMutation = useUpdateUserProfile();
 

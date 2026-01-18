@@ -9,7 +9,7 @@ export function useConversations() {
 	};
 }
 
-export function useConversation(conversationId: string) {
+export function useConversation(_conversationId: string) {
 	return {
 		data: null,
 		isLoading: false,

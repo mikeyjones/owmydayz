@@ -1,6 +1,5 @@
 import { useRouter } from "@tanstack/react-router";
 import { useState } from "react";
-import { toast } from "sonner";
 import { FadeIn } from "~/components/ui/fade-in";
 import { useCreateCheckoutSession, useUserPlan } from "~/hooks/useSubscription";
 import { authClient } from "~/lib/auth-client";
@@ -15,7 +14,7 @@ interface PricingSectionProps {
 export function PricingSection({ showTitle = true }: PricingSectionProps) {
 	const { data: session, isPending: sessionLoading } = authClient.useSession();
 	const router = useRouter();
-	const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+	const [_loadingPlan, setLoadingPlan] = useState<string | null>(null);
 
 	// Fetch user's current subscription plan
 	const { data: userPlan, isLoading: planLoading } = useUserPlan();

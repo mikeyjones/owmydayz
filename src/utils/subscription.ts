@@ -12,19 +12,19 @@ interface SubscriptionData {
 }
 
 export async function updateUserSubscription(
-	userId: string,
-	subscriptionData: SubscriptionData,
+	_userId: string,
+	_subscriptionData: SubscriptionData,
 ) {
 	console.warn("Subscription management not yet implemented in Convex");
 	return null;
 }
 
-export async function getUserSubscription(userId: string) {
+export async function getUserSubscription(_userId: string) {
 	console.warn("Subscription management not yet implemented in Convex");
 	return null;
 }
 
-export async function updateUserPlan(userId: string, plan: SubscriptionPlan) {
+export async function updateUserPlan(_userId: string, _plan: SubscriptionPlan) {
 	console.warn("Subscription management not yet implemented in Convex");
 	return null;
 }
@@ -63,13 +63,12 @@ export function getUploadLimit(plan: SubscriptionPlan): number {
 			return -1; // Unlimited
 		case "basic":
 			return 50;
-		case "free":
 		default:
 			return 5;
 	}
 }
 
-export async function cancelUserSubscription(userId: string) {
+export async function cancelUserSubscription(_userId: string) {
 	console.warn("Subscription management not yet implemented in Convex");
 	return null;
 }

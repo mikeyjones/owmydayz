@@ -9,7 +9,7 @@ export function useModules() {
 	};
 }
 
-export function useModule(moduleId: string) {
+export function useModule(_moduleId: string) {
 	return {
 		data: null,
 		isLoading: false,
@@ -17,7 +17,7 @@ export function useModule(moduleId: string) {
 	};
 }
 
-export function useModuleContents(moduleId: string) {
+export function useModuleContents(_moduleId: string) {
 	return {
 		data: [],
 		isLoading: false,

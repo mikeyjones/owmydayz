@@ -5,3 +5,5 @@ build
 convex/_generated
 .automaker
 bun.lockb
+**/_generated/**
+**/generated/**

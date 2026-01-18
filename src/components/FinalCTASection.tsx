@@ -1,7 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { CheckCircle2, Clock, Rocket, Shield } from "lucide-react";
 import { Button } from "~/components/ui/button";
-import { Card, CardContent } from "~/components/ui/card";
 import { FadeIn } from "~/components/ui/fade-in";
 
 export function FinalCTASection() {

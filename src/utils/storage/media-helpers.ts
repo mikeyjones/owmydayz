@@ -83,7 +83,7 @@ export function formatFileSize(bytes: number): string {
 	const k = 1024;
 	const sizes = ["Bytes", "KB", "MB", "GB"];
 	const i = Math.floor(Math.log(bytes) / Math.log(k));
-	return parseFloat((bytes / k ** i).toFixed(2)) + " " + sizes[i];
+	return `${parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`;
 }
 
 export function createFilePreview(file: File): string {
@@ -96,7 +96,7 @@ export function revokeFilePreview(preview: string): void {
 
 export async function uploadMediaFile(
 	file: File,
-	onProgress?: (progress: UploadProgress) => void,
+	_onProgress?: (progress: UploadProgress) => void,
 ): Promise<MediaUploadResult> {
 	console.warn("Media upload not yet implemented in Convex");
 
@@ -115,7 +115,7 @@ export async function uploadMultipleMediaFiles(
 	files: File[],
 	onFileProgress?: (fileIndex: number, progress: UploadProgress) => void,
 	onFileComplete?: (fileIndex: number, result: MediaUploadResult) => void,
-	onFileError?: (fileIndex: number, error: string) => void,
+	_onFileError?: (fileIndex: number, error: string) => void,
 ): Promise<MediaUploadResult[]> {
 	console.warn("Media upload not yet implemented in Convex");
 

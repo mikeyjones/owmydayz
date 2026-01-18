@@ -63,7 +63,7 @@ export function CommentForm({
 				}
 			});
 		};
-	}, []);
+	}, [uploadedMedia.forEach]);
 
 	const handleUploadsComplete = (results: MediaUploadResult[]) => {
 		setUploadedMedia((prev) => [...prev, ...results]);

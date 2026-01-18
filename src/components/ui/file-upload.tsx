@@ -69,7 +69,12 @@ export function FileUpload({
 		[maxSize, onFilesSelected],
 	);
 
-	const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
+	const {
+		getRootProps,
+		getInputProps,
+		isDragActive,
+		open: _open,
+	} = useDropzone({
 		onDrop,
 		accept,
 		maxFiles,
@@ -96,7 +101,7 @@ export function FileUpload({
 		const k = 1024;
 		const sizes = ["Bytes", "KB", "MB", "GB"];
 		const i = Math.floor(Math.log(bytes) / Math.log(k));
-		return parseFloat((bytes / k ** i).toFixed(2)) + " " + sizes[i];
+		return `${parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`;
 	};
 
 	return (

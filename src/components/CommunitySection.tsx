@@ -6,13 +6,6 @@ import {
 	TrendingUp,
 	Users,
 } from "lucide-react";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "~/components/ui/card";
 import { FadeIn } from "~/components/ui/fade-in";
 
 const communityFeatures = [

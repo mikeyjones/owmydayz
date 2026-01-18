@@ -1,7 +1,7 @@
 // Stub hook - item comments not yet implemented in Convex
 // TODO: Implement item comments in Convex
 
-export function useItemComments(itemId: string) {
+export function useItemComments(_itemId: string) {
 	return {
 		data: [],
 		isLoading: false,
@@ -9,7 +9,7 @@ export function useItemComments(itemId: string) {
 	};
 }
 
-export function useItemCommentCount(itemId: string) {
+export function useItemCommentCount(_itemId: string) {
 	return {
 		data: 0,
 		isLoading: false,
@@ -55,7 +55,7 @@ export const useUpdateKanbanItemComment = useUpdateItemComment;
 export const useDeleteKanbanItemComment = useDeleteItemComment;
 
 // Replies stub
-export function useKanbanItemCommentReplies(parentCommentId: string) {
+export function useKanbanItemCommentReplies(_parentCommentId: string) {
 	return {
 		data: [],
 		isLoading: false,
@@ -71,7 +71,7 @@ export const useUpdateTeamItemComment = useUpdateItemComment;
 export const useDeleteTeamItemComment = useDeleteItemComment;
 
 // Team replies stub
-export function useTeamItemCommentReplies(parentCommentId: string) {
+export function useTeamItemCommentReplies(_parentCommentId: string) {
 	return {
 		data: [],
 		isLoading: false,

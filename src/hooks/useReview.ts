@@ -9,7 +9,7 @@ export function useReviewItems() {
 	};
 }
 
-export function useReviewItem(itemId: string) {
+export function useReviewItem(_itemId: string) {
 	return {
 		data: null,
 		isLoading: false,

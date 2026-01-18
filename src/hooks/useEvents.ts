@@ -9,7 +9,7 @@ export function useEvents() {
 	};
 }
 
-export function useEvent(eventId: string) {
+export function useEvent(_eventId: string) {
 	return {
 		data: null,
 		isLoading: false,

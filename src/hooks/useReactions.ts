@@ -1,7 +1,7 @@
 // Stub hook - reactions not yet implemented in Convex
 // TODO: Implement reactions in Convex
 
-export function useReactions(targetId: string, targetType: string) {
+export function useReactions(_targetId: string, _targetType: string) {
 	return {
 		data: [],
 		isLoading: false,

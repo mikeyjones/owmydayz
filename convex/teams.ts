@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-import { getOptionalAuth, requireAuth, requireUserFromClientId } from "./auth";
+import { getOptionalAuth, requireUserFromClientId } from "./auth";
 
 // =====================================================
 // Team Queries
@@ -513,7 +513,7 @@ export const createInvitation = mutation({
 			throw new Error("Invitation already sent to this email");
 		}
 
-		const token = crypto.randomUUID() + "-" + crypto.randomUUID();
+		const token = `${crypto.randomUUID()}-${crypto.randomUUID()}`;
 		const now = Date.now();
 		const expiresAt = now + 7 * 24 * 60 * 60 * 1000; // 7 days
 

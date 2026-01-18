@@ -176,7 +176,7 @@ export function ContentForm({
 	};
 
 	const isSubmitting = isPending || isUploading;
-	const Icon = CONTENT_TYPE_ICONS[contentType];
+	const _Icon = CONTENT_TYPE_ICONS[contentType];
 
 	return (
 		<Form {...form}>

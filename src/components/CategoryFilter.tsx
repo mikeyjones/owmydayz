@@ -57,6 +57,7 @@ export function CategoryFilter({
 
 				return (
 					<button
+						type="button"
 						key={category}
 						onClick={() =>
 							onCategoryChange(category === "all" ? undefined : category)

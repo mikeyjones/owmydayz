@@ -79,6 +79,7 @@ function ContentItem({ content, isAdmin, moduleId }: ContentItemProps) {
 							<div className="aspect-video rounded-lg overflow-hidden bg-muted">
 								<iframe
 									src={embedUrl}
+									title="Video content"
 									className="w-full h-full"
 									allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
 									allowFullScreen
@@ -160,6 +161,7 @@ function ContentItem({ content, isAdmin, moduleId }: ContentItemProps) {
 			<div className="border rounded-lg p-4 space-y-3">
 				<div className="flex items-start justify-between gap-4">
 					<button
+						type="button"
 						onClick={() => setExpanded(!expanded)}
 						className="flex items-center gap-3 text-left flex-1 min-w-0 hover:opacity-80"
 					>

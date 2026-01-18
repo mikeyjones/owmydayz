@@ -9,7 +9,7 @@ export function useAllMembers() {
 	};
 }
 
-export function useMember(userId: string) {
+export function useMember(_userId: string) {
 	return {
 		data: null,
 		isLoading: false,

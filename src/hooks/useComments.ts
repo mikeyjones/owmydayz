@@ -1,7 +1,7 @@
 // Stub hook - comments not yet implemented in Convex
 // TODO: Implement comments in Convex
 
-export function usePostComments(postId: string) {
+export function usePostComments(_postId: string) {
 	return {
 		data: [],
 		isLoading: false,
@@ -67,7 +67,7 @@ export function useCommentLikeStatus(_commentId: string) {
 	};
 }
 
-export function useCommentReplies(commentId: string) {
+export function useCommentReplies(_commentId: string) {
 	return {
 		data: [],
 		isLoading: false,

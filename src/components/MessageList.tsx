@@ -20,7 +20,7 @@ export function MessageList({ conversationId }: MessageListProps) {
 		if (containerRef.current) {
 			containerRef.current.scrollTop = containerRef.current.scrollHeight;
 		}
-	}, [data?.messages]);
+	}, []);
 
 	// Mark messages as read when viewing
 	useEffect(() => {
@@ -33,12 +33,12 @@ export function MessageList({ conversationId }: MessageListProps) {
 			hasMarkedAsRead.current = true;
 			markAsRead.mutate(conversationId);
 		}
-	}, [conversationId, data?.messages]);
+	}, [conversationId, data?.messages, markAsRead.mutate]);
 
 	// Reset the read marker when conversation changes
 	useEffect(() => {
 		hasMarkedAsRead.current = false;
-	}, [conversationId]);
+	}, []);
 
 	if (isLoading) {
 		return (

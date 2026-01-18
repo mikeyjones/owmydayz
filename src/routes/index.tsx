@@ -1,5 +1,4 @@
 import { ClientOnly, createFileRoute } from "@tanstack/react-router";
-import * as React from "react";
 import { useEffect } from "react";
 import { BenefitsSection } from "~/components/BenefitsSection";
 import { CommunitySection } from "~/components/CommunitySection";
@@ -83,7 +82,9 @@ function Home() {
 		const existingScripts = document.querySelectorAll(
 			'script[type="application/ld+json"]',
 		);
-		existingScripts.forEach((script) => script.remove());
+		for (const script of existingScripts) {
+			script.remove();
+		}
 
 		// Add new structured data
 		const addScript = (data: object) => {
@@ -102,7 +103,9 @@ function Home() {
 			const scripts = document.querySelectorAll(
 				'script[type="application/ld+json"]',
 			);
-			scripts.forEach((script) => script.remove());
+			for (const script of scripts) {
+				script.remove();
+			}
 		};
 	}, []);
 

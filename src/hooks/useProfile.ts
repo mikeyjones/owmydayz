@@ -101,7 +101,7 @@ export function useDeleteUserAccount() {
 }
 
 // Hook for public profile - placeholder for now
-export function usePublicProfile(userId: string) {
+export function usePublicProfile(_userId: string) {
 	// Public profiles not yet implemented in Convex
 	return {
 		data: null,

@@ -1,8 +1,4 @@
-import {
-	Calendar as CalendarIcon,
-	ChevronLeft,
-	ChevronRight,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Button } from "~/components/ui/button";
 import { Panel } from "~/components/ui/panel";
@@ -210,6 +206,7 @@ export function Calendar({
 								<div className="space-y-1">
 									{dayEvents.slice(0, 3).map((event) => (
 										<button
+											type="button"
 											key={event.id}
 											onClick={(e) => {
 												e.stopPropagation();

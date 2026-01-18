@@ -1,7 +1,7 @@
 // Stub hook - messages not yet implemented in Convex
 // TODO: Implement messages in Convex
 
-export function useMessages(conversationId: string) {
+export function useMessages(_conversationId: string) {
 	return {
 		data: { messages: [] },
 		isLoading: false,

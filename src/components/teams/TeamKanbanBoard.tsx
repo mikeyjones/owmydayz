@@ -104,7 +104,9 @@ export function TeamKanbanBoard({ boardId, teamId }: TeamKanbanBoardProps) {
 		if (movesToClear.length > 0) {
 			setPendingMoves((prev) => {
 				const next = new Map(prev);
-				movesToClear.forEach((id) => next.delete(id));
+				for (const id of movesToClear) {
+					next.delete(id);
+				}
 				return next;
 			});
 		}

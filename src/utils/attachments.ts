@@ -15,8 +15,8 @@ export interface UpdateAttachmentsOptions {
  * Updates attachments for a post (stub)
  */
 export async function updatePostAttachments(
-	postId: string,
-	options: UpdateAttachmentsOptions,
+	_postId: string,
+	_options: UpdateAttachmentsOptions,
 ): Promise<void> {
 	console.warn("Attachments not yet implemented in Convex");
 }
@@ -25,8 +25,8 @@ export async function updatePostAttachments(
  * Updates attachments for a comment (stub)
  */
 export async function updateCommentAttachments(
-	commentId: string,
-	options: UpdateAttachmentsOptions,
+	_commentId: string,
+	_options: UpdateAttachmentsOptions,
 ): Promise<void> {
 	console.warn("Attachments not yet implemented in Convex");
 }

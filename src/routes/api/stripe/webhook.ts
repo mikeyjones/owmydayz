@@ -6,7 +6,7 @@ import { privateEnv } from "~/config/privateEnv";
 import { getPlanByPriceId } from "~/lib/plans";
 import { stripe } from "~/lib/stripe";
 import type { SubscriptionPlan, SubscriptionStatus } from "~/types";
-import { updateUserPlan, updateUserSubscription } from "~/utils/subscription";
+import { updateUserSubscription } from "~/utils/subscription";
 
 export const Route = createFileRoute("/api/stripe/webhook")({
 	server: {
@@ -82,7 +82,7 @@ async function handleCheckoutCompleted(session: any) {
 	const subscriptionItem = subscription.items.data[0];
 	const periodEnd = subscriptionItem?.current_period_end;
 
-	if (!periodEnd || isNaN(periodEnd)) {
+	if (!periodEnd || Number.isNaN(periodEnd)) {
 		console.error("Invalid item current_period_end:", periodEnd);
 		throw new Error("Invalid subscription period end date");
 	}

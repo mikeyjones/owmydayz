@@ -48,7 +48,7 @@ export function MessageInput({ conversationId }: MessageInputProps) {
 				120,
 			)}px`;
 		}
-	}, [content]);
+	}, []);
 
 	return (
 		<form

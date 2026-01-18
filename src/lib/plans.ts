@@ -36,7 +36,6 @@ export const getPlanDetails = (plan: string) => {
 			return SUBSCRIPTION_PLANS.BASIC;
 		case "pro":
 			return SUBSCRIPTION_PLANS.PRO;
-		case "free":
 		default:
 			return SUBSCRIPTION_PLANS.FREE;
 	}

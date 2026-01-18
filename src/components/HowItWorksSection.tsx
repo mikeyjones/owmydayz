@@ -5,13 +5,6 @@ import {
 	Code,
 	UserPlus,
 } from "lucide-react";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "~/components/ui/card";
 import { FadeIn } from "~/components/ui/fade-in";
 
 const steps = [

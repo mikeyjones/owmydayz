@@ -100,7 +100,9 @@ export function KanbanBoard({ boardId }: KanbanBoardProps) {
 		if (movesToClear.length > 0) {
 			setPendingMoves((prev) => {
 				const next = new Map(prev);
-				movesToClear.forEach((id) => next.delete(id));
+				for (const id of movesToClear) {
+					next.delete(id);
+				}
 				return next;
 			});
 		}

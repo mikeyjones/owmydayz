@@ -118,6 +118,7 @@ export function FocusItem({
 		>
 			{/* Custom Checkbox */}
 			<button
+				type="button"
 				onClick={handleCheck}
 				disabled={isCompleting || isChecked}
 				className={cn(

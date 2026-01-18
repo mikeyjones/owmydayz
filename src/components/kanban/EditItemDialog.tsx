@@ -38,7 +38,7 @@ export function EditItemDialog({
 	boardId,
 }: EditItemDialogProps) {
 	const [activeTab, setActiveTab] = useState<Tab>("details");
-	const [repliesCache, setRepliesCache] = useState<
+	const [repliesCache, _setRepliesCache] = useState<
 		Record<string, ItemCommentWithUser[]>
 	>({});
 	const [loadingReplies, setLoadingReplies] = useState<Record<string, boolean>>(

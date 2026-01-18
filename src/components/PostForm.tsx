@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, MessageSquarePlus, Save } from "lucide-react";
+import { Loader2, MessageSquarePlus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -128,7 +128,7 @@ export function PostForm({
 				}
 			});
 		};
-	}, []);
+	}, [uploadedMedia.forEach]);
 
 	const handleUploadsComplete = (results: MediaUploadResult[]) => {
 		setUploadedMedia((prev) => [...prev, ...results]);

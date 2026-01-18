@@ -1,7 +1,7 @@
 // Stub hook - posts not yet implemented in Convex
 // TODO: Implement posts in Convex
 
-export function usePosts(category?: string) {
+export function usePosts(_category?: string) {
 	return {
 		data: [],
 		isLoading: false,
@@ -9,7 +9,7 @@ export function usePosts(category?: string) {
 	};
 }
 
-export function usePost(postId: string) {
+export function usePost(_postId: string) {
 	return {
 		data: null,
 		isLoading: false,

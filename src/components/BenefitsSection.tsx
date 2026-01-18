@@ -1,14 +1,7 @@
 import { BookOpen, Briefcase, Code, Target, Users, Zap } from "lucide-react";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "~/components/ui/card";
 import { FadeIn } from "~/components/ui/fade-in";
 
-const benefits = [
+const _benefits = [
 	{
 		icon: BookOpen,
 		title: "Structured Learning Path",

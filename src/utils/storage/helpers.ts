@@ -22,7 +22,7 @@ export interface ImageUploadResult {
 export async function uploadVideoWithPresignedUrl(
 	key: string,
 	file: File,
-	onProgress?: (progress: UploadProgress) => void,
+	_onProgress?: (progress: UploadProgress) => void,
 ): Promise<UploadResult> {
 	console.warn("Storage not yet implemented in Convex");
 	const durationSeconds = await getVideoDuration(file);
@@ -37,8 +37,8 @@ export async function uploadVideoWithPresignedUrl(
 
 export async function uploadImageWithPresignedUrl(
 	key: string,
-	file: File,
-	onProgress?: (progress: UploadProgress) => void,
+	_file: File,
+	_onProgress?: (progress: UploadProgress) => void,
 ): Promise<ImageUploadResult> {
 	console.warn("Storage not yet implemented in Convex");
 	return {

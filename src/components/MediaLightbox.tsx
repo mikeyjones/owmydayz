@@ -44,6 +44,7 @@ function MediaItem({
 				/>
 				{!isVideoPlaying && (
 					<button
+						type="button"
 						className="absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-black/30 transition-colors"
 						onClick={() => setIsVideoPlaying(true)}
 					>
@@ -75,7 +76,7 @@ function MediaItemWithUrl({
 	urlMap?: Record<string, string>;
 }) {
 	// If URL is provided in map, use it directly
-	if (urlMap && urlMap[attachment.fileKey]) {
+	if (urlMap?.[attachment.fileKey]) {
 		return (
 			<MediaItem
 				attachment={attachment}
@@ -236,6 +237,7 @@ export function MediaLightbox({
 						const thumbUrl = urlMap?.[att.fileKey];
 						return (
 							<button
+								type="button"
 								key={att.id}
 								className={cn(
 									"w-12 h-12 rounded overflow-hidden border-2 transition-all",

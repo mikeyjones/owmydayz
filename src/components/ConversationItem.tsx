@@ -37,6 +37,7 @@ export function ConversationItem({
 
 	return (
 		<button
+			type="button"
 			onClick={onClick}
 			className={cn(
 				"w-full p-3 flex items-start gap-3 text-left transition-colors rounded-lg",

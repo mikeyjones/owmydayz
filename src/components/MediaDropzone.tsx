@@ -42,7 +42,7 @@ export function MediaDropzone({
 				}
 			});
 		};
-	}, []);
+	}, [pendingUploads.forEach]);
 
 	const onDrop = useCallback(
 		(acceptedFiles: File[]) => {

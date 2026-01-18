@@ -9,7 +9,7 @@ export function usePortfolioItems() {
 	};
 }
 
-export function usePortfolioItem(itemId: string) {
+export function usePortfolioItem(_itemId: string) {
 	return {
 		data: null,
 		isLoading: false,

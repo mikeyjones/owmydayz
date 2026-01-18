@@ -202,6 +202,7 @@ function ReviewPage() {
 			<div className="flex gap-2 mb-6 p-1 rounded-lg bg-white/5 border border-white/10">
 				{(["day", "week", "month", "year"] as PeriodType[]).map((p) => (
 					<button
+						type="button"
 						key={p}
 						onClick={() => setPeriod(p)}
 						className={cn(
