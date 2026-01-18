@@ -21,6 +21,8 @@ This is a TanStack Start full-stack React application with the following key arc
 
 **IMPORTANT**: This project uses **jujutsu (jj)** for version control, not git. Always use `jj` commands (e.g., `jj describe`, `jj git fetch`, `jj git push`, `jj status`). See AGENTS.md for the complete workflow.
 
+**IMPORTANT**: This project uses **beads (bd)** for issue tracking. Issues live in `.beads/issues.jsonl` and are tracked in the repository. Use `bd ready` to find work, `bd create` to create issues, and `bd close` to complete them. Always run `bd sync` at session end. See AGENTS.md for the complete workflow.
+
 ### Project Structure
 
 - `src/routes/` - File-based routing with TanStack Router

@@ -8,7 +8,8 @@
       "Bash(jj log:*)",
       "Bash(jj bookmark:*)",
       "Bash(jj describe:*)",
-      "Bash(jj status:*)"
+      "Bash(jj status:*)",
+      "Bash(bd sync:*)"
     ]
   }
 }
