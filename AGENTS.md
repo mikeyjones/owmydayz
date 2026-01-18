@@ -21,9 +21,10 @@ For full workflow details: `bd prime`
 
 1. **File issues for remaining work** - Create issues for anything that needs follow-up
 2. **Run quality gates** (if code changed):
+   - Run `bun run typecheck` - Fix ALL TypeScript errors/warnings
    - Run `bun run lint` - Fix ALL linting errors
    - Run `bun run test` - Fix ALL test failures
-   - Run `bun run build` - Fix ALL build errors
+   - Run `bun run build` - Verify build succeeds
 3. **Update issue status** - Close finished work, update in-progress items
 4. **PUSH TO REMOTE** - This is MANDATORY:
    ```bash

@@ -55,6 +55,9 @@ bun run dev                 # Start development server on port 3000
 bun run build              # Build for production (includes type checking)
 bun run start              # Start production server
 
+# Type Checking (REQUIRED - see Type Safety section below)
+bun run typecheck           # Run TypeScript compiler to check for type errors
+
 # Linting & Formatting (REQUIRED - see Linting section below)
 bun run lint                # Check for linting errors
 bun run lint:fix            # Fix linting errors automatically
@@ -96,6 +99,36 @@ bun add -d <package>       # Add a dev dependency
    bun run db:migrate
    ```
 
+## Type Safety
+
+**CRITICAL**: This project uses **TypeScript** with strict type checking. You MUST run type checks and fix all errors.
+
+### Type Checking Requirements
+
+1. **Run typecheck before committing** - Always run `bun run typecheck` before committing code
+2. **Fix ALL errors** - NEVER commit code with TypeScript errors
+3. **Fix ALL warnings** - Address TypeScript warnings that indicate potential issues
+4. **Maintain type safety** - Use proper types, avoid `any`, prefer type inference
+
+### Type Checking Workflow
+
+```bash
+# After making code changes:
+1. Run: bun run typecheck   # Check for type errors
+2. Fix all reported errors and warnings
+3. Run: bun run typecheck   # Verify all errors are fixed
+4. Commit your changes
+```
+
+### What TypeScript Checks
+
+- **Type correctness**: Ensures variables, parameters, and return types are correct
+- **Missing types**: Identifies places where types are needed
+- **Type mismatches**: Catches incompatible type assignments
+- **Unsafe operations**: Warns about potentially unsafe code
+
+**Remember**: TypeScript errors = broken code. Fix them immediately.
+
 ## Linting & Code Quality
 
 **CRITICAL**: This project uses **Biome** for linting and formatting. You MUST run lint checks and fix all errors.
@@ -111,11 +144,12 @@ bun add -d <package>       # Add a dev dependency
 
 ```bash
 # After making code changes:
-1. Run: bun run lint        # Check for errors
-2. Run: bun run lint:fix    # Auto-fix what can be fixed
-3. Manually fix remaining errors
-4. Run: bun run lint        # Verify all errors are fixed
-5. Commit your changes
+1. Run: bun run typecheck   # Check for type errors FIRST
+2. Run: bun run lint        # Check for linting errors
+3. Run: bun run lint:fix    # Auto-fix what can be fixed
+4. Manually fix remaining errors
+5. Run: bun run lint        # Verify all errors are fixed
+6. Commit your changes
 ```
 
 ### What Biome Checks
