@@ -19,6 +19,8 @@ This is a TanStack Start full-stack React application with the following key arc
 
 **IMPORTANT**: This project uses **bun** as its package manager. Never use `npm` or `yarn` commands. Always use `bun` equivalents (e.g., `bun install`, `bun run`, `bun add`).
 
+**IMPORTANT**: This project uses **jujutsu (jj)** for version control, not git. Always use `jj` commands (e.g., `jj describe`, `jj git fetch`, `jj git push`, `jj status`). See AGENTS.md for the complete workflow.
+
 ### Project Structure
 
 - `src/routes/` - File-based routing with TanStack Router
