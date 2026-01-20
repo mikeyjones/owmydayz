@@ -1,49 +1,54 @@
-// Stub hook - review not yet implemented in Convex
-// TODO: Implement review in Convex
-
+import { useQuery } from "convex/react";
 import type {
 	CompletedItemWithBoard,
 	CompletionStats,
 	MonthlyBreakdown,
 	PeriodType,
 } from "~/types";
+import { api } from "../../convex/_generated/api";
+import { useCurrentUser } from "./useCurrentUser";
 
-export function useReviewItems() {
-	return {
-		data: [] as CompletedItemWithBoard[],
-		isLoading: false,
-		error: null,
-	};
-}
+export function useCompletedItems(period?: PeriodType) {
+	const { userId } = useCurrentUser();
 
-export function useReviewItem(_itemId: string) {
-	return {
-		data: null as CompletedItemWithBoard | null,
-		isLoading: false,
-		error: null,
-	};
-}
+	const result = useQuery(
+		api.kanban.getCompletedItems,
+		userId ? { userId, period } : "skip",
+	);
 
-export function useCompletedItems(_period?: PeriodType) {
 	return {
-		data: [] as CompletedItemWithBoard[],
-		isLoading: false,
+		data: result as CompletedItemWithBoard[] | undefined,
+		isLoading: result === undefined,
 		error: null,
 	};
 }
 
 export function useCompletionStats() {
+	const { userId } = useCurrentUser();
+
+	const result = useQuery(
+		api.kanban.getCompletionStats,
+		userId ? { userId } : "skip",
+	);
+
 	return {
-		data: null as CompletionStats | null,
-		isLoading: false,
+		data: result as CompletionStats | null | undefined,
+		isLoading: result === undefined,
 		error: null,
 	};
 }
 
 export function useMonthlyBreakdown() {
+	const { userId } = useCurrentUser();
+
+	const result = useQuery(
+		api.kanban.getMonthlyBreakdown,
+		userId ? { userId } : "skip",
+	);
+
 	return {
-		data: [] as MonthlyBreakdown[],
-		isLoading: false,
+		data: result as MonthlyBreakdown[] | undefined,
+		isLoading: result === undefined,
 		error: null,
 	};
 }

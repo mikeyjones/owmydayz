@@ -854,3 +854,266 @@ export const migrateNowColumnPositions = mutation({
 		};
 	},
 });
+
+// =====================================================
+// Review Queries
+// =====================================================
+
+export const getCompletedItems = query({
+	args: {
+		userId: v.optional(v.string()),
+		period: v.optional(v.string()), // "today" | "day" | "week" | "month" | "year" | "all"
+	},
+	handler: async (ctx, args) => {
+		const authUser = await getOptionalAuth(ctx);
+		const userId = args.userId || authUser?.id;
+
+		if (!userId) {
+			return [];
+		}
+
+		// Get all boards for the user
+		const boards = await ctx.db
+			.query("kanbanBoards")
+			.filter((q) => q.eq(q.field("userId"), userId))
+			.collect();
+
+		const boardIds = boards.map((b) => b._id);
+		const boardMap = new Map(boards.map((b) => [b._id, b.name]));
+
+		// Calculate time range based on period
+		let startTime = 0;
+		const now = Date.now();
+		const period = args.period || "day";
+
+		if (period === "today" || period === "day") {
+			// Start of today (midnight)
+			const today = new Date();
+			today.setHours(0, 0, 0, 0);
+			startTime = today.getTime();
+		} else if (period === "week") {
+			// Start of this week (Sunday midnight)
+			const today = new Date();
+			const dayOfWeek = today.getDay();
+			today.setDate(today.getDate() - dayOfWeek);
+			today.setHours(0, 0, 0, 0);
+			startTime = today.getTime();
+		} else if (period === "month") {
+			// Start of this month
+			const today = new Date();
+			today.setDate(1);
+			today.setHours(0, 0, 0, 0);
+			startTime = today.getTime();
+		} else if (period === "year") {
+			// Start of this year
+			const today = new Date();
+			today.setMonth(0, 1);
+			today.setHours(0, 0, 0, 0);
+			startTime = today.getTime();
+		}
+		// "all" means startTime stays 0
+
+		// Get all completed items for user's boards
+		const allItems = await ctx.db
+			.query("kanbanItems")
+			.withIndex("by_completedAt")
+			.filter((q) =>
+				q.and(
+					q.neq(q.field("completedAt"), undefined),
+					q.gte(q.field("completedAt"), startTime),
+				),
+			)
+			.collect();
+
+		// Filter to only items from user's boards and sort by completedAt descending
+		const completedItems = allItems
+			.filter((item) => boardIds.includes(item.boardId))
+			.sort((a, b) => (b.completedAt || 0) - (a.completedAt || 0))
+			.map((item) => ({
+				_id: item._id,
+				columnId: item.columnId,
+				boardId: item.boardId,
+				name: item.name,
+				description: item.description,
+				importance: item.importance,
+				effort: item.effort,
+				tags: item.tags,
+				position: item.position,
+				completedAt: item.completedAt || 0,
+				createdAt: item.createdAt,
+				updatedAt: item.updatedAt,
+				boardName: boardMap.get(item.boardId) || "Unknown Board",
+			}));
+
+		return completedItems;
+	},
+});
+
+export const getCompletionStats = query({
+	args: {
+		userId: v.optional(v.string()),
+	},
+	handler: async (ctx, args) => {
+		const authUser = await getOptionalAuth(ctx);
+		const userId = args.userId || authUser?.id;
+
+		if (!userId) {
+			return null;
+		}
+
+		// Get all boards for the user
+		const boards = await ctx.db
+			.query("kanbanBoards")
+			.filter((q) => q.eq(q.field("userId"), userId))
+			.collect();
+
+		const boardIds = boards.map((b) => b._id);
+
+		// Get all completed items (all time)
+		const allCompletedItems = await ctx.db
+			.query("kanbanItems")
+			.withIndex("by_completedAt")
+			.filter((q) => q.neq(q.field("completedAt"), undefined))
+			.collect();
+
+		// Filter to user's boards and sort by completedAt
+		const userCompleted = allCompletedItems
+			.filter((item) => boardIds.includes(item.boardId))
+			.sort((a, b) => (a.completedAt || 0) - (b.completedAt || 0));
+
+		const totalCompleted = userCompleted.length;
+
+		// Calculate current month count
+		const now = new Date();
+		const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+		monthStart.setHours(0, 0, 0, 0);
+		const completedThisMonth = userCompleted.filter(
+			(item) => (item.completedAt || 0) >= monthStart.getTime(),
+		).length;
+
+		// Calculate streaks
+		let currentStreak = 0;
+		let longestStreak = 0;
+		let tempStreak = 0;
+
+		if (userCompleted.length > 0) {
+			// Group items by date (YYYY-MM-DD)
+			const dateMap = new Map<string, number>();
+			for (const item of userCompleted) {
+				const date = new Date(item.completedAt || 0);
+				const dateKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+				dateMap.set(dateKey, (dateMap.get(dateKey) || 0) + 1);
+			}
+
+			// Sort dates
+			const sortedDates = Array.from(dateMap.keys()).sort();
+
+			// Calculate current streak (working backwards from today)
+			const today = new Date();
+			today.setHours(0, 0, 0, 0);
+			let checkDate = new Date(today);
+
+			while (true) {
+				const dateKey = `${checkDate.getFullYear()}-${String(checkDate.getMonth() + 1).padStart(2, "0")}-${String(checkDate.getDate()).padStart(2, "0")}`;
+				if (dateMap.has(dateKey)) {
+					currentStreak++;
+					checkDate.setDate(checkDate.getDate() - 1);
+				} else {
+					break;
+				}
+			}
+
+			// Calculate longest streak
+			tempStreak = 1;
+			for (let i = 1; i < sortedDates.length; i++) {
+				const prevDate = new Date(sortedDates[i - 1]);
+				const currDate = new Date(sortedDates[i]);
+				const dayDiff = Math.floor(
+					(currDate.getTime() - prevDate.getTime()) / (1000 * 60 * 60 * 24),
+				);
+
+				if (dayDiff === 1) {
+					tempStreak++;
+					longestStreak = Math.max(longestStreak, tempStreak);
+				} else {
+					longestStreak = Math.max(longestStreak, tempStreak);
+					tempStreak = 1;
+				}
+			}
+			longestStreak = Math.max(longestStreak, tempStreak);
+		}
+
+		// Calculate milestones
+		const milestones = [10, 25, 50, 100, 250, 500, 1000, 2500, 5000];
+		const reached = milestones.filter((m) => totalCompleted >= m);
+		const next = milestones.find((m) => totalCompleted < m);
+
+		return {
+			totalCompleted,
+			currentStreak,
+			longestStreak,
+			completedThisMonth,
+			milestones: {
+				reached,
+				next,
+			},
+		};
+	},
+});
+
+export const getMonthlyBreakdown = query({
+	args: {
+		userId: v.optional(v.string()),
+	},
+	handler: async (ctx, args) => {
+		const authUser = await getOptionalAuth(ctx);
+		const userId = args.userId || authUser?.id;
+
+		if (!userId) {
+			return [];
+		}
+
+		// Get all boards for the user
+		const boards = await ctx.db
+			.query("kanbanBoards")
+			.filter((q) => q.eq(q.field("userId"), userId))
+			.collect();
+
+		const boardIds = boards.map((b) => b._id);
+
+		// Get completed items for this year
+		const now = new Date();
+		const yearStart = new Date(now.getFullYear(), 0, 1);
+		yearStart.setHours(0, 0, 0, 0);
+
+		const allItems = await ctx.db
+			.query("kanbanItems")
+			.withIndex("by_completedAt")
+			.filter((q) =>
+				q.and(
+					q.neq(q.field("completedAt"), undefined),
+					q.gte(q.field("completedAt"), yearStart.getTime()),
+				),
+			)
+			.collect();
+
+		// Filter to user's boards
+		const userItems = allItems.filter((item) =>
+			boardIds.includes(item.boardId),
+		);
+
+		// Group by month
+		const monthCounts: Record<number, number> = {};
+		for (const item of userItems) {
+			const date = new Date(item.completedAt || 0);
+			const month = date.getMonth() + 1; // 1-12
+			monthCounts[month] = (monthCounts[month] || 0) + 1;
+		}
+
+		// Return array with all 12 months
+		return Array.from({ length: 12 }, (_, i) => ({
+			month: i + 1,
+			count: monthCounts[i + 1] || 0,
+		}));
+	},
+});

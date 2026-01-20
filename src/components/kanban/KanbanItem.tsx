@@ -79,7 +79,6 @@ export function KanbanItemCard({
 					// Safely access the event target
 					const event = args?.input?.event;
 					if (!event) {
-						console.log("No event in canDrag");
 						return true; // Allow drag if we can't determine the target
 					}
 
@@ -103,11 +102,9 @@ export function KanbanItemCard({
 						target.closest("textarea") ||
 						target.closest("select")
 					) {
-						console.log("Blocking drag from interactive element:", tagName);
 						return false;
 					}
 
-					console.log("Allowing drag from:", tagName);
 					return true;
 				},
 				getInitialData: () => ({
@@ -116,14 +113,8 @@ export function KanbanItemCard({
 					item,
 					columnId: item.columnId,
 				}),
-				onDragStart: () => {
-					console.log("Drag started for item:", item.id, item.name);
-					setIsDragging(true);
-				},
-				onDrop: () => {
-					console.log("Drag ended for item:", item.id);
-					setIsDragging(false);
-				},
+				onDragStart: () => setIsDragging(true),
+				onDrop: () => setIsDragging(false),
 			}),
 			dropTargetForElements({
 				element,
