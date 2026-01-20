@@ -209,8 +209,14 @@ export function KanbanBoard({ boardId }: KanbanBoardProps) {
 			},
 
 			onDrop: ({ source, location }) => {
+				console.log("onDrop fired", { source: source.data, location });
 				const destination = location.current.dropTargets[0];
-				if (!destination || !optimisticBoard) return;
+				console.log("destination:", destination?.data);
+
+				if (!destination || !optimisticBoard) {
+					console.log("No destination or no optimisticBoard, returning");
+					return;
+				}
 
 				const sourceData = source.data;
 				const destData = destination.data;
@@ -258,15 +264,22 @@ export function KanbanBoard({ boardId }: KanbanBoardProps) {
 				}
 
 				// Handle item drops
-				if (sourceData.type !== "item") return;
+				if (sourceData.type !== "item") {
+					console.log("Not an item drop, type:", sourceData.type);
+					return;
+				}
 
+				console.log("Handling item drop");
 				const sourceItemId = sourceData.itemId as string;
 				// Get current item position from optimistic board (accounts for previous optimistic moves)
 				const currentItem = optimisticBoard.columns
 					.flatMap((col: KanbanColumnWithItems) => col.items)
 					.find((item: KanbanItem) => item.id === sourceItemId);
 
-				if (!currentItem) return;
+				if (!currentItem) {
+					console.log("Current item not found:", sourceItemId);
+					return;
+				}
 
 				const sourceItem = sourceData.item as KanbanItem;
 				let targetColumnId: string;
@@ -274,6 +287,7 @@ export function KanbanBoard({ boardId }: KanbanBoardProps) {
 
 				if (destData.type === "column") {
 					// Dropped directly on a column (empty area)
+					console.log("Dropped on column");
 					targetColumnId = destData.columnId as string;
 					const targetColumn = optimisticBoard.columns.find(
 						(c: KanbanColumnWithItems) => c.id === targetColumnId,
@@ -323,6 +337,13 @@ export function KanbanBoard({ boardId }: KanbanBoardProps) {
 					currentItem.columnId !== targetColumnId ||
 					currentItem.position !== newPosition
 				) {
+					console.log("Moving item:", {
+						itemId: sourceItemId,
+						from: currentItem.columnId,
+						to: targetColumnId,
+						position: newPosition,
+					});
+
 					// Apply optimistic update immediately
 					setPendingMoves((prev) => {
 						const next = new Map(prev);
@@ -343,6 +364,8 @@ export function KanbanBoard({ boardId }: KanbanBoardProps) {
 						newPosition,
 						boardId,
 					});
+				} else {
+					console.log("No change needed, item already in position");
 				}
 
 				// Clear drag preview when drag ends

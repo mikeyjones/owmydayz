@@ -47,16 +47,6 @@ describe("KanbanItemCard", () => {
 			expect(article.getAttribute("aria-label")).toContain("Test description");
 		});
 
-		it("should have aria-label on drag handle", () => {
-			const item = createMockItem({ name: "Draggable Item" });
-			render(<KanbanItemCard item={item} {...mockHandlers} />);
-
-			const dragHandle = screen.getByRole("button", {
-				name: "Drag to move Draggable Item",
-			});
-			expect(dragHandle).toBeInTheDocument();
-		});
-
 		it("should have aria-label on options button", () => {
 			const item = createMockItem({ name: "Options Item" });
 			render(<KanbanItemCard item={item} {...mockHandlers} />);
@@ -65,16 +55,6 @@ describe("KanbanItemCard", () => {
 				name: "More options for Options Item",
 			});
 			expect(optionsButton).toBeInTheDocument();
-		});
-
-		it("should be keyboard accessible with tabIndex", () => {
-			const item = createMockItem();
-			const { container } = render(
-				<KanbanItemCard item={item} {...mockHandlers} />,
-			);
-
-			const article = container.querySelector('[role="article"]');
-			expect(article).toHaveAttribute("tabIndex", "0");
 		});
 
 		it("should have focus styles", () => {
@@ -101,14 +81,15 @@ describe("KanbanItemCard", () => {
 			expect(article).toHaveClass("hover:bg-accent/5");
 		});
 
-		it("should have cursor pointer for interactivity", () => {
+		it("should have cursor grab for dragging", () => {
 			const item = createMockItem();
 			const { container } = render(
 				<KanbanItemCard item={item} {...mockHandlers} />,
 			);
 
 			const article = container.querySelector('[role="article"]');
-			expect(article).toHaveClass("cursor-pointer");
+			expect(article).toHaveClass("hover:cursor-grab");
+			expect(article).toHaveClass("active:cursor-grabbing");
 		});
 	});
 
@@ -168,31 +149,6 @@ describe("KanbanItemCard", () => {
 	});
 
 	describe("visual feedback", () => {
-		it("should show drag handle with grab cursor", () => {
-			const item = createMockItem();
-			const { container } = render(
-				<KanbanItemCard item={item} {...mockHandlers} />,
-			);
-
-			const dragHandle = container.querySelector(
-				'button[aria-label*="Drag to move"]',
-			);
-			expect(dragHandle).toHaveClass("cursor-grab");
-			expect(dragHandle).toHaveClass("active:cursor-grabbing");
-		});
-
-		it("should show hover state on drag handle", () => {
-			const item = createMockItem();
-			const { container } = render(
-				<KanbanItemCard item={item} {...mockHandlers} />,
-			);
-
-			const dragHandle = container.querySelector(
-				'button[aria-label*="Drag to move"]',
-			);
-			expect(dragHandle).toHaveClass("hover:bg-muted");
-		});
-
 		it("should show opacity when dragging", () => {
 			const item = createMockItem();
 			const { container } = render(

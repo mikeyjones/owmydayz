@@ -8,13 +8,7 @@ import {
 	type Edge,
 	extractClosestEdge,
 } from "@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge";
-import {
-	GripVertical,
-	MessageSquare,
-	MoreHorizontal,
-	Pencil,
-	Trash2,
-} from "lucide-react";
+import { MessageSquare, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
@@ -68,7 +62,6 @@ export function KanbanItemCard({
 	columnColor,
 }: KanbanItemProps) {
 	const ref = useRef<HTMLDivElement>(null);
-	const dragHandleRef = useRef<HTMLButtonElement>(null);
 	const [isDragging, setIsDragging] = useState(false);
 	const [closestEdge, setClosestEdge] = useState<Edge | null>(null);
 
@@ -76,21 +69,61 @@ export function KanbanItemCard({
 
 	useEffect(() => {
 		const element = ref.current;
-		const dragHandle = dragHandleRef.current;
-		if (!element || !dragHandle) return;
+		if (!element) return;
 
 		return combine(
 			draggable({
 				element,
-				dragHandle,
+				dragHandle: element,
+				canDrag: (args) => {
+					// Safely access the event target
+					const event = args?.input?.event;
+					if (!event) {
+						console.log("No event in canDrag");
+						return true; // Allow drag if we can't determine the target
+					}
+
+					const target = event.target as HTMLElement;
+
+					// Safety check: ensure target is an Element
+					if (!target || !target.tagName) {
+						return true;
+					}
+
+					const tagName = target.tagName.toUpperCase();
+
+					// Don't drag if clicking on buttons, inputs, or their children
+					if (
+						tagName === "BUTTON" ||
+						tagName === "INPUT" ||
+						tagName === "TEXTAREA" ||
+						tagName === "SELECT" ||
+						target.closest("button") ||
+						target.closest("input") ||
+						target.closest("textarea") ||
+						target.closest("select")
+					) {
+						console.log("Blocking drag from interactive element:", tagName);
+						return false;
+					}
+
+					console.log("Allowing drag from:", tagName);
+					return true;
+				},
 				getInitialData: () => ({
 					type: "item",
 					itemId: item.id,
 					item,
 					columnId: item.columnId,
 				}),
-				onDragStart: () => setIsDragging(true),
-				onDrop: () => setIsDragging(false),
+				onDragStart: () => {
+					console.log("Drag started for item:", item.id, item.name);
+					setIsDragging(true);
+				},
+				onDrop: () => {
+					console.log("Drag ended for item:", item.id);
+					setIsDragging(false);
+				},
 			}),
 			dropTargetForElements({
 				element,
@@ -144,54 +177,19 @@ export function KanbanItemCard({
 			className={cn(
 				"relative bg-card border rounded-lg p-3 shadow-sm transition-all border-l-4",
 				columnColor?.accent || "border-l-transparent",
-				"hover:shadow-md hover:border-primary/30 hover:bg-accent/5 cursor-pointer",
+				"hover:shadow-md hover:border-primary/30 hover:bg-accent/5",
+				"hover:cursor-grab active:cursor-grabbing",
 				"focus:outline-none focus:ring-2 focus:ring-primary/50 focus:shadow-lg",
 				(isDragging || isDraggingProp) &&
 					"opacity-50 shadow-lg ring-2 ring-primary/50",
 			)}
 		>
 			<DropIndicator edge={closestEdge} />
-			<div className="flex items-start gap-2">
-				<button
-					ref={dragHandleRef}
-					type="button"
-					aria-label={`Drag to move ${item.name}`}
-					className="mt-0.5 p-1 -ml-1 rounded hover:bg-muted cursor-grab active:cursor-grabbing focus:outline-none focus:ring-2 focus:ring-primary/50 transition-colors"
-				>
-					<GripVertical className="h-4 w-4 text-muted-foreground" />
-				</button>
-
+			<div className="flex items-start justify-between gap-2">
 				<div className="flex-1 min-w-0">
-					<div className="flex items-start justify-between gap-2">
-						<h4 className="font-medium text-sm leading-tight break-words">
-							{item.name}
-						</h4>
-						<DropdownMenu>
-							<DropdownMenuTrigger asChild>
-								<Button
-									variant="ghost"
-									size="icon"
-									className="h-6 w-6 shrink-0"
-									aria-label={`More options for ${item.name}`}
-								>
-									<MoreHorizontal className="h-3.5 w-3.5" />
-								</Button>
-							</DropdownMenuTrigger>
-							<DropdownMenuContent align="end">
-								<DropdownMenuItem onClick={() => onEdit(item)}>
-									<Pencil className="h-4 w-4 mr-2" />
-									Edit
-								</DropdownMenuItem>
-								<DropdownMenuItem
-									onClick={() => onDelete(item.id)}
-									className="text-destructive focus:text-destructive"
-								>
-									<Trash2 className="h-4 w-4 mr-2" />
-									Delete
-								</DropdownMenuItem>
-							</DropdownMenuContent>
-						</DropdownMenu>
-					</div>
+					<h4 className="font-medium text-sm leading-tight break-words">
+						{item.name}
+					</h4>
 
 					{item.description && (
 						<p className="text-xs text-muted-foreground mt-1 line-clamp-2">
@@ -246,6 +244,32 @@ export function KanbanItemCard({
 						)}
 					</div>
 				</div>
+
+				<DropdownMenu>
+					<DropdownMenuTrigger asChild>
+						<Button
+							variant="ghost"
+							size="icon"
+							className="h-6 w-6 shrink-0"
+							aria-label={`More options for ${item.name}`}
+						>
+							<MoreHorizontal className="h-3.5 w-3.5" />
+						</Button>
+					</DropdownMenuTrigger>
+					<DropdownMenuContent align="end">
+						<DropdownMenuItem onClick={() => onEdit(item)}>
+							<Pencil className="h-4 w-4 mr-2" />
+							Edit
+						</DropdownMenuItem>
+						<DropdownMenuItem
+							onClick={() => onDelete(item.id)}
+							className="text-destructive focus:text-destructive"
+						>
+							<Trash2 className="h-4 w-4 mr-2" />
+							Delete
+						</DropdownMenuItem>
+					</DropdownMenuContent>
+				</DropdownMenu>
 			</div>
 		</div>
 	);
