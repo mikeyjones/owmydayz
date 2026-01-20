@@ -26,22 +26,16 @@ export function TeamCreateItemDialog({
 	const createItemMutation = useCreateTeamItem();
 
 	const handleSubmit = async (data: ItemFormData) => {
-		createItemMutation.mutate(
-			{
-				columnId,
-				boardId,
-				name: data.name,
-				description: data.description || undefined,
-				importance: data.importance,
-				effort: data.effort,
-				tags: data.tags,
-			},
-			{
-				onSuccess: () => {
-					onOpenChange(false);
-				},
-			},
-		);
+		await createItemMutation.mutate({
+			columnId,
+			boardId,
+			name: data.name,
+			description: data.description || undefined,
+			importance: data.importance,
+			effort: data.effort,
+			tags: data.tags,
+		});
+		onOpenChange(false);
 	};
 
 	return (

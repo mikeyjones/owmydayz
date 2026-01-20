@@ -1,10 +1,10 @@
 import { queryOptions } from "@tanstack/react-query";
-import type { PeriodType } from "~/data-access/review";
 import {
 	getCompletedItemsFn,
 	getCompletionStatsFn,
 	getMonthlyBreakdownFn,
 } from "~/fn/review";
+import type { PeriodType } from "~/types/review";
 import { getAuthHeaders } from "~/utils/server-fn-client";
 
 export const completedItemsQueryOptions = (period: PeriodType) =>

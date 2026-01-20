@@ -18,7 +18,7 @@ import { TeamCard } from "./TeamCard";
 import { TeamDialog } from "./TeamDialog";
 
 export function TeamsList() {
-	const { data: teams, isPending, error } = useTeams();
+	const { data: teams, isLoading, error } = useTeams();
 	const deleteTeamMutation = useDeleteTeam();
 
 	const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -33,15 +33,14 @@ export function TeamsList() {
 		setDeletingTeam(team);
 	};
 
-	const confirmDelete = () => {
+	const confirmDelete = async () => {
 		if (deletingTeam) {
-			deleteTeamMutation.mutate(deletingTeam.id, {
-				onSettled: () => setDeletingTeam(null),
-			});
+			await deleteTeamMutation.mutate(deletingTeam.id);
+			setDeletingTeam(null);
 		}
 	};
 
-	if (isPending) {
+	if (isLoading) {
 		return (
 			<div className="flex items-center justify-center py-12">
 				<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
@@ -79,7 +78,7 @@ export function TeamsList() {
 			{/* Team Grid */}
 			{teams && teams.length > 0 ? (
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-					{teams.map((team) => (
+					{teams.map((team: Team) => (
 						<TeamCard
 							key={team.id}
 							team={team}

@@ -52,7 +52,9 @@ export function AttachmentThumbnail({
 
 	// Get the URL - prefer provided url, then uploadResult previewUrl
 	const displayUrl = url ?? uploadResult?.previewUrl;
-	const fileName = attachmentData.fileName || "";
+	const fileName = uploadResult
+		? uploadResult.fileName
+		: (attachment?.filename ?? "");
 	const type = attachmentData.type;
 
 	const containerClasses = cn(

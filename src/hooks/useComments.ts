@@ -1,9 +1,11 @@
 // Stub hook - comments not yet implemented in Convex
 // TODO: Implement comments in Convex
 
+import type { CommentWithUser } from "~/types";
+
 export function usePostComments(_postId: string) {
 	return {
-		data: [],
+		data: [] as CommentWithUser[],
 		isLoading: false,
 		error: null,
 	};
@@ -11,7 +13,7 @@ export function usePostComments(_postId: string) {
 
 export function useCreateComment() {
 	return {
-		mutate: async () => {
+		mutate: async (_data: unknown, _options?: unknown) => {
 			console.warn("Comments not yet implemented in Convex");
 		},
 		isPending: false,
@@ -21,7 +23,7 @@ export function useCreateComment() {
 
 export function useUpdateComment() {
 	return {
-		mutate: async () => {
+		mutate: async (_data: unknown, _options?: unknown) => {
 			console.warn("Comments not yet implemented in Convex");
 		},
 		isPending: false,
@@ -31,7 +33,7 @@ export function useUpdateComment() {
 
 export function useDeleteComment() {
 	return {
-		mutate: async () => {
+		mutate: async (_data: unknown, _options?: unknown) => {
 			console.warn("Comments not yet implemented in Convex");
 		},
 		isPending: false,
@@ -41,7 +43,7 @@ export function useDeleteComment() {
 
 export function useLikeComment() {
 	return {
-		mutate: async () => {
+		mutate: async (_commentId: unknown) => {
 			console.warn("Comments not yet implemented in Convex");
 		},
 		isPending: false,
@@ -51,7 +53,7 @@ export function useLikeComment() {
 
 export function useUnlikeComment() {
 	return {
-		mutate: async () => {
+		mutate: async (_commentId: unknown) => {
 			console.warn("Comments not yet implemented in Convex");
 		},
 		isPending: false,
@@ -69,7 +71,7 @@ export function useCommentLikeStatus(_commentId: string) {
 
 export function useCommentReplies(_commentId: string) {
 	return {
-		data: [],
+		data: [] as CommentWithUser[],
 		isLoading: false,
 		error: null,
 	};

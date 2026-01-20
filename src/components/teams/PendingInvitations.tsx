@@ -14,11 +14,11 @@ import {
 } from "~/hooks/useTeams";
 
 export function PendingInvitations() {
-	const { data: invitations, isPending } = useMyPendingInvitations();
+	const { data: invitations, isLoading } = useMyPendingInvitations();
 	const acceptMutation = useAcceptInvitation();
 	const declineMutation = useDeclineInvitation();
 
-	if (isPending || !invitations || invitations.length === 0) {
+	if (isLoading || !invitations || invitations.length === 0) {
 		return null;
 	}
 
@@ -34,38 +34,44 @@ export function PendingInvitations() {
 				</CardDescription>
 			</CardHeader>
 			<CardContent className="space-y-3">
-				{invitations.map((invitation) => (
-					<div
-						key={invitation.id}
-						className="flex items-center justify-between p-3 bg-background rounded-lg border"
-					>
-						<div>
-							<p className="font-medium">{invitation.teamName}</p>
-							<p className="text-sm text-muted-foreground">
-								Invited as {invitation.role}
-							</p>
+				{invitations.map(
+					(invitation: { id: string; teamName: string; role: string }) => (
+						<div
+							key={invitation.id}
+							className="flex items-center justify-between p-3 bg-background rounded-lg border"
+						>
+							<div>
+								<p className="font-medium">{invitation.teamName}</p>
+								<p className="text-sm text-muted-foreground">
+									Invited as {invitation.role}
+								</p>
+							</div>
+							<div className="flex gap-2">
+								<Button
+									size="sm"
+									variant="outline"
+									onClick={() => declineMutation.mutate(invitation.id)}
+									disabled={
+										acceptMutation.isPending || declineMutation.isPending
+									}
+								>
+									<X className="h-4 w-4 mr-1" />
+									Decline
+								</Button>
+								<Button
+									size="sm"
+									onClick={() => acceptMutation.mutate(invitation.id)}
+									disabled={
+										acceptMutation.isPending || declineMutation.isPending
+									}
+								>
+									<Check className="h-4 w-4 mr-1" />
+									Accept
+								</Button>
+							</div>
 						</div>
-						<div className="flex gap-2">
-							<Button
-								size="sm"
-								variant="outline"
-								onClick={() => declineMutation.mutate(invitation.id)}
-								disabled={acceptMutation.isPending || declineMutation.isPending}
-							>
-								<X className="h-4 w-4 mr-1" />
-								Decline
-							</Button>
-							<Button
-								size="sm"
-								onClick={() => acceptMutation.mutate(invitation.id)}
-								disabled={acceptMutation.isPending || declineMutation.isPending}
-							>
-								<Check className="h-4 w-4 mr-1" />
-								Accept
-							</Button>
-						</div>
-					</div>
-				))}
+					),
+				)}
 			</CardContent>
 		</Card>
 	);

@@ -60,7 +60,7 @@ function MediaItem({
 	return (
 		<img
 			src={url}
-			alt={attachment.fileName || ""}
+			alt={attachment.filename || ""}
 			className="max-h-[90vh] max-w-[90vw] object-contain"
 		/>
 	);
@@ -76,14 +76,14 @@ function MediaItemWithUrl({
 	urlMap?: Record<string, string>;
 }) {
 	// Always call hook at top level
-	const { data: url, isLoading } = useAttachmentUrl(attachment.fileKey);
+	const { data: url, isLoading } = useAttachmentUrl(attachment.id);
 
 	// If URL is provided in map, use it directly
-	if (urlMap?.[attachment.fileKey]) {
+	if (urlMap?.[attachment.id]) {
 		return (
 			<MediaItem
 				attachment={attachment}
-				url={urlMap[attachment.fileKey]}
+				url={urlMap[attachment.id]}
 				isActive={isActive}
 			/>
 		);
@@ -235,7 +235,7 @@ export function MediaLightbox({
 			{showNavigation && attachments.length <= 10 && (
 				<div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex gap-2">
 					{attachments.map((att, idx) => {
-						const thumbUrl = urlMap?.[att.fileKey];
+						const thumbUrl = urlMap?.[att.id];
 						return (
 							<button
 								type="button"

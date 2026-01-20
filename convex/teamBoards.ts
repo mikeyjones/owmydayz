@@ -7,8 +7,8 @@ import { getOptionalAuth, requireAuth, requireUserFromClientId } from "./auth";
 export const SYSTEM_COLUMN_NOW = "Now";
 export const SYSTEM_COLUMN_COMPLETED = "Completed";
 
-// System columns positions
-export const SYSTEM_COLUMN_NOW_POSITION = 999998;
+// System column positions (Now at start, Completed at end)
+export const SYSTEM_COLUMN_NOW_POSITION = 0;
 export const SYSTEM_COLUMN_COMPLETED_POSITION = 999999;
 
 // =====================================================
@@ -454,6 +454,8 @@ export const createTeamColumn = mutation({
 			.collect();
 
 		const userColumns = columns.filter((col) => !col.isSystem);
+		// Ensure new columns are positioned between Now (0) and Completed (999999)
+		// Start at position 1 if no user columns exist
 		const maxPosition =
 			userColumns.length > 0
 				? Math.max(...userColumns.map((col) => col.position))
@@ -463,7 +465,7 @@ export const createTeamColumn = mutation({
 		const columnId = await ctx.db.insert("teamColumns", {
 			boardId: args.boardId,
 			name: args.name,
-			position: maxPosition + 1,
+			position: Math.max(maxPosition + 1, 1),
 			isSystem: false,
 			createdAt: now,
 			updatedAt: now,
@@ -572,14 +574,18 @@ export const reorderTeamColumns = mutation({
 
 		await requireTeamMember(ctx, board.teamId, user.id);
 
-		// Check if any system columns are being reordered
+		// Verify Completed column is not being reordered
 		for (const item of args.columnOrder) {
 			const column = await ctx.db.get(item.id);
 			if (!column) {
 				throw new Error(`Column ${item.id} not found`);
 			}
-			if (column.isSystem) {
-				throw new Error("Cannot reorder system columns");
+
+			// Only Completed column cannot be reordered
+			if (column.isSystem && column.name === SYSTEM_COLUMN_COMPLETED) {
+				throw new Error(
+					"Cannot reorder Completed column - it must stay at the end",
+				);
 			}
 		}
 

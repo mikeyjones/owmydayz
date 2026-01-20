@@ -1,5 +1,5 @@
 import { MessageSquare } from "lucide-react";
-import { usePostCommentCount, usePostComments } from "~/hooks/useComments";
+import { usePostComments } from "~/hooks/useComments";
 import { authClient } from "~/lib/auth-client";
 import { CommentForm } from "./CommentForm";
 import { CommentItem } from "./CommentItem";
@@ -11,7 +11,6 @@ interface CommentListProps {
 export function CommentList({ postId }: CommentListProps) {
 	const { data: comments = [], isLoading: commentsLoading } =
 		usePostComments(postId);
-	const { data: commentCount = 0 } = usePostCommentCount(postId);
 	const { data: session } = authClient.useSession();
 
 	return (
@@ -19,7 +18,7 @@ export function CommentList({ postId }: CommentListProps) {
 			{/* Header */}
 			<div className="flex items-center gap-2">
 				<MessageSquare className="h-5 w-5 text-muted-foreground" />
-				<h2 className="text-xl font-semibold">Comments ({commentCount})</h2>
+				<h2 className="text-xl font-semibold">Comments ({comments.length})</h2>
 			</div>
 
 			{/* Comment Form */}

@@ -33,3 +33,19 @@ export type ReviewStats = {
 		big: number;
 	};
 };
+
+export type CompletionStats = {
+	totalCompleted: number;
+	currentStreak: number;
+	longestStreak: number;
+	completedThisMonth: number;
+	milestones: {
+		reached: number[];
+		next?: number;
+	};
+};
+
+export type MonthlyBreakdown = {
+	month: number;
+	count: number;
+};

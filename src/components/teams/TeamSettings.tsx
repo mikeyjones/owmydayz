@@ -49,7 +49,7 @@ interface TeamSettingsProps {
 
 export function TeamSettings({ teamId }: TeamSettingsProps) {
 	const navigate = useNavigate();
-	const { data: team, isPending: teamLoading } = useTeam(teamId);
+	const { data: team, isLoading: teamLoading } = useTeam(teamId);
 	const updateTeamMutation = useUpdateTeam();
 	const deleteTeamMutation = useDeleteTeam();
 
@@ -66,12 +66,9 @@ export function TeamSettings({ teamId }: TeamSettingsProps) {
 		updateTeamMutation.mutate({ id: teamId, ...data });
 	};
 
-	const handleDelete = () => {
-		deleteTeamMutation.mutate(teamId, {
-			onSuccess: () => {
-				navigate({ to: "/dashboard/teams" });
-			},
-		});
+	const handleDelete = async () => {
+		await deleteTeamMutation.mutate(teamId);
+		navigate({ to: "/dashboard/teams" });
 	};
 
 	if (teamLoading) {

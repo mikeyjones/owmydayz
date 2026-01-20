@@ -51,18 +51,12 @@ export function TeamCreateColumnDialog({
 	});
 
 	const handleSubmit = async (data: ColumnFormData) => {
-		createColumnMutation.mutate(
-			{
-				boardId,
-				name: data.name,
-			},
-			{
-				onSuccess: () => {
-					form.reset();
-					onOpenChange(false);
-				},
-			},
-		);
+		await createColumnMutation.mutate({
+			boardId,
+			name: data.name,
+		});
+		form.reset();
+		onOpenChange(false);
 	};
 
 	return (

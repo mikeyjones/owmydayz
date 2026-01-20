@@ -50,8 +50,8 @@ interface TeamMembersListProps {
 }
 
 export function TeamMembersList({ teamId }: TeamMembersListProps) {
-	const { data: members, isPending: membersLoading } = useTeamMembers(teamId);
-	const { data: invitations, isPending: invitationsLoading } =
+	const { data: members, isLoading: membersLoading } = useTeamMembers(teamId);
+	const { data: invitations, isLoading: invitationsLoading } =
 		useTeamInvitations(teamId);
 	const updateRoleMutation = useUpdateMemberRole();
 	const removeMemberMutation = useRemoveMember();
@@ -102,16 +102,22 @@ export function TeamMembersList({ teamId }: TeamMembersListProps) {
 			.slice(0, 2);
 	};
 
-	const handleUpdateRole = (membershipId: string, role: "admin" | "member") => {
-		updateRoleMutation.mutate({ membershipId, role, teamId });
+	const handleUpdateRole = (
+		membershipId: string,
+		role: "admin" | "member",
+		targetUserId: string,
+	) => {
+		updateRoleMutation.mutate({ membershipId, role, teamId, targetUserId });
 	};
 
-	const handleRemoveMember = () => {
+	const handleRemoveMember = async () => {
 		if (removingMember) {
-			removeMemberMutation.mutate(
-				{ membershipId: removingMember.id, teamId },
-				{ onSettled: () => setRemovingMember(null) },
-			);
+			await removeMemberMutation.mutate({
+				membershipId: removingMember.id,
+				teamId,
+				targetUserId: removingMember.userId,
+			});
+			setRemovingMember(null);
 		}
 	};
 
@@ -121,7 +127,8 @@ export function TeamMembersList({ teamId }: TeamMembersListProps) {
 
 	const isPending = membersLoading || invitationsLoading;
 	const pendingInvitations =
-		invitations?.filter((i) => i.status === "pending") || [];
+		invitations?.filter((i: { status: string }) => i.status === "pending") ||
+		[];
 
 	if (isPending) {
 		return (
@@ -156,7 +163,7 @@ export function TeamMembersList({ teamId }: TeamMembersListProps) {
 					</CardDescription>
 				</CardHeader>
 				<CardContent className="space-y-4">
-					{members?.map((member) => (
+					{members?.map((member: TeamMemberWithUser) => (
 						<div
 							key={member.id}
 							className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
@@ -187,7 +194,9 @@ export function TeamMembersList({ teamId }: TeamMembersListProps) {
 										<DropdownMenuContent align="end">
 											{member.role === "member" && (
 												<DropdownMenuItem
-													onClick={() => handleUpdateRole(member.id, "admin")}
+													onClick={() =>
+														handleUpdateRole(member.id, "admin", member.userId)
+													}
 												>
 													<Shield className="mr-2 h-4 w-4" />
 													Promote to Admin
@@ -195,7 +204,9 @@ export function TeamMembersList({ teamId }: TeamMembersListProps) {
 											)}
 											{member.role === "admin" && (
 												<DropdownMenuItem
-													onClick={() => handleUpdateRole(member.id, "member")}
+													onClick={() =>
+														handleUpdateRole(member.id, "member", member.userId)
+													}
 												>
 													<UserCog className="mr-2 h-4 w-4" />
 													Demote to Member
@@ -229,28 +240,35 @@ export function TeamMembersList({ teamId }: TeamMembersListProps) {
 						</CardDescription>
 					</CardHeader>
 					<CardContent className="space-y-4">
-						{pendingInvitations.map((invitation) => (
-							<div
-								key={invitation.id}
-								className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
-							>
-								<div>
-									<p className="font-medium">{invitation.email}</p>
-									<p className="text-sm text-muted-foreground">
-										Invited as {invitation.role} • Expires{" "}
-										{new Date(invitation.expiresAt).toLocaleDateString()}
-									</p>
-								</div>
-								<Button
-									variant="ghost"
-									size="sm"
-									onClick={() => handleRevokeInvitation(invitation.id)}
-									disabled={revokeInvitationMutation.isPending}
+						{pendingInvitations.map(
+							(invitation: {
+								id: string;
+								email: string;
+								role: string;
+								expiresAt: string;
+							}) => (
+								<div
+									key={invitation.id}
+									className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
 								>
-									Revoke
-								</Button>
-							</div>
-						))}
+									<div>
+										<p className="font-medium">{invitation.email}</p>
+										<p className="text-sm text-muted-foreground">
+											Invited as {invitation.role} • Expires{" "}
+											{new Date(invitation.expiresAt).toLocaleDateString()}
+										</p>
+									</div>
+									<Button
+										variant="ghost"
+										size="sm"
+										onClick={() => handleRevokeInvitation(invitation.id)}
+										disabled={revokeInvitationMutation.isPending}
+									>
+										Revoke
+									</Button>
+								</div>
+							),
+						)}
 					</CardContent>
 				</Card>
 			)}

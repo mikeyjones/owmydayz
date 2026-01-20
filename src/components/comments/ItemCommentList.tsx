@@ -78,7 +78,7 @@ export function ItemCommentList({
 			) : (
 				<div className="space-y-4 divide-y">
 					{comments.map((comment) => (
-						<div key={comment.id} className="pt-4 first:pt-0">
+						<div key={comment._id} className="pt-4 first:pt-0">
 							<ItemCommentItem
 								comment={comment}
 								currentUserId={currentUserId}
@@ -89,8 +89,8 @@ export function ItemCommentList({
 								isUpdating={isUpdating}
 								isDeleting={isDeleting}
 								isReplying={isCreating}
-								replies={getReplies(comment.id)}
-								isLoadingReplies={isLoadingReplies(comment.id)}
+								replies={getReplies(comment._id)}
+								isLoadingReplies={isLoadingReplies(comment._id)}
 								onLoadReplies={onLoadReplies}
 							/>
 						</div>

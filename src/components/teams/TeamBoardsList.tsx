@@ -21,7 +21,7 @@ interface TeamBoardsListProps {
 }
 
 export function TeamBoardsList({ teamId }: TeamBoardsListProps) {
-	const { data: boards, isPending, error } = useTeamBoards(teamId);
+	const { data: boards, isLoading, error } = useTeamBoards(teamId);
 	const deleteBoardMutation = useDeleteTeamBoard();
 
 	const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -36,16 +36,14 @@ export function TeamBoardsList({ teamId }: TeamBoardsListProps) {
 		setDeletingBoard(board);
 	};
 
-	const confirmDelete = () => {
+	const confirmDelete = async () => {
 		if (deletingBoard) {
-			deleteBoardMutation.mutate(
-				{ id: deletingBoard.id, teamId },
-				{ onSettled: () => setDeletingBoard(null) },
-			);
+			await deleteBoardMutation.mutate({ id: deletingBoard.id, teamId });
+			setDeletingBoard(null);
 		}
 	};
 
-	if (isPending) {
+	if (isLoading) {
 		return (
 			<div className="flex items-center justify-center py-12">
 				<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
@@ -80,7 +78,7 @@ export function TeamBoardsList({ teamId }: TeamBoardsListProps) {
 			{/* Board Grid */}
 			{boards && boards.length > 0 ? (
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-					{boards.map((board) => (
+					{boards.map((board: TeamBoard) => (
 						<TeamBoardCard
 							key={board.id}
 							board={board}

@@ -1,8 +1,10 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
 	CheckSquare,
+	ClipboardList,
 	File,
 	FileText,
+	GraduationCap,
 	Image,
 	Loader2,
 	Plus,
@@ -65,6 +67,8 @@ const CONTENT_TYPE_LABELS: Record<ModuleContentType, string> = {
 	image: "Image",
 	pdf: "PDF Document",
 	text: "Text Content",
+	quiz: "Quiz",
+	assignment: "Assignment",
 };
 
 const CONTENT_TYPE_ICONS: Record<
@@ -76,6 +80,8 @@ const CONTENT_TYPE_ICONS: Record<
 	image: Image,
 	pdf: File,
 	text: FileText,
+	quiz: GraduationCap,
+	assignment: ClipboardList,
 };
 
 const CONTENT_TYPE_DESCRIPTIONS: Record<ModuleContentType, string> = {
@@ -84,6 +90,8 @@ const CONTENT_TYPE_DESCRIPTIONS: Record<ModuleContentType, string> = {
 	image: "Upload an image or diagram",
 	pdf: "Upload a PDF document or resource",
 	text: "Add text-based content or instructions",
+	quiz: "Create a quiz or assessment for students",
+	assignment: "Create an assignment with instructions and requirements",
 };
 
 interface ContentFormProps {
@@ -122,7 +130,9 @@ export function ContentForm({
 
 	const contentType = form.watch("type");
 	const needsFileUpload = ["video", "image", "pdf"].includes(contentType);
-	const needsTextContent = contentType === "text" || contentType === "task";
+	const needsTextContent = ["text", "task", "quiz", "assignment"].includes(
+		contentType,
+	);
 
 	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const selectedFile = e.target.files?.[0];
@@ -139,14 +149,10 @@ export function ContentForm({
 			setIsUploading(true);
 			try {
 				// Get presigned URL
-				const uploadData = await getUploadUrl.mutateAsync({
-					fileName: file.name,
-					fileType: file.type,
-					folder: `modules/${contentType}`,
-				});
+				const uploadData = await getUploadUrl.mutateAsync();
 
 				// Upload file directly to storage
-				await fetch(uploadData.uploadUrl, {
+				await fetch(uploadData.presignedUrl, {
 					method: "PUT",
 					body: file,
 					headers: {
@@ -155,8 +161,8 @@ export function ContentForm({
 				});
 
 				// Confirm upload
-				await confirmUpload.mutateAsync({ key: uploadData.key });
-				fileKey = uploadData.key;
+				await confirmUpload.mutateAsync();
+				fileKey = uploadData.fileKey;
 			} catch (error) {
 				console.error("Upload failed:", error);
 				setIsUploading(false);
@@ -337,7 +343,11 @@ export function ContentForm({
 										placeholder={
 											contentType === "task"
 												? "Describe the task or assignment..."
-												: "Enter your text content..."
+												: contentType === "quiz"
+													? "Enter quiz questions and answers..."
+													: contentType === "assignment"
+														? "Enter assignment instructions and requirements..."
+														: "Enter your text content..."
 										}
 										className="min-h-[200px] text-base resize-y"
 										disabled={isSubmitting}

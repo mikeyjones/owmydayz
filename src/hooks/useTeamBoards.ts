@@ -88,6 +88,67 @@ export function applyOptimisticTeamMoves(
 	return columns.map((col) => columnMap.get(col.id) || col);
 }
 
+/**
+ * Applies optimistic column reordering by rearranging columns based on
+ * the new column order while keeping system columns at the end.
+ *
+ * @param columns - All columns including system columns
+ * @param newColumnOrder - Array of column IDs in the new order (excluding system columns)
+ * @returns Reordered columns with updated positions
+ */
+export function applyOptimisticTeamColumnReorder(
+	columns: TeamColumnWithItems[],
+	newColumnOrder: string[],
+): TeamColumnWithItems[] {
+	if (columns.length === 0) {
+		return [];
+	}
+
+	// Separate user columns from system columns
+	const systemColumns = columns.filter((col) => col.isSystem);
+	const userColumns = columns.filter((col) => !col.isSystem);
+
+	// If no user columns, just return original columns
+	if (userColumns.length === 0) {
+		return columns;
+	}
+
+	// Create a map of columns for easy lookup
+	const columnMap = new Map(userColumns.map((col) => [col.id, col]));
+
+	// Reorder user columns based on newColumnOrder
+	const reorderedUserColumns: TeamColumnWithItems[] = [];
+
+	// Add columns in the new order
+	newColumnOrder.forEach((columnId) => {
+		const column = columnMap.get(columnId);
+		if (column) {
+			reorderedUserColumns.push(column);
+			columnMap.delete(columnId); // Remove from map to track what's left
+		}
+	});
+
+	// Add any remaining columns that weren't in newColumnOrder
+	columnMap.forEach((column) => {
+		reorderedUserColumns.push(column);
+	});
+
+	// Update positions for user columns
+	const userColumnsWithPositions = reorderedUserColumns.map((col, index) => ({
+		...col,
+		position: index,
+	}));
+
+	// Add system columns at the end with updated positions
+	const systemColumnsWithPositions = systemColumns.map((col, index) => ({
+		...col,
+		position: userColumnsWithPositions.length + index,
+	}));
+
+	// Combine user and system columns
+	return [...userColumnsWithPositions, ...systemColumnsWithPositions];
+}
+
 // =====================================================
 // Team Board Hooks
 // =====================================================

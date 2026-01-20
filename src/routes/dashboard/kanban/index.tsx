@@ -16,7 +16,7 @@ export const Route = createFileRoute("/dashboard/kanban/")({
 });
 
 function KanbanIndex() {
-	const { data: teamBoards, isPending: teamBoardsLoading } = useAllTeamBoards();
+	const { data: teamBoards, isLoading: teamBoardsLoading } = useAllTeamBoards();
 
 	return (
 		<div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-8">
@@ -49,41 +49,49 @@ function KanbanIndex() {
 					</div>
 				) : teamBoards && teamBoards.length > 0 ? (
 					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-						{teamBoards.map((board) => (
-							<Card
-								key={board._id}
-								className="group hover:shadow-md transition-shadow"
-							>
-								<CardHeader className="pb-2">
-									<div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
-										<Users className="h-3 w-3" />
-										{board.teamName}
-									</div>
-									<CardTitle className="text-lg font-semibold truncate">
-										{board.name}
-									</CardTitle>
-									{board.description && (
-										<CardDescription className="line-clamp-2">
-											{board.description}
-										</CardDescription>
-									)}
-								</CardHeader>
-								<CardContent>
-									<Link
-										to="/dashboard/teams/$teamId/boards/$boardId"
-										params={{
-											teamId: board.teamId,
-											boardId: String(board._id),
-										}}
-									>
-										<Button variant="outline" className="w-full">
-											<LayoutDashboard className="mr-2 h-4 w-4" />
-											Open Board
-										</Button>
-									</Link>
-								</CardContent>
-							</Card>
-						))}
+						{teamBoards.map(
+							(board: {
+								_id: string;
+								teamName: string;
+								name: string;
+								description?: string;
+								teamId: string;
+							}) => (
+								<Card
+									key={board._id}
+									className="group hover:shadow-md transition-shadow"
+								>
+									<CardHeader className="pb-2">
+										<div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
+											<Users className="h-3 w-3" />
+											{board.teamName}
+										</div>
+										<CardTitle className="text-lg font-semibold truncate">
+											{board.name}
+										</CardTitle>
+										{board.description && (
+											<CardDescription className="line-clamp-2">
+												{board.description}
+											</CardDescription>
+										)}
+									</CardHeader>
+									<CardContent>
+										<Link
+											to="/dashboard/teams/$teamId/boards/$boardId"
+											params={{
+												teamId: board.teamId,
+												boardId: String(board._id),
+											}}
+										>
+											<Button variant="outline" className="w-full">
+												<LayoutDashboard className="mr-2 h-4 w-4" />
+												Open Board
+											</Button>
+										</Link>
+									</CardContent>
+								</Card>
+							),
+						)}
 					</div>
 				) : (
 					<div className="text-center py-8 border border-dashed rounded-lg">

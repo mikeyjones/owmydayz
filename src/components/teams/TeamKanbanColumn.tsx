@@ -1,6 +1,10 @@
-import { dropTargetForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
+import {
+	draggable,
+	dropTargetForElements,
+} from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
 import {
 	ChevronRight,
+	GripVertical,
 	MoreHorizontal,
 	Pencil,
 	Plus,
@@ -45,7 +49,10 @@ export function TeamKanbanColumn({
 }: TeamKanbanColumnProps) {
 	const ref = useRef<HTMLDivElement>(null);
 	const foldedRef = useRef<HTMLButtonElement>(null);
+	const dragHandleRef = useRef<HTMLButtonElement>(null);
+	const columnRef = useRef<HTMLDivElement>(null);
 	const [isOver, setIsOver] = useState(false);
+	const [isColumnOver, setIsColumnOver] = useState(false);
 
 	const isSystemColumn = column.isSystem;
 
@@ -84,6 +91,45 @@ export function TeamKanbanColumn({
 			onDrop: () => setIsOver(false),
 		});
 	}, [column.id, isFolded]);
+
+	// Set up draggable for column reordering
+	useEffect(() => {
+		const element = columnRef.current;
+		const dragHandle = dragHandleRef.current;
+		if (!element || !dragHandle || isSystemColumn || isFolded) return;
+
+		return draggable({
+			element,
+			dragHandle,
+			getInitialData: () => ({
+				type: "column",
+				columnId: column.id,
+			}),
+		});
+	}, [column.id, isSystemColumn, isFolded]);
+
+	// Set up drop target for column reordering
+	useEffect(() => {
+		const element = columnRef.current;
+		if (!element || isSystemColumn || isFolded) return;
+
+		return dropTargetForElements({
+			element,
+			getData: () => ({
+				type: "column",
+				columnId: column.id,
+			}),
+			canDrop: ({ source }) => {
+				// Only accept other columns (not items)
+				return (
+					source.data.type === "column" && source.data.columnId !== column.id
+				);
+			},
+			onDragEnter: () => setIsColumnOver(true),
+			onDragLeave: () => setIsColumnOver(false),
+			onDrop: () => setIsColumnOver(false),
+		});
+	}, [column.id, isSystemColumn, isFolded]);
 
 	// Render folded/collapsed column
 	if (isFolded) {
@@ -147,11 +193,14 @@ export function TeamKanbanColumn({
 
 	return (
 		<div
+			ref={columnRef}
 			className={cn(
 				"flex flex-col w-72 min-w-72 max-w-72 rounded-lg border",
 				columnColor?.bg || "bg-muted/30",
 				columnColor?.border,
 				isOver && "ring-2 ring-primary/50",
+				isColumnOver &&
+					"ring-2 ring-blue-500/70 scale-105 transition-transform",
 			)}
 		>
 			{/* Column Header */}
@@ -162,6 +211,17 @@ export function TeamKanbanColumn({
 				)}
 			>
 				<div className="flex items-center gap-2">
+					{!isSystemColumn && (
+						<button
+							ref={dragHandleRef}
+							type="button"
+							data-testid="column-drag-handle"
+							className="cursor-grab active:cursor-grabbing hover:bg-muted/50 rounded p-1 transition-colors"
+							aria-label="Drag to reorder column"
+						>
+							<GripVertical className="h-4 w-4 text-muted-foreground" />
+						</button>
+					)}
 					<h3 className={cn("font-semibold text-sm", columnColor?.text)}>
 						{column.name}
 					</h3>

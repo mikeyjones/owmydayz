@@ -1,6 +1,8 @@
 // Stub hook - attachments not yet implemented in Convex
 // TODO: Implement attachments in Convex
 
+import type { PostAttachment } from "~/types";
+
 export function useUploadAttachment() {
 	return {
 		mutate: async () => {
@@ -25,9 +27,9 @@ export function useDeleteAttachment() {
 	};
 }
 
-export function useCommentAttachments(_commentId: string) {
+export function useCommentAttachments(_commentId: string, _enabled?: boolean) {
 	return {
-		data: [],
+		data: [] as PostAttachment[],
 		isLoading: false,
 		error: null,
 	};
@@ -35,7 +37,7 @@ export function useCommentAttachments(_commentId: string) {
 
 export function useAttachmentUrls(_attachments: any[]) {
 	return {
-		data: [],
+		data: {} as Record<string, string>,
 		isLoading: false,
 		error: null,
 	};

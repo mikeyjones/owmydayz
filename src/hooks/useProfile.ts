@@ -50,11 +50,18 @@ export function useUpdateUserProfile() {
 	const { refetch: refetchSession } = authClient.useSession();
 
 	return {
-		mutate: async (data: { name?: string }) => {
+		mutate: async (data: { name?: string; image?: string }) => {
 			try {
-				// Use better-auth to update user name
-				if (data.name) {
-					await authClient.updateUser({ name: data.name });
+				// Use better-auth to update user name and/or image
+				const updateData: { name?: string; image?: string } = {};
+				if (data.name !== undefined) {
+					updateData.name = data.name;
+				}
+				if (data.image !== undefined) {
+					updateData.image = data.image;
+				}
+				if (Object.keys(updateData).length > 0) {
+					await authClient.updateUser(updateData);
 				}
 				toast.success("Profile updated successfully");
 				refetchSession();
@@ -65,9 +72,16 @@ export function useUpdateUserProfile() {
 				throw error;
 			}
 		},
-		mutateAsync: async (data: { name?: string }) => {
-			if (data.name) {
-				await authClient.updateUser({ name: data.name });
+		mutateAsync: async (data: { name?: string; image?: string }) => {
+			const updateData: { name?: string; image?: string } = {};
+			if (data.name !== undefined) {
+				updateData.name = data.name;
+			}
+			if (data.image !== undefined) {
+				updateData.image = data.image;
+			}
+			if (Object.keys(updateData).length > 0) {
+				await authClient.updateUser(updateData);
 			}
 			toast.success("Profile updated successfully");
 			refetchSession();
@@ -100,11 +114,23 @@ export function useDeleteUserAccount() {
 	};
 }
 
+// Type for public profile data
+type PublicProfileData = {
+	user: {
+		name: string | null;
+		image: string | null;
+		createdAt: string;
+	};
+	profile: {
+		bio?: string | null;
+	} | null;
+};
+
 // Hook for public profile - placeholder for now
 export function usePublicProfile(_userId: string) {
 	// Public profiles not yet implemented in Convex
 	return {
-		data: null,
+		data: null as PublicProfileData | null,
 		isLoading: false,
 		error: null,
 	};

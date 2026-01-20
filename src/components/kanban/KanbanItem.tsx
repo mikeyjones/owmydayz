@@ -122,6 +122,15 @@ export function KanbanItemCard({
 		);
 	}, [item.id, item.columnId, item]);
 
+	// Keyboard navigation handler
+	const handleKeyDown = (e: React.KeyboardEvent) => {
+		// Space or Enter to edit the item
+		if (e.key === " " || e.key === "Enter") {
+			e.preventDefault();
+			onEdit(item);
+		}
+	};
+
 	const importance = (item.importance || "medium") as KanbanImportance;
 	const effort = (item.effort || "medium") as KanbanEffort;
 	const tags = item.tags || [];
@@ -129,10 +138,14 @@ export function KanbanItemCard({
 	return (
 		<div
 			ref={ref}
+			role="article"
+			aria-label={`Task: ${item.name}. ${item.description ? `Description: ${item.description}. ` : ""}Importance: ${importanceStyles[importance].label}. Effort: ${effortStyles[effort].label}.`}
+			onKeyDown={handleKeyDown}
 			className={cn(
 				"relative bg-card border rounded-lg p-3 shadow-sm transition-all border-l-4",
 				columnColor?.accent || "border-l-transparent",
-				"hover:shadow-md hover:border-primary/30",
+				"hover:shadow-md hover:border-primary/30 hover:bg-accent/5 cursor-pointer",
+				"focus:outline-none focus:ring-2 focus:ring-primary/50 focus:shadow-lg",
 				(isDragging || isDraggingProp) &&
 					"opacity-50 shadow-lg ring-2 ring-primary/50",
 			)}
@@ -142,7 +155,8 @@ export function KanbanItemCard({
 				<button
 					ref={dragHandleRef}
 					type="button"
-					className="mt-0.5 p-1 -ml-1 rounded hover:bg-muted cursor-grab active:cursor-grabbing"
+					aria-label={`Drag to move ${item.name}`}
+					className="mt-0.5 p-1 -ml-1 rounded hover:bg-muted cursor-grab active:cursor-grabbing focus:outline-none focus:ring-2 focus:ring-primary/50 transition-colors"
 				>
 					<GripVertical className="h-4 w-4 text-muted-foreground" />
 				</button>
@@ -158,6 +172,7 @@ export function KanbanItemCard({
 									variant="ghost"
 									size="icon"
 									className="h-6 w-6 shrink-0"
+									aria-label={`More options for ${item.name}`}
 								>
 									<MoreHorizontal className="h-3.5 w-3.5" />
 								</Button>

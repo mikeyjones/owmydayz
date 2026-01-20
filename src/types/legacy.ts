@@ -83,12 +83,10 @@ export type PostCategory = (typeof POST_CATEGORIES)[number];
 
 // Event types
 export const EVENT_TYPES = [
-	"meeting",
+	"live-session",
 	"workshop",
-	"webinar",
-	"deadline",
-	"reminder",
-	"other",
+	"meetup",
+	"assignment-due",
 ] as const;
 
 export type EventType = (typeof EVENT_TYPES)[number];
@@ -100,6 +98,8 @@ export const MODULE_CONTENT_TYPES = [
 	"task",
 	"image",
 	"pdf",
+	"quiz",
+	"assignment",
 ] as const;
 
 // Module types
@@ -142,12 +142,14 @@ export type EventWithUser = {
 	title: string;
 	description: string;
 	eventType: string;
-	startDate: Date;
-	endDate: Date;
-	location: string | null;
+	startTime: Date;
+	endTime?: Date | null;
+	eventLink?: string | null;
 	userId: string;
-	userName: string;
-	userImage: string | null;
+	user: {
+		name: string;
+		image: string | null;
+	};
 	createdAt: Date;
 };
 
@@ -186,17 +188,4 @@ export type ConversationWithParticipant = {
 	lastMessage: string | null;
 	lastMessageAt: Date | null;
 	unreadCount: number;
-};
-
-// Item comment types (for kanban)
-export type ItemCommentWithUser = {
-	id: string;
-	content: string;
-	userId: string;
-	userName: string;
-	userImage: string | null;
-	itemId: string;
-	parentCommentId: string | null;
-	createdAt: Date;
-	updatedAt: Date;
 };

@@ -71,18 +71,18 @@ export function ItemCommentItem({
 	const maxDepth = 3; // Limit nesting depth
 
 	const handleUpdate = (content: string) => {
-		onUpdate(comment.id, content);
+		onUpdate(comment._id, content);
 		setIsEditing(false);
 	};
 
 	const handleReply = (content: string) => {
-		onReply(content, comment.id);
+		onReply(content, comment._id);
 		setIsReplyFormOpen(false);
 	};
 
 	const toggleReplies = () => {
 		if (!showReplies && replies.length === 0 && onLoadReplies) {
-			onLoadReplies(comment.id);
+			onLoadReplies(comment._id);
 		}
 		setShowReplies(!showReplies);
 	};
@@ -90,17 +90,17 @@ export function ItemCommentItem({
 	return (
 		<div className={cn("flex gap-3", depth > 0 && "ml-8 pt-3")}>
 			<Avatar className="h-8 w-8 shrink-0">
-				{comment.user.image && (
-					<AvatarImage src={comment.user.image} alt={comment.user.name} />
+				{comment.userImage && (
+					<AvatarImage src={comment.userImage} alt={comment.userName} />
 				)}
 				<AvatarFallback className="text-xs bg-gradient-to-br from-primary to-purple-600 text-primary-foreground">
-					{getInitials(comment.user.name)}
+					{getInitials(comment.userName)}
 				</AvatarFallback>
 			</Avatar>
 
 			<div className="flex-1 min-w-0">
 				<div className="flex items-center gap-2">
-					<span className="font-medium text-sm">{comment.user.name}</span>
+					<span className="font-medium text-sm">{comment.userName}</span>
 					<span className="text-xs text-muted-foreground">
 						{formatDistanceToNow(new Date(comment.createdAt), {
 							addSuffix: true,
@@ -179,7 +179,7 @@ export function ItemCommentItem({
 											Edit
 										</DropdownMenuItem>
 										<DropdownMenuItem
-											onClick={() => onDelete(comment.id)}
+											onClick={() => onDelete(comment._id)}
 											className="text-destructive focus:text-destructive"
 											disabled={isDeleting}
 										>
@@ -210,7 +210,7 @@ export function ItemCommentItem({
 					<div className="border-l-2 border-muted mt-3">
 						{replies.map((reply) => (
 							<ItemCommentItem
-								key={reply.id}
+								key={reply._id}
 								comment={reply}
 								currentUserId={currentUserId}
 								itemId={itemId}

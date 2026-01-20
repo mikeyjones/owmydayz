@@ -31,15 +31,11 @@ export function TeamDialog({ open, onOpenChange, team }: TeamDialogProps) {
 
 	const handleSubmit = async (data: TeamFormData) => {
 		if (isEditMode) {
-			updateTeamMutation.mutate(
-				{ id: team.id, ...data },
-				{ onSuccess: () => onOpenChange(false) },
-			);
+			await updateTeamMutation.mutate({ id: team.id, ...data });
 		} else {
-			createTeamMutation.mutate(data, {
-				onSuccess: () => onOpenChange(false),
-			});
+			await createTeamMutation.mutate(data);
 		}
+		onOpenChange(false);
 	};
 
 	return (

@@ -88,6 +88,70 @@ export function applyOptimisticMoves(
 	return columns.map((col) => columnMap.get(col.id) || col);
 }
 
+/**
+ * Applies optimistic column reordering by rearranging columns based on
+ * the new column order. Only "Completed" stays fixed at the end; "Now" can be reordered.
+ *
+ * @param columns - All columns including system columns
+ * @param newColumnOrder - Array of column IDs in the new order (excluding Completed column)
+ * @returns Reordered columns with updated positions
+ */
+export function applyOptimisticColumnReorder(
+	columns: KanbanColumnWithItems[],
+	newColumnOrder: string[],
+): KanbanColumnWithItems[] {
+	if (columns.length === 0) {
+		return [];
+	}
+
+	// Separate Completed column from reorderable columns
+	const completedColumn = columns.find(
+		(col) => col.isSystem && col.name === "Completed",
+	);
+	const reorderableColumns = columns.filter(
+		(col) => !(col.isSystem && col.name === "Completed"),
+	);
+
+	if (reorderableColumns.length === 0) {
+		return completedColumn ? [completedColumn] : [];
+	}
+
+	// Create map of reorderable columns
+	const columnMap = new Map(reorderableColumns.map((col) => [col.id, col]));
+
+	// Reorder based on newColumnOrder
+	const reorderedColumns: KanbanColumnWithItems[] = [];
+
+	newColumnOrder.forEach((columnId) => {
+		const column = columnMap.get(columnId);
+		if (column) {
+			reorderedColumns.push(column);
+			columnMap.delete(columnId);
+		}
+	});
+
+	// Add remaining columns
+	columnMap.forEach((column) => {
+		reorderedColumns.push(column);
+	});
+
+	// Update positions for reorderable columns (0 to N-1)
+	const reorderedWithPositions = reorderedColumns.map((col, index) => ({
+		...col,
+		position: index,
+	}));
+
+	// Add Completed column at the end with high position
+	if (completedColumn) {
+		return [
+			...reorderedWithPositions,
+			{ ...completedColumn, position: 999999 },
+		];
+	}
+
+	return reorderedWithPositions;
+}
+
 // =====================================================
 // Board Hooks
 // =====================================================

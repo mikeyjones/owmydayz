@@ -15,8 +15,9 @@ describe("useCurrentUser", () => {
 		mockedAuthClient.useSession.mockReturnValue({
 			data: null,
 			isPending: false,
+			isRefetching: false,
 			error: null,
-		});
+		} as any);
 
 		const { result } = renderHook(() => useCurrentUser());
 
@@ -31,13 +32,27 @@ describe("useCurrentUser", () => {
 			id: "user-123",
 			name: "Test User",
 			email: "test@example.com",
+			createdAt: new Date(),
+			updatedAt: new Date(),
+			emailVerified: true,
 		};
 
 		mockedAuthClient.useSession.mockReturnValue({
-			data: { user: mockUser, session: { id: "session-123" } },
+			data: {
+				user: mockUser,
+				session: {
+					id: "session-123",
+					createdAt: new Date(),
+					updatedAt: new Date(),
+					userId: "user-123",
+					expiresAt: new Date(),
+					token: "token-123",
+				},
+			},
 			isPending: false,
+			isRefetching: false,
 			error: null,
-		});
+		} as any);
 
 		const { result } = renderHook(() => useCurrentUser());
 
@@ -51,8 +66,9 @@ describe("useCurrentUser", () => {
 		mockedAuthClient.useSession.mockReturnValue({
 			data: null,
 			isPending: true,
+			isRefetching: false,
 			error: null,
-		});
+		} as any);
 
 		const { result } = renderHook(() => useCurrentUser());
 
@@ -72,8 +88,9 @@ describe("useRequireAuth", () => {
 		mockedAuthClient.useSession.mockReturnValue({
 			data: null,
 			isPending: false,
+			isRefetching: false,
 			error: null,
-		});
+		} as any);
 
 		const { result } = renderHook(() => useRequireAuth());
 
@@ -89,13 +106,27 @@ describe("useRequireAuth", () => {
 			id: "user-456",
 			name: "Auth User",
 			email: "auth@example.com",
+			createdAt: new Date(),
+			updatedAt: new Date(),
+			emailVerified: true,
 		};
 
 		mockedAuthClient.useSession.mockReturnValue({
-			data: { user: mockUser, session: { id: "session-456" } },
+			data: {
+				user: mockUser,
+				session: {
+					id: "session-456",
+					createdAt: new Date(),
+					updatedAt: new Date(),
+					userId: "user-456",
+					expiresAt: new Date(),
+					token: "token-456",
+				},
+			},
 			isPending: false,
+			isRefetching: false,
 			error: null,
-		});
+		} as any);
 
 		const { result } = renderHook(() => useRequireAuth());
 

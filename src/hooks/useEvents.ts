@@ -19,7 +19,7 @@ export function useEvent(_eventId: string) {
 
 export function useCreateEvent() {
 	return {
-		mutate: async () => {
+		mutate: async (_data: unknown, _options?: unknown) => {
 			console.warn("Events not yet implemented in Convex");
 		},
 		isPending: false,
@@ -29,7 +29,7 @@ export function useCreateEvent() {
 
 export function useUpdateEvent() {
 	return {
-		mutate: async () => {
+		mutate: async (_data: unknown, _options?: unknown) => {
 			console.warn("Events not yet implemented in Convex");
 		},
 		isPending: false,
@@ -39,7 +39,7 @@ export function useUpdateEvent() {
 
 export function useDeleteEvent() {
 	return {
-		mutate: async () => {
+		mutate: async (_id: unknown, _options?: unknown) => {
 			console.warn("Events not yet implemented in Convex");
 		},
 		isPending: false,

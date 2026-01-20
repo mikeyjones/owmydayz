@@ -38,7 +38,6 @@ export function CommentItem({
 
 	const { data: replies = [], isLoading: repliesLoading } = useCommentReplies(
 		comment.id,
-		showReplies,
 	);
 	const { data: attachments = [] } = useCommentAttachments(comment.id);
 
@@ -58,17 +57,17 @@ export function CommentItem({
 				<CardContent className="pt-4 pb-3">
 					<div className="flex gap-3">
 						<UserAvatarLink
-							userId={comment.user.id}
-							imageKey={comment.user.image}
-							name={comment.user.name}
+							userId={comment.userId}
+							imageKey={comment.userImage}
+							name={comment.userName}
 							size="sm"
 							className="shrink-0"
 						/>
 						<div className="flex-1 min-w-0">
 							<div className="flex items-center gap-2 flex-wrap">
 								<UserNameLink
-									userId={comment.user.id}
-									name={comment.user.name}
+									userId={comment.userId}
+									name={comment.userName}
 									className="text-sm"
 								/>
 								<span className="text-xs text-muted-foreground flex items-center gap-1">
@@ -144,7 +143,7 @@ export function CommentItem({
 					<CommentForm
 						postId={postId}
 						parentCommentId={comment.id}
-						placeholder={`Reply to ${comment.user.name}...`}
+						placeholder={`Reply to ${comment.userName}...`}
 						autoFocus
 						onSuccess={() => setShowReplyForm(false)}
 					/>

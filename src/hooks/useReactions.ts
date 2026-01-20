@@ -29,7 +29,7 @@ export function useCommentReactionStatus(_commentId: string) {
 
 export function useToggleCommentReaction() {
 	return {
-		mutate: async () => {
+		mutate: async (_commentId: unknown) => {
 			console.warn("Reactions not yet implemented in Convex");
 		},
 		isPending: false,

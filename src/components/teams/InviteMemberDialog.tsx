@@ -31,7 +31,7 @@ import { useInviteMember } from "~/hooks/useTeams";
 
 const inviteFormSchema = z.object({
 	email: z.string().email("Please enter a valid email address"),
-	role: z.enum(["admin", "member"]).default("member"),
+	role: z.enum(["admin", "member"]),
 });
 
 type InviteFormData = z.infer<typeof inviteFormSchema>;
@@ -57,16 +57,10 @@ export function InviteMemberDialog({
 		},
 	});
 
-	const handleSubmit = (data: InviteFormData) => {
-		inviteMutation.mutate(
-			{ teamId, ...data },
-			{
-				onSuccess: () => {
-					form.reset();
-					onOpenChange(false);
-				},
-			},
-		);
+	const handleSubmit = async (data: InviteFormData) => {
+		await inviteMutation.mutate({ teamId, ...data });
+		form.reset();
+		onOpenChange(false);
 	};
 
 	return (

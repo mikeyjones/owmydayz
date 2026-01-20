@@ -27,15 +27,17 @@ export const Route = createFileRoute("/dashboard/review")({
 const getMotivationalMessage = (count: number, period: PeriodType): string => {
 	if (count === 0) {
 		const messages: Record<PeriodType, string> = {
+			today: "Today's a fresh start! Complete your first task to begin.",
 			day: "Today's a fresh start! Complete your first task to begin.",
 			week: "A new week means new opportunities. Let's make it count!",
 			month: "This month is full of potential. Start your journey!",
 			year: "Every achievement starts with a single step.",
+			all: "Every achievement starts with a single step.",
 		};
 		return messages[period];
 	}
 
-	if (period === "day") {
+	if (period === "day" || period === "today") {
 		if (count >= 10) return "You're on fire today! Absolutely crushing it! 🔥";
 		if (count >= 5) return "Fantastic progress! Keep the momentum going!";
 		if (count >= 3) return "Great work! You're building something amazing.";
@@ -56,19 +58,29 @@ const getMotivationalMessage = (count: number, period: PeriodType): string => {
 		return "Building great habits this month!";
 	}
 
-	// year
-	if (count >= 500) return "What an incredible year of achievements!";
-	if (count >= 200) return "You've accomplished so much this year!";
-	if (count >= 100) return "A year of meaningful progress!";
+	if (period === "year") {
+		if (count >= 500) return "What an incredible year of achievements!";
+		if (count >= 200) return "You've accomplished so much this year!";
+		if (count >= 100) return "A year of meaningful progress!";
+		return "Every completion adds up. Keep going!";
+	}
+
+	// all
+	if (count >= 1000)
+		return "Absolutely legendary! Your dedication is remarkable!";
+	if (count >= 500) return "What an incredible achievement record!";
+	if (count >= 100) return "You've accomplished so much!";
 	return "Every completion adds up. Keep going!";
 };
 
 // Period labels
 const periodLabels: Record<PeriodType, string> = {
+	today: "Today",
 	day: "Today",
 	week: "This Week",
 	month: "This Month",
 	year: "This Year",
+	all: "All Time",
 };
 
 // Month names for year view
@@ -266,7 +278,7 @@ function ReviewPage() {
 							</h3>
 							<div className="space-y-2">
 								{dateItems.map((item) => (
-									<CompletedItemCard key={item.id} item={item} />
+									<CompletedItemCard key={item._id} item={item} />
 								))}
 							</div>
 						</div>
@@ -368,6 +380,11 @@ function CompletedItemCard({ item }: { item: CompletedItemWithBoard }) {
 // Empty State Component
 function EmptyState({ period }: { period: PeriodType }) {
 	const messages: Record<PeriodType, { title: string; description: string }> = {
+		today: {
+			title: "No completions today yet",
+			description:
+				"Complete tasks from your boards and they'll appear here. Today's a great day to check things off!",
+		},
 		day: {
 			title: "No completions today yet",
 			description:
@@ -386,6 +403,11 @@ function EmptyState({ period }: { period: PeriodType }) {
 		year: {
 			title: "No completions this year",
 			description: "A new year of possibilities awaits. Let's make it count!",
+		},
+		all: {
+			title: "No completions yet",
+			description:
+				"Your journey starts here. Complete your first task to begin tracking your achievements!",
 		},
 	};
 

@@ -50,10 +50,7 @@ export function TeamEditItemDialog({
 
 	// Comments hooks
 	const { data: comments = [], isLoading: isLoadingComments } =
-		useTeamItemComments(
-			item?.id || "",
-			open && activeTab === "comments" && !!item,
-		);
+		useTeamItemComments(item?.id || "");
 
 	const createCommentMutation = useCreateTeamItemComment();
 	const updateCommentMutation = useUpdateTeamItemComment();
@@ -62,8 +59,8 @@ export function TeamEditItemDialog({
 	const handleSubmit = async (data: ItemFormData) => {
 		if (!item) return;
 
-		updateItemMutation.mutate(
-			{
+		try {
+			await updateItemMutation.mutate({
 				id: item.id,
 				name: data.name,
 				description: data.description || undefined,
@@ -71,13 +68,11 @@ export function TeamEditItemDialog({
 				effort: data.effort,
 				tags: data.tags,
 				boardId,
-			},
-			{
-				onSuccess: () => {
-					onOpenChange(false);
-				},
-			},
-		);
+			} as Parameters<typeof updateItemMutation.mutate>[0]);
+			onOpenChange(false);
+		} catch {
+			// Error already handled in mutation
+		}
 	};
 
 	const handleLoadReplies = useCallback(async (parentCommentId: string) => {
@@ -87,46 +82,32 @@ export function TeamEditItemDialog({
 	}, []);
 
 	const handleCreateComment = useCallback(
-		(content: string, parentCommentId?: string) => {
+		async (_content: string, parentCommentId?: string) => {
 			if (!item) return;
-			createCommentMutation.mutate(
-				{
-					itemId: item.id,
-					content,
-					parentCommentId,
-				},
-				{
-					onSuccess: () => {
-						// Refresh replies cache if this was a reply
-						if (parentCommentId) {
-							handleLoadReplies(parentCommentId);
-						}
-					},
-				},
-			);
+			// TODO: Implement when item comments are available in Convex
+			await createCommentMutation.mutate();
+			// Refresh replies cache if this was a reply
+			if (parentCommentId) {
+				handleLoadReplies(parentCommentId);
+			}
 		},
 		[item, createCommentMutation, handleLoadReplies],
 	);
 
 	const handleUpdateComment = useCallback(
-		(commentId: string, content: string) => {
+		(_commentId: string, _content: string) => {
 			if (!item) return;
-			updateCommentMutation.mutate({
-				commentId,
-				content,
-				itemId: item.id,
-			});
+			// TODO: Implement when item comments are available in Convex
+			updateCommentMutation.mutate();
 		},
 		[item, updateCommentMutation],
 	);
 
 	const handleDeleteComment = useCallback(
-		(commentId: string) => {
+		(_commentId: string) => {
 			if (!item) return;
-			deleteCommentMutation.mutate({
-				commentId,
-				itemId: item.id,
-			});
+			// TODO: Implement when item comments are available in Convex
+			deleteCommentMutation.mutate();
 		},
 		[item, deleteCommentMutation],
 	);

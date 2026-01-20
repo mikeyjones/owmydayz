@@ -53,7 +53,7 @@ type ProfileSettingsFormData = z.infer<typeof profileSettingsSchema>;
 function ProfileSettings() {
 	const { data: session } = authClient.useSession();
 	const [isUploading, setIsUploading] = useState(false);
-	const { avatarUrl: _avatarUrl } = useUserAvatar();
+	const { imageUrl: _imageUrl } = useUserAvatar();
 
 	const updateProfileMutation = useUpdateUserProfile();
 
@@ -103,7 +103,7 @@ function ProfileSettings() {
 
 				// Update user profile with new image key
 				await updateProfileMutation.mutateAsync({
-					data: { image: imageKey },
+					image: imageKey,
 				});
 
 				toast.success("Avatar uploaded successfully");
@@ -127,7 +127,7 @@ function ProfileSettings() {
 
 	const onSubmit = (data: ProfileSettingsFormData) => {
 		updateProfileMutation.mutate({
-			data: { name: data.name },
+			name: data.name,
 		});
 	};
 

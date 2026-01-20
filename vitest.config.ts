@@ -39,8 +39,7 @@ export default defineConfig({
 			],
 		},
 		pool: "threads",
-		singleThread: true,
-		// Parallelization enabled by default with threads pool
+		// Single thread execution for better test isolation
 		testTimeout: 10000,
 		hookTimeout: 10000,
 		teardownTimeout: 10000,

@@ -58,6 +58,13 @@ export function KanbanBoard({ boardId }: KanbanBoardProps) {
 		string[] | null
 	>(null);
 
+	// Drag preview state for animated column shifting
+	const [dragPreview, setDragPreview] = useState<{
+		draggedColumnId: string;
+		targetColumnId: string;
+		insertPosition: "before" | "after";
+	} | null>(null);
+
 	// Focus mode state: track which non-"Now" column is currently expanded
 	const [expandedColumnId, setExpandedColumnId] = useState<string | null>(null);
 
@@ -65,7 +72,8 @@ export function KanbanBoard({ boardId }: KanbanBoardProps) {
 	const defaultExpandedColumn = useMemo(() => {
 		if (!board?.columns) return null;
 		return board.columns.find(
-			(col) => !col.isSystem || col.name !== SYSTEM_COLUMN_NOW,
+			(col: KanbanColumnWithItems) =>
+				!col.isSystem || col.name !== SYSTEM_COLUMN_NOW,
 		);
 	}, [board?.columns]);
 
@@ -104,8 +112,8 @@ export function KanbanBoard({ boardId }: KanbanBoardProps) {
 		const movesToClear: string[] = [];
 		pendingMoves.forEach((move, itemId) => {
 			const item = board.columns
-				.flatMap((col) => col.items)
-				.find((i) => i.id === itemId);
+				.flatMap((col: KanbanColumnWithItems) => col.items)
+				.find((i: KanbanItem) => i.id === itemId);
 
 			// Clear if item is in the expected position
 			if (
@@ -134,14 +142,21 @@ export function KanbanBoard({ boardId }: KanbanBoardProps) {
 
 		// Get user columns only (exclude system columns) and sort by position
 		const userColumns = board.columns
-			.filter((col) => !col.isSystem)
-			.sort((a, b) => a.position - b.position);
+			.filter((col: KanbanColumnWithItems) => !col.isSystem)
+			.sort(
+				(a: KanbanColumnWithItems, b: KanbanColumnWithItems) =>
+					a.position - b.position,
+			);
 
 		// Check if the current column order matches the pending order
-		const currentOrder = userColumns.map((col) => col.id);
+		const currentOrder = userColumns.map(
+			(col: KanbanColumnWithItems) => col.id,
+		);
 		const ordersMatch =
 			currentOrder.length === pendingColumnReorder.length &&
-			currentOrder.every((id, index) => id === pendingColumnReorder[index]);
+			currentOrder.every(
+				(id: string, index: number) => id === pendingColumnReorder[index],
+			);
 
 		if (ordersMatch) {
 			setPendingColumnReorder(null);
@@ -151,6 +166,48 @@ export function KanbanBoard({ boardId }: KanbanBoardProps) {
 	// Monitor for drag and drop events
 	useEffect(() => {
 		return monitorForElements({
+			onDragStart: () => {
+				// Can add start animations here if needed
+			},
+
+			onDrag: ({ location, source }) => {
+				if (source.data.type !== "column") return;
+
+				const dest = location.current.dropTargets[0];
+				if (!dest || dest.data.type !== "column") {
+					setDragPreview((prev) => (prev ? null : prev));
+					return;
+				}
+
+				const draggedColumnId = source.data.columnId as string;
+				const targetColumnId = dest.data.columnId as string;
+
+				if (draggedColumnId === targetColumnId) {
+					setDragPreview((prev) => (prev ? null : prev));
+					return;
+				}
+
+				const closestEdge = extractClosestEdge(dest.data);
+				const insertPosition = closestEdge === "right" ? "after" : "before";
+
+				// Only update if the preview has actually changed
+				setDragPreview((prev) => {
+					if (
+						prev &&
+						prev.draggedColumnId === draggedColumnId &&
+						prev.targetColumnId === targetColumnId &&
+						prev.insertPosition === insertPosition
+					) {
+						return prev; // No change, don't trigger re-render
+					}
+					return {
+						draggedColumnId,
+						targetColumnId,
+						insertPosition,
+					};
+				});
+			},
+
 			onDrop: ({ source, location }) => {
 				const destination = location.current.dropTargets[0];
 				if (!destination || !optimisticBoard) return;
@@ -164,7 +221,10 @@ export function KanbanBoard({ boardId }: KanbanBoardProps) {
 					const targetColumnId = destData.columnId as string;
 
 					// Can't drop a column on itself
-					if (draggedColumnId === targetColumnId) return;
+					if (draggedColumnId === targetColumnId) {
+						setDragPreview(null);
+						return;
+					}
 
 					// Determine if we're dropping before or after the target
 					const closestEdge = extractClosestEdge(destData);
@@ -180,6 +240,7 @@ export function KanbanBoard({ boardId }: KanbanBoardProps) {
 
 					// Apply optimistic update
 					setPendingColumnReorder(newColumnOrder);
+					setDragPreview(null); // Clear preview on drop
 
 					// Prepare columnOrder array with positions for mutation
 					const columnOrder = newColumnOrder.map((columnId, index) => ({
@@ -202,8 +263,8 @@ export function KanbanBoard({ boardId }: KanbanBoardProps) {
 				const sourceItemId = sourceData.itemId as string;
 				// Get current item position from optimistic board (accounts for previous optimistic moves)
 				const currentItem = optimisticBoard.columns
-					.flatMap((col) => col.items)
-					.find((item) => item.id === sourceItemId);
+					.flatMap((col: KanbanColumnWithItems) => col.items)
+					.find((item: KanbanItem) => item.id === sourceItemId);
 
 				if (!currentItem) return;
 
@@ -215,18 +276,20 @@ export function KanbanBoard({ boardId }: KanbanBoardProps) {
 					// Dropped directly on a column (empty area)
 					targetColumnId = destData.columnId as string;
 					const targetColumn = optimisticBoard.columns.find(
-						(c) => c.id === targetColumnId,
+						(c: KanbanColumnWithItems) => c.id === targetColumnId,
 					);
 					newPosition = targetColumn?.items.length || 0;
 				} else if (destData.type === "item") {
 					// Dropped on another item
 					targetColumnId = destData.columnId as string;
 					const targetColumn = optimisticBoard.columns.find(
-						(c) => c.id === targetColumnId,
+						(c: KanbanColumnWithItems) => c.id === targetColumnId,
 					);
 					const targetItemId = destData.itemId as string;
 					const targetIndex =
-						targetColumn?.items.findIndex((i) => i.id === targetItemId) ?? -1;
+						targetColumn?.items.findIndex(
+							(i: KanbanItem) => i.id === targetItemId,
+						) ?? -1;
 
 					// Determine position based on closest edge
 					const closestEdge = extractClosestEdge(destData);
@@ -240,8 +303,9 @@ export function KanbanBoard({ boardId }: KanbanBoardProps) {
 						// Use currentItem.columnId (from optimistic board) not sourceItem.columnId
 						if (currentItem.columnId === targetColumnId) {
 							const sourceIndex =
-								targetColumn?.items.findIndex((i) => i.id === sourceItemId) ??
-								-1;
+								targetColumn?.items.findIndex(
+									(i: KanbanItem) => i.id === sourceItemId,
+								) ?? -1;
 							if (sourceIndex >= 0 && sourceIndex < newPosition) {
 								newPosition -= 1;
 							}
@@ -280,6 +344,9 @@ export function KanbanBoard({ boardId }: KanbanBoardProps) {
 						boardId,
 					});
 				}
+
+				// Clear drag preview when drag ends
+				setDragPreview(null);
 			},
 		});
 	}, [optimisticBoard, boardId, moveItemMutation, reorderColumnsMutation]);
@@ -328,6 +395,66 @@ export function KanbanBoard({ boardId }: KanbanBoardProps) {
 		[boardId, deleteColumnMutation],
 	);
 
+	// Use optimistic board for rendering
+	const displayBoard = optimisticBoard || board;
+
+	// Render columns with simple drop indicator
+	const renderColumnsWithPreview = useCallback(() => {
+		if (!displayBoard) return null;
+		const columns = displayBoard.columns;
+
+		return columns.map((column: KanbanColumnWithItems, index: number) => {
+			const isDragged =
+				dragPreview && column.id === dragPreview.draggedColumnId;
+			const isDropTarget =
+				dragPreview &&
+				column.id === dragPreview.targetColumnId &&
+				!pendingColumnReorder;
+			const showDropBefore =
+				isDropTarget && dragPreview.insertPosition === "before";
+			const showDropAfter =
+				isDropTarget && dragPreview.insertPosition === "after";
+
+			return (
+				<div key={column.id} className="relative flex-shrink-0">
+					{/* Drop indicator before */}
+					{showDropBefore && (
+						<div className="absolute left-0 top-0 bottom-0 w-1 bg-primary z-10 -ml-2" />
+					)}
+
+					{/* Column wrapper with opacity for dragged column */}
+					<div className={isDragged ? "opacity-50" : "opacity-100"}>
+						<KanbanColumnComponent
+							column={column}
+							onAddItem={handleAddItem}
+							onEditItem={handleEditItem}
+							onDeleteItem={handleDeleteItem}
+							onDeleteColumn={handleDeleteColumn}
+							isFolded={isColumnFolded(column)}
+							onUnfold={handleUnfoldColumn}
+							columnColor={getColumnColorById(column.id)}
+						/>
+					</div>
+
+					{/* Drop indicator after */}
+					{showDropAfter && (
+						<div className="absolute right-0 top-0 bottom-0 w-1 bg-primary z-10 -mr-2" />
+					)}
+				</div>
+			);
+		});
+	}, [
+		displayBoard,
+		dragPreview,
+		pendingColumnReorder,
+		handleAddItem,
+		handleEditItem,
+		handleDeleteItem,
+		handleDeleteColumn,
+		isColumnFolded,
+		handleUnfoldColumn,
+	]);
+
 	if (isLoading || board === undefined) {
 		return (
 			<div className="flex items-center justify-center h-64">
@@ -351,9 +478,6 @@ export function KanbanBoard({ boardId }: KanbanBoardProps) {
 			</div>
 		);
 	}
-
-	// Use optimistic board for rendering
-	const displayBoard = optimisticBoard || board;
 
 	return (
 		<div className="h-full flex flex-col" role="main" aria-label="Kanban board">
@@ -395,19 +519,7 @@ export function KanbanBoard({ boardId }: KanbanBoardProps) {
 				aria-label="Board columns"
 			>
 				<div className="flex gap-4 h-full min-h-[400px]">
-					{displayBoard.columns.map((column) => (
-						<KanbanColumnComponent
-							key={column.id}
-							column={column}
-							onAddItem={handleAddItem}
-							onEditItem={handleEditItem}
-							onDeleteItem={handleDeleteItem}
-							onDeleteColumn={handleDeleteColumn}
-							isFolded={isColumnFolded(column)}
-							onUnfold={handleUnfoldColumn}
-							columnColor={getColumnColorById(column.id)}
-						/>
-					))}
+					{renderColumnsWithPreview()}
 
 					{displayBoard.columns.length === 0 && (
 						<div className="flex items-center justify-center w-full h-64 border-2 border-dashed rounded-lg">

@@ -7,8 +7,8 @@ import { getOptionalAuth, requireUserFromClientId } from "./auth";
 export const SYSTEM_COLUMN_NOW = "Now";
 export const SYSTEM_COLUMN_COMPLETED = "Completed";
 
-// System columns positions (high values to ensure they stay at the end)
-export const SYSTEM_COLUMN_NOW_POSITION = 999998;
+// System column positions (Now at start, Completed at end)
+export const SYSTEM_COLUMN_NOW_POSITION = 0;
 export const SYSTEM_COLUMN_COMPLETED_POSITION = 999999;
 
 // =====================================================
@@ -328,6 +328,8 @@ export const createColumn = mutation({
 			.collect();
 
 		const userColumns = columns.filter((col) => !col.isSystem);
+		// Ensure new columns are positioned between Now (0) and Completed (999999)
+		// Start at position 1 if no user columns exist
 		const maxPosition =
 			userColumns.length > 0
 				? Math.max(...userColumns.map((col) => col.position))
@@ -337,7 +339,7 @@ export const createColumn = mutation({
 		const columnId = await ctx.db.insert("kanbanColumns", {
 			boardId: args.boardId,
 			name: args.name,
-			position: maxPosition + 1,
+			position: Math.max(maxPosition + 1, 1),
 			isSystem: false,
 			createdAt: now,
 			updatedAt: now,
@@ -446,15 +448,17 @@ export const reorderColumns = mutation({
 			throw new Error("Unauthorized");
 		}
 
-		// Check if any system columns are being reordered
+		// Verify Completed column is not being reordered
 		for (const item of args.columnOrder) {
 			const column = await ctx.db.get(item.id);
 			if (!column) {
 				throw new Error(`Column ${item.id} not found`);
 			}
-			if (column.isSystem) {
+
+			// Only Completed column cannot be reordered
+			if (column.isSystem && column.name === SYSTEM_COLUMN_COMPLETED) {
 				throw new Error(
-					"Cannot reorder system columns ('Now' and 'Completed')",
+					"Cannot reorder Completed column - it must stay at the end",
 				);
 			}
 		}
@@ -797,5 +801,56 @@ export const ensureSystemColumns = mutation({
 		}
 
 		return { success: true };
+	},
+});
+
+// =====================================================
+// Migration: Move "Now" columns to position 0
+// =====================================================
+
+export const migrateNowColumnPositions = mutation({
+	args: {},
+	handler: async (ctx) => {
+		// Migrate personal kanban boards
+		const kanbanColumns = await ctx.db.query("kanbanColumns").collect();
+		let kanbanUpdated = 0;
+
+		for (const column of kanbanColumns) {
+			if (
+				column.isSystem &&
+				column.name === SYSTEM_COLUMN_NOW &&
+				column.position === 999998
+			) {
+				await ctx.db.patch(column._id, {
+					position: SYSTEM_COLUMN_NOW_POSITION,
+					updatedAt: Date.now(),
+				});
+				kanbanUpdated++;
+			}
+		}
+
+		// Migrate team boards
+		const teamColumns = await ctx.db.query("teamColumns").collect();
+		let teamUpdated = 0;
+
+		for (const column of teamColumns) {
+			if (
+				column.isSystem &&
+				column.name === SYSTEM_COLUMN_NOW &&
+				column.position === 999998
+			) {
+				await ctx.db.patch(column._id, {
+					position: SYSTEM_COLUMN_NOW_POSITION,
+					updatedAt: Date.now(),
+				});
+				teamUpdated++;
+			}
+		}
+
+		return {
+			success: true,
+			kanbanColumnsUpdated: kanbanUpdated,
+			teamColumnsUpdated: teamUpdated,
+		};
 	},
 });

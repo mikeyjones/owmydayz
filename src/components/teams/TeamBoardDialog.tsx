@@ -39,16 +39,11 @@ export function TeamBoardDialog({
 
 	const handleSubmit = async (data: TeamBoardFormData) => {
 		if (isEditMode) {
-			updateBoardMutation.mutate(
-				{ id: board.id, teamId, ...data },
-				{ onSuccess: () => onOpenChange(false) },
-			);
+			await updateBoardMutation.mutate({ id: board.id, teamId, ...data });
 		} else {
-			createBoardMutation.mutate(
-				{ teamId, ...data },
-				{ onSuccess: () => onOpenChange(false) },
-			);
+			await createBoardMutation.mutate({ teamId, ...data });
 		}
+		onOpenChange(false);
 	};
 
 	return (
