@@ -21,6 +21,7 @@
 		"stripe:listen": "stripe listen --forward-to localhost:3000/api/stripe/webhook"
 	},
 	"dependencies": {
+		"@47ng/cloak": "^1.2.0",
 		"@atlaskit/pragmatic-drag-and-drop": "^1.7.7",
 		"@atlaskit/pragmatic-drag-and-drop-hitbox": "^1.1.0",
 		"@atlaskit/pragmatic-drag-and-drop-react-drop-indicator": "^3.2.10",

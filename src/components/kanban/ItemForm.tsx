@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Plus, X } from "lucide-react";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { type UseFormReturn, useForm } from "react-hook-form";
 import { z } from "zod";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
@@ -35,16 +35,19 @@ export const itemFormSchema = z.object({
 		.max(2000, "Description must be less than 2000 characters")
 		.optional()
 		.or(z.literal("")),
-	importance: z.enum(KANBAN_IMPORTANCE_VALUES).default("medium"),
-	effort: z.enum(KANBAN_EFFORT_VALUES).default("medium"),
-	tags: z.array(z.string()).default([]),
+	importance: z.enum(KANBAN_IMPORTANCE_VALUES),
+	effort: z.enum(KANBAN_EFFORT_VALUES),
+	tags: z.array(z.string()),
+	clockifyClientId: z.string().optional(),
+	clockifyProjectId: z.string().optional(),
 });
 
 export type ItemFormData = z.infer<typeof itemFormSchema>;
 
 interface ItemFormProps {
+	form?: UseFormReturn<ItemFormData>;
 	defaultValues?: Partial<ItemFormData>;
-	onSubmit: (data: ItemFormData) => void | Promise<void>;
+	onSubmit?: (data: ItemFormData) => void | Promise<void>;
 	isPending?: boolean;
 	submitLabel?: string;
 	onCancel?: () => void;
@@ -82,6 +85,7 @@ const effortLabels: Record<string, { label: string; color: string }> = {
 };
 
 export function ItemForm({
+	form: providedForm,
 	defaultValues,
 	onSubmit,
 	isPending = false,
@@ -91,7 +95,8 @@ export function ItemForm({
 }: ItemFormProps) {
 	const [tagInput, setTagInput] = useState("");
 
-	const form = useForm<ItemFormData>({
+	// Use provided form or create a new one
+	const internalForm = useForm<ItemFormData>({
 		resolver: zodResolver(itemFormSchema),
 		defaultValues: {
 			name: "",
@@ -100,9 +105,20 @@ export function ItemForm({
 			effort: "medium",
 			tags: [],
 			...defaultValues,
+			// Convert undefined/empty values to "__none__" for the select
+			clockifyClientId:
+				defaultValues?.clockifyClientId && defaultValues.clockifyClientId !== ""
+					? defaultValues.clockifyClientId
+					: "__none__",
+			clockifyProjectId:
+				defaultValues?.clockifyProjectId &&
+				defaultValues.clockifyProjectId !== ""
+					? defaultValues.clockifyProjectId
+					: "__none__",
 		},
 	});
 
+	const form = providedForm || internalForm;
 	const tags = form.watch("tags") || [];
 
 	const addTag = () => {
@@ -126,6 +142,181 @@ export function ItemForm({
 			addTag();
 		}
 	};
+
+	// If using provided form, render just the fields without Form wrapper or submit button
+	if (providedForm) {
+		return (
+			<>
+				<FormField
+					control={form.control}
+					name="name"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel className="text-base font-medium">Name *</FormLabel>
+							<FormControl>
+								<Input
+									placeholder="Enter item name"
+									className="h-11 text-base"
+									disabled={isPending}
+									{...field}
+								/>
+							</FormControl>
+							<FormDescription>
+								{field.value?.length || 0}/200 characters
+							</FormDescription>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+
+				<FormField
+					control={form.control}
+					name="description"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel className="text-base font-medium">
+								Description (Optional)
+							</FormLabel>
+							<FormControl>
+								<Textarea
+									placeholder="Enter item description"
+									className="min-h-[80px] text-base resize-none"
+									disabled={isPending}
+									{...field}
+								/>
+							</FormControl>
+							<FormDescription>
+								{field.value?.length || 0}/2000 characters
+							</FormDescription>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+
+				<div className="grid grid-cols-2 gap-4">
+					<FormField
+						control={form.control}
+						name="importance"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel className="text-base font-medium">
+									Importance
+								</FormLabel>
+								<Select
+									onValueChange={field.onChange}
+									defaultValue={field.value}
+									disabled={isPending}
+								>
+									<FormControl>
+										<SelectTrigger className="w-full h-11">
+											<SelectValue placeholder="Select importance" />
+										</SelectTrigger>
+									</FormControl>
+									<SelectContent>
+										{KANBAN_IMPORTANCE_VALUES.map((value) => (
+											<SelectItem key={value} value={value}>
+												<span
+													className={`px-2 py-0.5 rounded text-xs font-medium ${importanceLabels[value].color}`}
+												>
+													{importanceLabels[value].label}
+												</span>
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+
+					<FormField
+						control={form.control}
+						name="effort"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel className="text-base font-medium">Effort</FormLabel>
+								<Select
+									onValueChange={field.onChange}
+									defaultValue={field.value}
+									disabled={isPending}
+								>
+									<FormControl>
+										<SelectTrigger className="w-full h-11">
+											<SelectValue placeholder="Select effort" />
+										</SelectTrigger>
+									</FormControl>
+									<SelectContent>
+										{KANBAN_EFFORT_VALUES.map((value) => (
+											<SelectItem key={value} value={value}>
+												<span
+													className={`px-2 py-0.5 rounded text-xs font-medium ${effortLabels[value].color}`}
+												>
+													{effortLabels[value].label}
+												</span>
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+				</div>
+
+				<FormItem>
+					<FormLabel className="text-base font-medium">
+						Tags (Optional)
+					</FormLabel>
+					<div className="flex gap-2">
+						<Input
+							placeholder="Add a tag"
+							value={tagInput}
+							onChange={(e) => setTagInput(e.target.value)}
+							onKeyDown={handleTagKeyDown}
+							className="h-10"
+							disabled={isPending}
+						/>
+						<Button
+							type="button"
+							variant="outline"
+							size="icon"
+							onClick={addTag}
+							disabled={isPending || !tagInput.trim()}
+						>
+							<Plus className="h-4 w-4" />
+						</Button>
+					</div>
+					{tags.length > 0 && (
+						<div className="flex flex-wrap gap-2 mt-2">
+							{tags.map((tag) => (
+								<Badge
+									key={tag}
+									variant="secondary"
+									className="flex items-center gap-1 pr-1"
+								>
+									{tag}
+									<button
+										type="button"
+										onClick={() => removeTag(tag)}
+										className="ml-1 rounded-full p-0.5 hover:bg-foreground/10"
+										disabled={isPending}
+									>
+										<X className="h-3 w-3" />
+									</button>
+								</Badge>
+							))}
+						</div>
+					)}
+				</FormItem>
+			</>
+		);
+	}
+
+	// Original standalone form with Form wrapper and buttons
+	// When using standalone form, onSubmit is required
+	if (!onSubmit) {
+		throw new Error("onSubmit is required when form prop is not provided");
+	}
 
 	return (
 		<Form {...form}>

@@ -33,7 +33,7 @@ export function ConversationItem({
 	isActive,
 	onClick,
 }: ConversationItemProps) {
-	const { otherParticipant, lastMessage, unreadCount } = conversation;
+	const { participantImage, participantName, lastMessage, lastMessageAt, unreadCount } = conversation;
 
 	return (
 		<button
@@ -47,8 +47,8 @@ export function ConversationItem({
 			)}
 		>
 			<UserAvatar
-				imageKey={otherParticipant.image}
-				name={otherParticipant.name}
+				imageKey={participantImage}
+				name={participantName}
 				size="md"
 			/>
 
@@ -60,11 +60,11 @@ export function ConversationItem({
 							unreadCount > 0 && "text-foreground",
 						)}
 					>
-						{otherParticipant.name}
+						{participantName}
 					</span>
-					{lastMessage && (
+					{lastMessageAt && (
 						<span className="text-xs text-muted-foreground shrink-0">
-							{formatTimeAgo(lastMessage.createdAt)}
+							{formatTimeAgo(lastMessageAt)}
 						</span>
 					)}
 				</div>
@@ -78,7 +78,7 @@ export function ConversationItem({
 								: "text-muted-foreground",
 						)}
 					>
-						{lastMessage.content}
+						{lastMessage}
 					</p>
 				)}
 			</div>

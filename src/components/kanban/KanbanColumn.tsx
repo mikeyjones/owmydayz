@@ -23,10 +23,12 @@ import { cn } from "~/lib/utils";
 import type { KanbanColumn as KanbanColumnType, KanbanItem } from "~/types";
 import type { ColumnColor } from "~/utils/columnColors";
 import { KanbanItemCard } from "./KanbanItem";
+import { QuickAddItem } from "./QuickAddItem";
 
 interface KanbanColumnProps {
 	column: KanbanColumnType & { items: KanbanItem[] };
 	onAddItem: (columnId: string, columnName: string) => void;
+	onQuickAddItem: (columnId: string, itemName: string) => void;
 	onEditItem: (item: KanbanItem) => void;
 	onDeleteItem: (itemId: string) => void;
 	onEditColumn?: (column: KanbanColumnType) => void;
@@ -34,11 +36,15 @@ interface KanbanColumnProps {
 	isFolded?: boolean;
 	onUnfold?: (columnId: string) => void;
 	columnColor?: ColumnColor;
+	defaultClockifyClientId?: string;
+	defaultClockifyProjectId?: string;
+	isCreatingItem?: boolean;
 }
 
 export function KanbanColumnComponent({
 	column,
 	onAddItem,
+	onQuickAddItem,
 	onEditItem,
 	onDeleteItem,
 	onEditColumn,
@@ -46,6 +52,9 @@ export function KanbanColumnComponent({
 	isFolded = false,
 	onUnfold,
 	columnColor,
+	defaultClockifyClientId,
+	defaultClockifyProjectId,
+	isCreatingItem = false,
 }: KanbanColumnProps) {
 	const ref = useRef<HTMLDivElement>(null);
 	const foldedRef = useRef<HTMLButtonElement>(null);
@@ -326,6 +335,8 @@ export function KanbanColumnComponent({
 						onEdit={onEditItem}
 						onDelete={onDeleteItem}
 						columnColor={columnColor}
+						defaultClockifyClientId={defaultClockifyClientId}
+						defaultClockifyProjectId={defaultClockifyProjectId}
 					/>
 				))}
 
@@ -339,6 +350,15 @@ export function KanbanColumnComponent({
 						Drop items here
 					</div>
 				)}
+			</div>
+
+			{/* Quick Add Item at the bottom */}
+			<div className="p-2 pt-0">
+				<QuickAddItem
+					onAdd={(itemName) => onQuickAddItem(column.id, itemName)}
+					columnColor={columnColor}
+					isPending={isCreatingItem}
+				/>
 			</div>
 		</div>
 	);

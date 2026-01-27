@@ -163,7 +163,7 @@ export function TeamMembersList({ teamId }: TeamMembersListProps) {
 					</CardDescription>
 				</CardHeader>
 				<CardContent className="space-y-4">
-					{members?.map((member: TeamMemberWithUser) => (
+					{members?.map((member) => (
 						<div
 							key={member.id}
 							className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
@@ -183,7 +183,7 @@ export function TeamMembersList({ teamId }: TeamMembersListProps) {
 								</div>
 							</div>
 							<div className="flex items-center gap-2">
-								{getRoleBadge(member.role)}
+								{getRoleBadge(member.role as "member" | "owner" | "admin")}
 								{member.role !== "owner" && (
 									<DropdownMenu>
 										<DropdownMenuTrigger asChild>
@@ -240,24 +240,18 @@ export function TeamMembersList({ teamId }: TeamMembersListProps) {
 						</CardDescription>
 					</CardHeader>
 					<CardContent className="space-y-4">
-						{pendingInvitations.map(
-							(invitation: {
-								id: string;
-								email: string;
-								role: string;
-								expiresAt: string;
-							}) => (
-								<div
-									key={invitation.id}
-									className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
-								>
-									<div>
-										<p className="font-medium">{invitation.email}</p>
-										<p className="text-sm text-muted-foreground">
-											Invited as {invitation.role} • Expires{" "}
-											{new Date(invitation.expiresAt).toLocaleDateString()}
-										</p>
-									</div>
+						{pendingInvitations.map((invitation) => (
+							<div
+								key={invitation.id}
+								className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
+							>
+								<div>
+									<p className="font-medium">{invitation.email}</p>
+									<p className="text-sm text-muted-foreground">
+										Invited as {invitation.role} • Expires{" "}
+										{new Date(invitation.expiresAt).toLocaleDateString()}
+									</p>
+								</div>
 									<Button
 										variant="ghost"
 										size="sm"
@@ -267,7 +261,7 @@ export function TeamMembersList({ teamId }: TeamMembersListProps) {
 										Revoke
 									</Button>
 								</div>
-							),
+							)
 						)}
 					</CardContent>
 				</Card>

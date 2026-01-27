@@ -5,6 +5,41 @@ import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 import { useCurrentUser } from "./useCurrentUser";
 
+// Helper to normalize Convex data (_id -> id)
+function normalizeTeamBoard<T extends { _id: any }>(
+	board: T | null | undefined,
+): (T & { id: string }) | null | undefined {
+	if (!board || typeof board !== "object") return board as null | undefined;
+	return { ...board, id: board._id };
+}
+
+function normalizeTeamBoards<T extends { _id: any }>(
+	boards: T[] | undefined,
+): (T & { id: string })[] | undefined {
+	return boards?.map((board) => ({ ...board, id: board._id }));
+}
+
+function normalizeTeamBoardWithColumns(
+	board: any | null | undefined,
+): any | null | undefined {
+	if (!board || typeof board !== "object") return board as null | undefined;
+	return {
+		...board,
+		id: board._id,
+		columns: board.columns?.map((column: any) => ({
+			...column,
+			id: column._id,
+			items:
+				column.items?.map((item: any) => ({
+					...item,
+					id: item._id,
+					importance: item.importance as "low" | "medium" | "high",
+					effort: item.effort as "small" | "medium" | "big",
+				})) || [],
+		})) || [],
+	};
+}
+
 // =====================================================
 // Optimistic Update Utilities (Team Boards)
 // =====================================================
@@ -157,14 +192,14 @@ export function useTeamBoards(teamId: string, enabled = true) {
 	const { userId } = useCurrentUser();
 
 	const boards = useQuery(
-		enabled && teamId && userId ? api.teamBoards.getTeamBoards : "skip",
-		enabled && teamId && userId
-			? { teamId: teamId as Id<"teams">, userId }
-			: "skip",
+		api.teamBoards.getTeamBoards,
+		!enabled || !teamId || !userId
+			? "skip"
+			: { teamId: teamId as Id<"teams">, userId },
 	);
 
 	return {
-		data: boards,
+		data: normalizeTeamBoards(boards),
 		isLoading: boards === undefined && enabled && !!teamId && !!userId,
 		error: null,
 	};
@@ -174,12 +209,12 @@ export function useAllTeamBoards(enabled = true) {
 	const { userId } = useCurrentUser();
 
 	const boards = useQuery(
-		enabled && userId ? api.teamBoards.getAllTeamBoards : "skip",
-		userId ? { userId } : "skip",
+		api.teamBoards.getAllTeamBoards,
+		!enabled || !userId ? "skip" : { userId },
 	);
 
 	return {
-		data: boards,
+		data: normalizeTeamBoards(boards),
 		isLoading: boards === undefined && enabled && !!userId,
 		error: null,
 	};
@@ -189,14 +224,14 @@ export function useTeamBoard(boardId: string, enabled = true) {
 	const { userId } = useCurrentUser();
 
 	const board = useQuery(
-		enabled && boardId && userId ? api.teamBoards.getTeamBoardById : "skip",
-		enabled && boardId && userId
-			? { id: boardId as Id<"teamBoards">, userId }
-			: "skip",
+		api.teamBoards.getTeamBoardById,
+		!enabled || !boardId || !userId
+			? "skip"
+			: { id: boardId as Id<"teamBoards">, userId },
 	);
 
 	return {
-		data: board,
+		data: normalizeTeamBoard(board),
 		isLoading: board === undefined && enabled && !!boardId && !!userId,
 		error: null,
 	};
@@ -206,16 +241,14 @@ export function useTeamBoardWithColumns(boardId: string, enabled = true) {
 	const { userId } = useCurrentUser();
 
 	const board = useQuery(
-		enabled && boardId && userId
-			? api.teamBoards.getTeamBoardWithColumns
-			: "skip",
-		enabled && boardId && userId
-			? { id: boardId as Id<"teamBoards">, userId }
-			: "skip",
+		api.teamBoards.getTeamBoardWithColumns,
+		!enabled || !boardId || !userId
+			? "skip"
+			: { id: boardId as Id<"teamBoards">, userId },
 	);
 
 	return {
-		data: board,
+		data: normalizeTeamBoardWithColumns(board),
 		isLoading: board === undefined && enabled && !!boardId && !!userId,
 		error: null,
 	};
@@ -581,12 +614,12 @@ export function useAllTeamNowItems(enabled = true) {
 	const { userId } = useCurrentUser();
 
 	const items = useQuery(
-		enabled && userId ? api.teamBoards.getAllTeamNowItems : "skip",
-		userId ? { userId } : "skip",
+		api.teamBoards.getAllTeamNowItems,
+		!enabled || !userId ? "skip" : { userId },
 	);
 
 	return {
-		data: items,
+		data: items?.map((item) => ({ ...item, id: item._id })),
 		isLoading: items === undefined && enabled && !!userId,
 		error: null,
 	};

@@ -181,6 +181,8 @@ export const createBoard = mutation({
 	args: {
 		name: v.string(),
 		description: v.optional(v.string()),
+		clockifyDefaultProjectId: v.optional(v.string()),
+		clockifyDefaultClientId: v.optional(v.string()),
 		userId: v.string(),
 	},
 	handler: async (ctx, args) => {
@@ -193,6 +195,8 @@ export const createBoard = mutation({
 			description: args.description,
 			userId: user.id,
 			focusMode: false,
+			clockifyDefaultProjectId: args.clockifyDefaultProjectId,
+			clockifyDefaultClientId: args.clockifyDefaultClientId,
 			createdAt: now,
 			updatedAt: now,
 		});
@@ -226,6 +230,8 @@ export const updateBoard = mutation({
 		name: v.string(),
 		description: v.optional(v.string()),
 		focusMode: v.optional(v.boolean()),
+		clockifyDefaultProjectId: v.optional(v.string()),
+		clockifyDefaultClientId: v.optional(v.string()),
 		userId: v.string(),
 	},
 	handler: async (ctx, args) => {
@@ -243,6 +249,8 @@ export const updateBoard = mutation({
 			name: args.name,
 			description: args.description,
 			focusMode: args.focusMode ?? board.focusMode,
+			clockifyDefaultProjectId: args.clockifyDefaultProjectId,
+			clockifyDefaultClientId: args.clockifyDefaultClientId,
 			updatedAt: Date.now(),
 		});
 
@@ -489,6 +497,8 @@ export const createItem = mutation({
 		importance: v.optional(v.string()),
 		effort: v.optional(v.string()),
 		tags: v.optional(v.array(v.string())),
+		clockifyProjectId: v.optional(v.string()),
+		clockifyClientId: v.optional(v.string()),
 		userId: v.string(),
 	},
 	handler: async (ctx, args) => {
@@ -525,6 +535,8 @@ export const createItem = mutation({
 			importance: args.importance ?? "medium",
 			effort: args.effort ?? "medium",
 			tags: args.tags ?? [],
+			clockifyProjectId: args.clockifyProjectId,
+			clockifyClientId: args.clockifyClientId,
 			position: maxPosition + 1,
 			createdAt: now,
 			updatedAt: now,
@@ -542,6 +554,8 @@ export const updateItem = mutation({
 		importance: v.optional(v.string()),
 		effort: v.optional(v.string()),
 		tags: v.optional(v.array(v.string())),
+		clockifyProjectId: v.optional(v.string()),
+		clockifyClientId: v.optional(v.string()),
 		userId: v.string(),
 	},
 	handler: async (ctx, args) => {
@@ -563,6 +577,8 @@ export const updateItem = mutation({
 			importance: args.importance ?? item.importance,
 			effort: args.effort ?? item.effort,
 			tags: args.tags ?? item.tags,
+			clockifyProjectId: args.clockifyProjectId,
+			clockifyClientId: args.clockifyClientId,
 			updatedAt: Date.now(),
 		});
 
@@ -856,6 +872,143 @@ export const migrateNowColumnPositions = mutation({
 });
 
 // =====================================================
+// Timer and Clockify Mutations
+// =====================================================
+
+export const updateItemTimer = mutation({
+	args: {
+		id: v.id("kanbanItems"),
+		clockifyTimeEntryId: v.optional(v.string()),
+		timerStartedAt: v.optional(v.number()),
+		timerTotalSeconds: v.optional(v.number()),
+		lastTimerSync: v.optional(v.number()),
+		userId: v.string(),
+	},
+	handler: async (ctx, args) => {
+		const user = requireUserFromClientId(args.userId);
+		const item = await ctx.db.get(args.id);
+
+		if (!item) {
+			throw new Error("Item not found");
+		}
+
+		const board = await ctx.db.get(item.boardId);
+		if (!board || board.userId !== user.id) {
+			throw new Error("Unauthorized");
+		}
+
+		await ctx.db.patch(args.id, {
+			clockifyTimeEntryId: args.clockifyTimeEntryId,
+			timerStartedAt: args.timerStartedAt,
+			timerTotalSeconds: args.timerTotalSeconds,
+			lastTimerSync: args.lastTimerSync,
+			updatedAt: Date.now(),
+		});
+
+		return args.id;
+	},
+});
+
+export const updateItemClockifyProject = mutation({
+	args: {
+		id: v.id("kanbanItems"),
+		clockifyProjectId: v.optional(v.string()),
+		userId: v.string(),
+	},
+	handler: async (ctx, args) => {
+		const user = requireUserFromClientId(args.userId);
+		const item = await ctx.db.get(args.id);
+
+		if (!item) {
+			throw new Error("Item not found");
+		}
+
+		const board = await ctx.db.get(item.boardId);
+		if (!board || board.userId !== user.id) {
+			throw new Error("Unauthorized");
+		}
+
+		await ctx.db.patch(args.id, {
+			clockifyProjectId: args.clockifyProjectId,
+			updatedAt: Date.now(),
+		});
+
+		return args.id;
+	},
+});
+
+export const updateBoardClockifyProject = mutation({
+	args: {
+		id: v.id("kanbanBoards"),
+		clockifyDefaultProjectId: v.optional(v.string()),
+		userId: v.string(),
+	},
+	handler: async (ctx, args) => {
+		const user = requireUserFromClientId(args.userId);
+		const board = await ctx.db.get(args.id);
+
+		if (!board) {
+			throw new Error("Board not found");
+		}
+		if (board.userId !== user.id) {
+			throw new Error("Unauthorized");
+		}
+
+		await ctx.db.patch(args.id, {
+			clockifyDefaultProjectId: args.clockifyDefaultProjectId,
+			updatedAt: Date.now(),
+		});
+
+		return args.id;
+	},
+});
+
+/**
+ * Get all items with running timers for a user.
+ * Used for syncing timer state across browser sessions.
+ */
+export const getRunningTimers = query({
+	args: {
+		userId: v.string(),
+	},
+	handler: async (ctx, args) => {
+		const user = requireUserFromClientId(args.userId);
+
+		// Get all boards for this user
+		const boards = await ctx.db
+			.query("kanbanBoards")
+			.withIndex("by_userId", (q) => q.eq("userId", user.id))
+			.collect();
+
+		const boardIds = boards.map((b) => b._id);
+
+		// Get all items with active timers for these boards
+		const allItems = await Promise.all(
+			boardIds.map((boardId) =>
+				ctx.db
+					.query("kanbanItems")
+					.withIndex("by_boardId", (q) => q.eq("boardId", boardId))
+					.collect(),
+			),
+		);
+
+		// Flatten and filter for items with running timers
+		const runningTimers = allItems
+			.flat()
+			.filter((item) => item.clockifyTimeEntryId && item.timerStartedAt)
+			.map((item) => ({
+				itemId: item._id,
+				clockifyTimeEntryId: item.clockifyTimeEntryId,
+				timerStartedAt: item.timerStartedAt,
+				timerTotalSeconds: item.timerTotalSeconds,
+				lastTimerSync: item.lastTimerSync,
+			}));
+
+		return runningTimers;
+	},
+});
+
+// =====================================================
 // Review Queries
 // =====================================================
 
@@ -883,7 +1036,7 @@ export const getCompletedItems = query({
 
 		// Calculate time range based on period
 		let startTime = 0;
-		const now = Date.now();
+		const _now = Date.now();
 		const period = args.period || "day";
 
 		if (period === "today" || period === "day") {
@@ -1011,7 +1164,7 @@ export const getCompletionStats = query({
 			// Calculate current streak (working backwards from today)
 			const today = new Date();
 			today.setHours(0, 0, 0, 0);
-			let checkDate = new Date(today);
+			const checkDate = new Date(today);
 
 			while (true) {
 				const dateKey = `${checkDate.getFullYear()}-${String(checkDate.getMonth() + 1).padStart(2, "0")}-${String(checkDate.getDate()).padStart(2, "0")}`;

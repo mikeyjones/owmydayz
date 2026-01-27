@@ -28,17 +28,34 @@ export function BoardDialog({ open, onOpenChange, board }: BoardDialogProps) {
 				name: board.name,
 				description: board.description || "",
 				focusMode: board.focusMode,
+				clockifyDefaultClientId: board.clockifyDefaultClientId || undefined,
+				clockifyDefaultProjectId: board.clockifyDefaultProjectId || undefined,
 			}
 		: undefined;
 
 	const handleSubmit = async (data: BoardFormData) => {
+		// Convert "__none__" to undefined for Clockify fields
+		const processedData = {
+			...data,
+			clockifyDefaultClientId:
+				!data.clockifyDefaultClientId ||
+				data.clockifyDefaultClientId === "__none__"
+					? undefined
+					: data.clockifyDefaultClientId,
+			clockifyDefaultProjectId:
+				!data.clockifyDefaultProjectId ||
+				data.clockifyDefaultProjectId === "__none__"
+					? undefined
+					: data.clockifyDefaultProjectId,
+		};
+
 		if (isEditMode) {
 			updateBoardMutation.mutate(
-				{ id: board._id, ...data },
+				{ id: board._id, ...processedData },
 				{ onSuccess: () => onOpenChange(false) },
 			);
 		} else {
-			createBoardMutation.mutate(data, {
+			createBoardMutation.mutate(processedData, {
 				onSuccess: () => onOpenChange(false),
 			});
 		}

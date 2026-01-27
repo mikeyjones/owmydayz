@@ -1,4 +1,23 @@
 // =====================================================
+// Clockify Integration Types
+// =====================================================
+
+export type ClockifyConnectionId = string;
+
+export type ClockifyConnection = {
+	_id: ClockifyConnectionId;
+	id: ClockifyConnectionId; // Alias for _id for convenience
+	_creationTime: number;
+	userId: string;
+	workspaceId: string;
+	workspaceName: string;
+	apiKey: string; // Encrypted API key
+	isActive: boolean;
+	createdAt: number;
+	updatedAt: number;
+};
+
+// =====================================================
 // Kanban Types (Personal Boards)
 // =====================================================
 
@@ -15,6 +34,8 @@ export type KanbanBoard = {
 	description?: string;
 	userId: string;
 	focusMode: boolean;
+	clockifyDefaultProjectId?: string; // Default Clockify project for new items
+	clockifyDefaultClientId?: string; // Default Clockify client for new items
 	createdAt: number;
 	updatedAt: number;
 };
@@ -44,6 +65,13 @@ export type KanbanItem = {
 	tags: string[];
 	position: number;
 	completedAt?: number;
+	// Clockify timer integration fields
+	clockifyProjectId?: string; // Clockify project ID for this item
+	clockifyClientId?: string; // Clockify client ID for this item
+	clockifyTimeEntryId?: string; // Active Clockify time entry ID
+	timerStartedAt?: number; // Timestamp when timer was started
+	timerTotalSeconds?: number; // Total accumulated time in seconds
+	lastTimerSync?: number; // Last time we synced with Clockify
 	createdAt: number;
 	updatedAt: number;
 };

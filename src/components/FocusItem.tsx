@@ -1,6 +1,11 @@
 import confetti from "canvas-confetti";
-import { Check, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { Check, Loader2, Pause, Play } from "lucide-react";
+import { useEffect, useState } from "react";
+import {
+	useClockifyConnection,
+	useStartTimer,
+	useStopTimer,
+} from "~/hooks/useClockify";
 import { cn } from "~/lib/utils";
 
 // Convex now item type
@@ -15,6 +20,13 @@ interface NowItem {
 	tags: string[];
 	position: number;
 	completedAt?: number;
+	// Clockify timer integration fields
+	clockifyProjectId?: string;
+	clockifyClientId?: string;
+	clockifyTimeEntryId?: string;
+	timerStartedAt?: number;
+	timerTotalSeconds?: number;
+	lastTimerSync?: number;
 	createdAt: number;
 	updatedAt: number;
 	boardName: string;
@@ -23,6 +35,7 @@ interface NowItem {
 interface FocusItemProps {
 	item: NowItem;
 	onComplete: (itemId: string, boardId: string) => void;
+	onEdit: (item: NowItem) => void;
 	isCompleting?: boolean;
 }
 
@@ -77,15 +90,64 @@ function triggerConfetti() {
 	});
 }
 
+/**
+ * Format elapsed seconds into HH:MM:SS or MM:SS format
+ */
+function formatElapsedTime(seconds: number): string {
+	const hours = Math.floor(seconds / 3600);
+	const minutes = Math.floor((seconds % 3600) / 60);
+	const secs = seconds % 60;
+
+	if (hours > 0) {
+		return `${hours}:${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+	}
+	return `${minutes}:${secs.toString().padStart(2, "0")}`;
+}
+
 export function FocusItem({
 	item,
 	onComplete,
+	onEdit,
 	isCompleting = false,
 }: FocusItemProps) {
 	const [isChecked, setIsChecked] = useState(false);
 	const [isAnimatingOut, setIsAnimatingOut] = useState(false);
+	const [elapsedSeconds, setElapsedSeconds] = useState(0);
+
+	const { isConnected } = useClockifyConnection();
+	const { mutate: startTimer } = useStartTimer();
+	const { mutate: stopTimer } = useStopTimer();
 
 	const importance = (item.importance || "medium") as KanbanImportance;
+
+	// Calculate if timer is currently running
+	const isTimerRunning = !!item.clockifyTimeEntryId && !!item.timerStartedAt;
+
+	// Update elapsed time every second when timer is running
+	useEffect(() => {
+		if (isTimerRunning && item.timerStartedAt) {
+			// Calculate initial elapsed time
+			const updateElapsedTime = () => {
+				if (!item.timerStartedAt) return;
+				const now = Date.now();
+				const elapsed = Math.floor((now - item.timerStartedAt) / 1000);
+				setElapsedSeconds(elapsed);
+			};
+
+			// Update immediately
+			updateElapsedTime();
+
+			// Then update every second
+			const interval = setInterval(updateElapsedTime, 1000);
+			return () => clearInterval(interval);
+		}
+		if (item.timerTotalSeconds) {
+			// Show total time if timer is not running but has accumulated time
+			setElapsedSeconds(item.timerTotalSeconds);
+		} else {
+			setElapsedSeconds(0);
+		}
+	}, [isTimerRunning, item.timerStartedAt, item.timerTotalSeconds]);
 
 	const handleCheck = () => {
 		if (isCompleting || isChecked) return;
@@ -104,12 +166,52 @@ export function FocusItem({
 		}, 600);
 	};
 
+	// Handler for play/pause button
+	const handleTimerToggle = (e: React.MouseEvent) => {
+		e.stopPropagation(); // Prevent event bubbling
+
+		if (isTimerRunning) {
+			// Stop the timer
+			stopTimer({ itemId: item._id });
+		} else {
+			// Start the timer
+			const projectId = item.clockifyProjectId;
+
+			startTimer({
+				itemId: item._id,
+				description: item.name,
+				projectId: projectId,
+			});
+		}
+	};
+
+	// Click handler to open edit dialog
+	const handleCardClick = (e: React.MouseEvent) => {
+		// Don't open edit dialog if clicking on buttons or interactive elements
+		const target = e.target as HTMLElement;
+		if (target.closest("button")) {
+			return;
+		}
+
+		onEdit(item);
+	};
+
 	return (
 		<div
+			onClick={handleCardClick}
+			role="button"
+			tabIndex={0}
+			onKeyDown={(e) => {
+				if (e.key === "Enter" || e.key === " ") {
+					e.preventDefault();
+					onEdit(item);
+				}
+			}}
 			className={cn(
 				"group flex items-start gap-4 p-4 rounded-xl transition-all duration-300",
 				"bg-card/50 border border-border hover:border-border/60",
-				"hover:bg-card/80",
+				"hover:bg-card/80 cursor-pointer",
+				"focus:outline-none focus:ring-2 focus:ring-primary/50",
 				isAnimatingOut && "opacity-0 scale-95 translate-x-4",
 				isChecked &&
 					!isAnimatingOut &&
@@ -172,10 +274,42 @@ export function FocusItem({
 					</p>
 				)}
 
-				<div className="flex items-center gap-2 mt-2">
+				<div className="flex items-center gap-3 mt-2">
 					<span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded">
 						{item.boardName}
 					</span>
+
+					{/* Timer UI - only show if Clockify is connected */}
+					{isConnected && (
+						<div className="flex items-center gap-1.5">
+							<button
+								type="button"
+								onClick={handleTimerToggle}
+								className={cn(
+									"p-1 rounded hover:bg-accent transition-colors",
+									isTimerRunning && "text-green-600 hover:text-green-700",
+								)}
+								aria-label={isTimerRunning ? "Stop timer" : "Start timer"}
+								title={isTimerRunning ? "Stop timer" : "Start timer"}
+							>
+								{isTimerRunning ? (
+									<Pause className="h-3.5 w-3.5" />
+								) : (
+									<Play className="h-3.5 w-3.5" />
+								)}
+							</button>
+							{elapsedSeconds > 0 && (
+								<span
+									className={cn(
+										"text-[10px] font-mono tabular-nums",
+										isTimerRunning ? "text-green-600" : "text-muted-foreground",
+									)}
+								>
+									{formatElapsedTime(elapsedSeconds)}
+								</span>
+							)}
+						</div>
+					)}
 				</div>
 			</div>
 		</div>

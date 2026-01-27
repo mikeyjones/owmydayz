@@ -51,17 +51,17 @@ export function ChatView({
 
 				<Link
 					to="/profile/$userId"
-					params={{ userId: conversation.otherParticipant.id }}
+					params={{ userId: conversation.participantId }}
 					className="flex items-center gap-3 hover:opacity-80 transition-opacity"
 				>
 					<UserAvatar
-						imageKey={conversation.otherParticipant.image}
-						name={conversation.otherParticipant.name}
+						imageKey={conversation.participantImage}
+						name={conversation.participantName}
 						size="md"
 					/>
 					<div>
 						<h2 className="font-semibold text-foreground">
-							{conversation.otherParticipant.name}
+							{conversation.participantName}
 						</h2>
 						<p className="text-xs text-muted-foreground">
 							Click to view profile

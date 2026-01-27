@@ -18,7 +18,7 @@ export function StartConversationButton({
 	const startConversation = useStartConversation();
 
 	const handleClick = () => {
-		startConversation.mutate(userId);
+		startConversation.mutate();
 	};
 
 	return (

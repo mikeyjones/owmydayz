@@ -160,12 +160,12 @@ export function useBoards(enabled = true) {
 	const { userId } = useCurrentUser();
 
 	const boards = useQuery(
-		enabled && userId ? api.kanban.getBoards : "skip",
-		userId ? { userId } : "skip",
+		api.kanban.getBoards,
+		!enabled || !userId ? "skip" : { userId },
 	);
 
 	return {
-		data: boards,
+		data: boards?.map((board) => ({ ...board, id: board._id })),
 		isLoading: boards === undefined && enabled && !!userId,
 		error: null,
 	};
@@ -175,10 +175,10 @@ export function useBoard(boardId: string, enabled = true) {
 	const { userId } = useCurrentUser();
 
 	const board = useQuery(
-		enabled && boardId && userId ? api.kanban.getBoardById : "skip",
-		enabled && boardId && userId
-			? { id: boardId as Id<"kanbanBoards">, userId }
-			: "skip",
+		api.kanban.getBoardById,
+		!enabled || !boardId || !userId
+			? "skip"
+			: { id: boardId as Id<"kanbanBoards">, userId },
 	);
 	const normalizedBoard =
 		board && typeof board === "object" ? { ...board, id: board._id } : board;
@@ -195,10 +195,10 @@ export function useBoardWithColumns(boardId: string, enabled = true) {
 	const { userId } = useCurrentUser();
 
 	const board = useQuery(
-		enabled && boardId && userId ? api.kanban.getBoardWithColumns : "skip",
-		enabled && boardId && userId
-			? { id: boardId as Id<"kanbanBoards">, userId }
-			: "skip",
+		api.kanban.getBoardWithColumns,
+		!enabled || !boardId || !userId
+			? "skip"
+			: { id: boardId as Id<"kanbanBoards">, userId },
 	);
 	const normalizedBoard =
 		board && typeof board === "object"
@@ -211,6 +211,8 @@ export function useBoardWithColumns(boardId: string, enabled = true) {
 						items: column.items?.map((item) => ({
 							...item,
 							id: item._id,
+							importance: item.importance as "low" | "medium" | "high",
+							effort: item.effort as "small" | "medium" | "big",
 						})),
 					})),
 				}
@@ -227,6 +229,8 @@ export function useBoardWithColumns(boardId: string, enabled = true) {
 interface CreateBoardData {
 	name: string;
 	description?: string;
+	clockifyDefaultClientId?: string;
+	clockifyDefaultProjectId?: string;
 }
 
 interface MutationCallbacks<T> {
@@ -254,6 +258,8 @@ export function useCreateBoard() {
 				const result = await createBoard({
 					name: data.name,
 					description: data.description,
+					clockifyDefaultClientId: data.clockifyDefaultClientId,
+					clockifyDefaultProjectId: data.clockifyDefaultProjectId,
 					userId,
 				});
 				toast.success("Board created successfully!", {
@@ -275,6 +281,8 @@ export function useCreateBoard() {
 			const result = await createBoard({
 				name: data.name,
 				description: data.description,
+				clockifyDefaultClientId: data.clockifyDefaultClientId,
+				clockifyDefaultProjectId: data.clockifyDefaultProjectId,
 				userId,
 			});
 			toast.success("Board created successfully!", {
@@ -291,6 +299,8 @@ interface UpdateBoardData {
 	name: string;
 	description?: string;
 	focusMode?: boolean;
+	clockifyDefaultClientId?: string;
+	clockifyDefaultProjectId?: string;
 }
 
 export function useUpdateBoard() {
@@ -315,6 +325,8 @@ export function useUpdateBoard() {
 					name: data.name,
 					description: data.description,
 					focusMode: data.focusMode,
+					clockifyDefaultClientId: data.clockifyDefaultClientId,
+					clockifyDefaultProjectId: data.clockifyDefaultProjectId,
 					userId,
 				});
 				toast.success("Board updated successfully!");
@@ -516,6 +528,7 @@ interface CreateItemData {
 	importance?: string;
 	effort?: string;
 	tags?: string[];
+	clockifyProjectId?: string;
 }
 
 export function useCreateItem() {
@@ -543,6 +556,7 @@ export function useCreateItem() {
 					importance: data.importance,
 					effort: data.effort,
 					tags: data.tags,
+					clockifyProjectId: data.clockifyProjectId,
 					userId,
 				});
 				toast.success("Item created successfully!");
@@ -566,6 +580,8 @@ interface UpdateItemData {
 	importance?: string;
 	effort?: string;
 	tags?: string[];
+	clockifyClientId?: string;
+	clockifyProjectId?: string;
 	boardId: string; // For query invalidation (not needed with Convex but keeping for compatibility)
 }
 
@@ -576,7 +592,7 @@ export function useUpdateItem() {
 	return {
 		mutate: async (
 			data: UpdateItemData,
-			callbacks?: MutationCallbacks<void>,
+			callbacks?: MutationCallbacks<void> & { silent?: boolean },
 		) => {
 			if (!userId) {
 				toast.error("You must be logged in to update an item");
@@ -593,9 +609,14 @@ export function useUpdateItem() {
 					importance: data.importance,
 					effort: data.effort,
 					tags: data.tags,
+					clockifyClientId: data.clockifyClientId,
+					clockifyProjectId: data.clockifyProjectId,
 					userId,
 				});
-				toast.success("Item updated successfully!");
+				// Only show success toast if not silent mode
+				if (!callbacks?.silent) {
+					toast.success("Item updated successfully!");
+				}
 				callbacks?.onSuccess?.();
 			} catch (error) {
 				const err = error instanceof Error ? error : new Error("Unknown error");
@@ -723,8 +744,8 @@ export function useAllNowItems(enabled = true) {
 	const { userId } = useCurrentUser();
 
 	const items = useQuery(
-		enabled && userId ? api.kanban.getAllNowItems : "skip",
-		userId ? { userId } : "skip",
+		api.kanban.getAllNowItems,
+		!enabled || !userId ? "skip" : { userId },
 	);
 
 	return {

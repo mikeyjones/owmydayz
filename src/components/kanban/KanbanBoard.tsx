@@ -8,11 +8,13 @@ import {
 	applyOptimisticMoves,
 	type PendingMove,
 	useBoardWithColumns,
+	useCreateItem,
 	useDeleteColumn,
 	useDeleteItem,
 	useMoveItem,
 	useReorderColumns,
 } from "~/hooks/useKanban";
+import { useTimerSync } from "~/hooks/useTimerSync";
 import type { KanbanColumnWithItems, KanbanItem } from "~/types";
 import { getColumnColorById } from "~/utils/columnColors";
 import { calculateNewColumnOrder } from "~/utils/columnReordering";
@@ -32,9 +34,13 @@ interface KanbanBoardProps {
 export function KanbanBoard({ boardId }: KanbanBoardProps) {
 	const { data: board, isLoading, error } = useBoardWithColumns(boardId);
 	const moveItemMutation = useMoveItem();
+	const createItemMutation = useCreateItem();
 	const deleteItemMutation = useDeleteItem();
 	const deleteColumnMutation = useDeleteColumn();
 	const reorderColumnsMutation = useReorderColumns();
+
+	// Enable timer sync to persist timers across browser sessions
+	useTimerSync(true);
 
 	const [createItemDialog, setCreateItemDialog] = useState<{
 		open: boolean;
@@ -377,6 +383,21 @@ export function KanbanBoard({ boardId }: KanbanBoardProps) {
 		setCreateItemDialog({ open: true, columnId, columnName });
 	}, []);
 
+	// Quick add handler: creates item with just a name and default values
+	const handleQuickAddItem = useCallback(
+		(columnId: string, itemName: string) => {
+			createItemMutation.mutate({
+				columnId,
+				boardId,
+				name: itemName,
+				importance: "medium",
+				effort: "medium",
+				tags: [],
+			});
+		},
+		[boardId, createItemMutation],
+	);
+
 	const handleEditItem = useCallback((item: KanbanItem) => {
 		setEditItemDialog({ open: true, item });
 	}, []);
@@ -403,7 +424,7 @@ export function KanbanBoard({ boardId }: KanbanBoardProps) {
 		if (!displayBoard) return null;
 		const columns = displayBoard.columns;
 
-		return columns.map((column: KanbanColumnWithItems, index: number) => {
+		return columns.map((column: KanbanColumnWithItems, _index: number) => {
 			const isDragged =
 				dragPreview && column.id === dragPreview.draggedColumnId;
 			const isDropTarget =
@@ -427,15 +448,18 @@ export function KanbanBoard({ boardId }: KanbanBoardProps) {
 						<KanbanColumnComponent
 							column={column}
 							onAddItem={handleAddItem}
+							onQuickAddItem={handleQuickAddItem}
 							onEditItem={handleEditItem}
 							onDeleteItem={handleDeleteItem}
 							onDeleteColumn={handleDeleteColumn}
 							isFolded={isColumnFolded(column)}
 							onUnfold={handleUnfoldColumn}
 							columnColor={getColumnColorById(column.id)}
+							defaultClockifyClientId={board?.clockifyDefaultClientId}
+							defaultClockifyProjectId={board?.clockifyDefaultProjectId}
+							isCreatingItem={createItemMutation.isPending}
 						/>
 					</div>
-
 					{/* Drop indicator after */}
 					{showDropAfter && (
 						<div className="absolute right-0 top-0 bottom-0 w-1 bg-primary z-10 -mr-2" />
@@ -448,11 +472,15 @@ export function KanbanBoard({ boardId }: KanbanBoardProps) {
 		dragPreview,
 		pendingColumnReorder,
 		handleAddItem,
+		handleQuickAddItem,
 		handleEditItem,
 		handleDeleteItem,
 		handleDeleteColumn,
 		isColumnFolded,
 		handleUnfoldColumn,
+		createItemMutation.isPending,
+		board?.clockifyDefaultClientId,
+		board?.clockifyDefaultProjectId,
 	]);
 
 	if (isLoading || board === undefined) {
@@ -472,6 +500,14 @@ export function KanbanBoard({ boardId }: KanbanBoardProps) {
 	}
 
 	if (board === null) {
+		return (
+			<div className="flex items-center justify-center h-64">
+				<p className="text-destructive">Board not found</p>
+			</div>
+		);
+	}
+
+	if (!displayBoard) {
 		return (
 			<div className="flex items-center justify-center h-64">
 				<p className="text-destructive">Board not found</p>
@@ -512,13 +548,13 @@ export function KanbanBoard({ boardId }: KanbanBoardProps) {
 				</div>
 			</div>
 
-			{/* Kanban Columns */}
+			{/* Kanban Columns - Improved Trello-like layout */}
 			<div
-				className="flex-1 overflow-x-auto pb-4"
+				className="flex-1 overflow-x-auto overflow-y-hidden pb-4 px-1"
 				role="region"
 				aria-label="Board columns"
 			>
-				<div className="flex gap-4 h-full min-h-[400px]">
+				<div className="flex gap-3 h-full min-h-[500px] pr-3">
 					{renderColumnsWithPreview()}
 
 					{displayBoard.columns.length === 0 && (

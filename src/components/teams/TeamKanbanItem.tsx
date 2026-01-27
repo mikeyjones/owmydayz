@@ -77,7 +77,7 @@ export function TeamKanbanItemCard({
 				dragHandle: element,
 				canDrag: (args) => {
 					// Safely access the event target
-					const event = args?.input?.event;
+					const event = (args?.input as any)?.event;
 					if (!event) {
 						return true; // Allow drag if we can't determine the target
 					}

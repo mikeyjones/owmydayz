@@ -8,6 +8,26 @@ vi.mock("~/hooks/useItemComments", () => ({
 	useKanbanItemCommentCount: () => ({ data: 0 }),
 }));
 
+// Mock the Clockify hooks
+const mockStartTimer = vi.fn();
+const mockStopTimer = vi.fn();
+let mockIsConnected = false;
+
+vi.mock("~/hooks/useClockify", () => ({
+	useClockifyConnection: () => ({
+		isConnected: mockIsConnected,
+		data: mockIsConnected ? [{ workspaceId: "ws-1" }] : [],
+	}),
+	useStartTimer: () => ({
+		mutate: mockStartTimer,
+		isPending: false,
+	}),
+	useStopTimer: () => ({
+		mutate: mockStopTimer,
+		isPending: false,
+	}),
+}));
+
 describe("KanbanItemCard", () => {
 	// Helper to create a mock item
 	const createMockItem = (overrides?: Partial<KanbanItem>): KanbanItem => ({
@@ -216,6 +236,183 @@ describe("KanbanItemCard", () => {
 			expect(screen.getByText("tag1")).toBeInTheDocument();
 			expect(screen.getByText("tag2")).toBeInTheDocument();
 			expect(screen.getByText("+2")).toBeInTheDocument();
+		});
+	});
+
+	describe("timer functionality", () => {
+		it("should not show timer UI when Clockify is not connected", () => {
+			mockIsConnected = false;
+			const item = createMockItem();
+			render(<KanbanItemCard item={item} {...mockHandlers} />);
+
+			const playButton = screen.queryByLabelText("Start timer");
+			expect(playButton).not.toBeInTheDocument();
+		});
+
+		it("should show play button when Clockify is connected and timer is not running", () => {
+			mockIsConnected = true;
+			const item = createMockItem({
+				clockifyTimeEntryId: undefined,
+				timerStartedAt: undefined,
+			});
+			render(<KanbanItemCard item={item} {...mockHandlers} />);
+
+			const playButton = screen.getByLabelText("Start timer");
+			expect(playButton).toBeInTheDocument();
+		});
+
+		it("should show pause button when timer is running", () => {
+			mockIsConnected = true;
+			const item = createMockItem({
+				clockifyTimeEntryId: "entry-1",
+				timerStartedAt: Date.now() - 5000, // Started 5 seconds ago
+			});
+			render(<KanbanItemCard item={item} {...mockHandlers} />);
+
+			const pauseButton = screen.getByLabelText("Stop timer");
+			expect(pauseButton).toBeInTheDocument();
+		});
+
+		it("should display elapsed time when timer is running", () => {
+			mockIsConnected = true;
+			const item = createMockItem({
+				clockifyTimeEntryId: "entry-1",
+				timerStartedAt: Date.now() - 125000, // Started 2:05 ago
+			});
+			render(<KanbanItemCard item={item} {...mockHandlers} />);
+
+			// Should show time in MM:SS format
+			const timeDisplay = screen.getByText(/2:0[45]/); // Allow for slight timing variation
+			expect(timeDisplay).toBeInTheDocument();
+		});
+
+		it("should display total time when timer is stopped but has accumulated time", () => {
+			mockIsConnected = true;
+			const item = createMockItem({
+				clockifyTimeEntryId: undefined,
+				timerStartedAt: undefined,
+				timerTotalSeconds: 150, // 2:30
+			});
+			render(<KanbanItemCard item={item} {...mockHandlers} />);
+
+			const timeDisplay = screen.getByText("2:30");
+			expect(timeDisplay).toBeInTheDocument();
+		});
+
+		it("should call startTimer when play button is clicked", () => {
+			mockIsConnected = true;
+			mockStartTimer.mockClear();
+			const item = createMockItem({
+				name: "Test Task",
+				clockifyProjectId: "project-1",
+			});
+			render(<KanbanItemCard item={item} {...mockHandlers} />);
+
+			const playButton = screen.getByLabelText("Start timer");
+			fireEvent.click(playButton);
+
+			expect(mockStartTimer).toHaveBeenCalledWith({
+				itemId: item.id,
+				description: "Test Task",
+				projectId: "project-1",
+			});
+		});
+
+		it("should call stopTimer when pause button is clicked", () => {
+			mockIsConnected = true;
+			mockStopTimer.mockClear();
+			const item = createMockItem({
+				clockifyTimeEntryId: "entry-1",
+				timerStartedAt: Date.now(),
+			});
+			render(<KanbanItemCard item={item} {...mockHandlers} />);
+
+			const pauseButton = screen.getByLabelText("Stop timer");
+			fireEvent.click(pauseButton);
+
+			expect(mockStopTimer).toHaveBeenCalledWith({
+				itemId: item.id,
+			});
+		});
+
+		it("should format elapsed time in HH:MM:SS for times over 1 hour", () => {
+			mockIsConnected = true;
+			const item = createMockItem({
+				clockifyTimeEntryId: "entry-1",
+				timerStartedAt: Date.now() - 3665000, // 1:01:05 ago
+			});
+			render(<KanbanItemCard item={item} {...mockHandlers} />);
+
+			// Should show time in HH:MM:SS format
+			const timeDisplay = screen.getByText(/1:01:0[45]/); // Allow for slight timing variation
+			expect(timeDisplay).toBeInTheDocument();
+		});
+	});
+
+	describe("click to edit", () => {
+		it("should call onEdit when card is clicked", () => {
+			const item = createMockItem({ name: "Clickable Task" });
+			const onEdit = vi.fn();
+			render(
+				<KanbanItemCard
+					item={item}
+					onEdit={onEdit}
+					onDelete={mockHandlers.onDelete}
+				/>,
+			);
+
+			const article = screen.getByRole("article");
+			fireEvent.click(article);
+
+			expect(onEdit).toHaveBeenCalledWith(item);
+		});
+
+		it("should not call onEdit when clicking on buttons", () => {
+			mockIsConnected = true;
+			const item = createMockItem();
+			const onEdit = vi.fn();
+			render(
+				<KanbanItemCard
+					item={item}
+					onEdit={onEdit}
+					onDelete={mockHandlers.onDelete}
+				/>,
+			);
+
+			// Click on the timer button
+			const timerButton = screen.getByLabelText("Start timer");
+			fireEvent.click(timerButton);
+
+			expect(onEdit).not.toHaveBeenCalled();
+		});
+
+		it("should not call onEdit when clicking on options button", () => {
+			const item = createMockItem();
+			const onEdit = vi.fn();
+			render(
+				<KanbanItemCard
+					item={item}
+					onEdit={onEdit}
+					onDelete={mockHandlers.onDelete}
+				/>,
+			);
+
+			const optionsButton = screen.getByRole("button", {
+				name: `More options for ${item.name}`,
+			});
+			fireEvent.click(optionsButton);
+
+			expect(onEdit).not.toHaveBeenCalled();
+		});
+
+		it("should be keyboard accessible with tabIndex", () => {
+			const item = createMockItem();
+			const { container } = render(
+				<KanbanItemCard item={item} {...mockHandlers} />,
+			);
+
+			const article = container.querySelector('[role="article"]');
+			expect(article).toHaveAttribute("tabIndex", "0");
 		});
 	});
 });

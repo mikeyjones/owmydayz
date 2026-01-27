@@ -24,7 +24,7 @@ export function UserAvatar({
 	className = "",
 	size = "md",
 }: UserAvatarProps) {
-	const { avatarUrl } = useAvatarImage(imageKey);
+	const { imageUrl } = useAvatarImage(imageKey);
 
 	// Get fallback text - use name initials, or first letter of email, or "U"
 	const fallbackText = name
@@ -35,7 +35,7 @@ export function UserAvatar({
 
 	return (
 		<Avatar className={`${sizeMap[size]} ${className}`}>
-			{avatarUrl && <AvatarImage src={avatarUrl} alt={name || "User"} />}
+			{imageUrl && <AvatarImage src={imageUrl} alt={name || "User"} />}
 			<AvatarFallback className="bg-gradient-to-br from-primary to-purple-600 text-primary-foreground font-semibold">
 				{fallbackText}
 			</AvatarFallback>

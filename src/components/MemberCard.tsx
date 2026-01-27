@@ -19,18 +19,18 @@ export function MemberCard({ member }: MemberCardProps) {
 				<PanelContent className="p-6">
 					<div className="flex flex-col items-center text-center space-y-4">
 						<UserAvatar
-							imageKey={member.image}
-							name={member.name}
+							imageKey={member.userImage}
+							name={member.userName}
 							size="lg"
 							className="shrink-0 ring-2 ring-transparent group-hover:ring-primary/50 transition-all duration-300"
 						/>
 						<div className="space-y-1 w-full">
 							<h3 className="font-semibold text-base leading-tight group-hover:text-primary transition-colors">
-								{member.name || "Anonymous"}
+								{member.userName || "Anonymous"}
 							</h3>
 							<p className="text-muted-foreground text-xs">
 								Joined{" "}
-								{formatRelativeTime(new Date(member.createdAt).toISOString())}
+								{formatRelativeTime(new Date(member.joinedAt).toISOString())}
 							</p>
 						</div>
 					</div>

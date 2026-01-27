@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { AppBreadcrumb } from "~/components/AppBreadcrumb";
+import { ClockifySettings } from "~/components/ClockifySettings";
 import { Page } from "~/components/Page";
 import { UserAvatar } from "~/components/UserAvatar";
 import { Button } from "~/components/ui/button";
@@ -243,11 +244,14 @@ function SettingsPage() {
 				<div className="mb-6">
 					<h1 className="text-3xl font-bold">Settings</h1>
 					<p className="text-muted-foreground mt-2">
-						Manage your profile information and avatar
+						Manage your profile information, integrations, and preferences
 					</p>
 				</div>
 
-				<ProfileSettings />
+				<div className="space-y-6">
+					<ProfileSettings />
+					<ClockifySettings />
+				</div>
 			</div>
 		</Page>
 	);

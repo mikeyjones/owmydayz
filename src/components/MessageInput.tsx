@@ -13,23 +13,21 @@ export function MessageInput({ conversationId }: MessageInputProps) {
 	const textareaRef = useRef<HTMLTextAreaElement>(null);
 	const sendMessage = useSendMessage();
 
-	const handleSubmit = (e: React.FormEvent) => {
+	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 
 		const trimmedContent = content.trim();
 		if (!trimmedContent || sendMessage.isPending) return;
 
-		sendMessage.mutate(
-			{ conversationId, content: trimmedContent },
-			{
-				onSuccess: () => {
-					setContent("");
-					if (textareaRef.current) {
-						textareaRef.current.style.height = "auto";
-					}
-				},
-			},
-		);
+		try {
+			await sendMessage.mutate();
+			setContent("");
+			if (textareaRef.current) {
+				textareaRef.current.style.height = "auto";
+			}
+		} catch (error) {
+			// Error already handled by mutation
+		}
 	};
 
 	const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {

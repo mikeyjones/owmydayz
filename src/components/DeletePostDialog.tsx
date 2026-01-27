@@ -23,13 +23,14 @@ export function DeletePostDialog({
 }: DeletePostDialogProps) {
 	const deletePostMutation = useDeletePost();
 
-	const handleDelete = () => {
+	const handleDelete = async () => {
 		if (post) {
-			deletePostMutation.mutate(post.id, {
-				onSuccess: () => {
-					onOpenChange(false);
-				},
-			});
+			try {
+				await deletePostMutation.mutate();
+				onOpenChange(false);
+			} catch (error) {
+				// Error already handled by mutation
+			}
 		}
 	};
 

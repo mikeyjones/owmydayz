@@ -86,7 +86,8 @@ describe("KanbanBoard - Column Reordering Integration", () => {
 			const columns = [
 				createMockColumn("col-1", 0, false),
 				createMockColumn("col-2", 1, false),
-				createMockColumn("sys-1", 2, true),
+				// Create a Completed system column which should not be draggable
+				{ ...createMockColumn("sys-1", 2, true), name: "Completed" },
 			];
 			const board = createMockBoard(columns);
 
@@ -94,13 +95,13 @@ describe("KanbanBoard - Column Reordering Integration", () => {
 
 			const { container } = render(<KanbanBoard boardId="board-1" />);
 
-			// Verify non-system columns have drag handles
-			const dragHandles = container.querySelectorAll(
-				'[data-testid="column-drag-handle"]',
+			// Verify non-Completed columns have drag handles with cursor-grab
+			const draggableHandles = container.querySelectorAll(
+				'[data-drag-handle="true"].hover\\:cursor-grab',
 			);
 
-			// Should have 2 drag handles (col-1 and col-2, not sys-1)
-			expect(dragHandles.length).toBe(2);
+			// Should have 2 draggable handles (col-1 and col-2, not Completed)
+			expect(draggableHandles.length).toBe(2);
 		});
 
 		it("should not allow dragging system columns", () => {

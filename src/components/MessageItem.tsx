@@ -29,8 +29,8 @@ export function MessageItem({
 		>
 			{showAvatar && !isOwnMessage && (
 				<UserAvatar
-					imageKey={message.sender.image}
-					name={message.sender.name}
+					imageKey={message.senderImage}
+					name={message.senderName}
 					size="sm"
 					className="shrink-0"
 				/>

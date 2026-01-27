@@ -137,8 +137,18 @@ export const getTeamMembers = query({
 			.withIndex("by_teamId", (q) => q.eq("teamId", args.teamId))
 			.collect();
 
+		// Cast role field and add placeholder user data
+		// TODO: Fetch actual user data from better-auth
+		const membersWithUsers = memberships.map((membership) => ({
+			...membership,
+			role: membership.role as "owner" | "admin" | "member",
+			userName: "User", // Placeholder - frontend should fetch from better-auth
+			userEmail: membership.userId, // Use userId as fallback
+			userImage: null,
+		}));
+
 		// Sort by joinedAt descending
-		return memberships.sort((a, b) => b.joinedAt - a.joinedAt);
+		return membersWithUsers.sort((a, b) => b.joinedAt - a.joinedAt);
 	},
 });
 
@@ -195,9 +205,23 @@ export const getPendingInvitationsForUser = query({
 		// once we have access to the user's email from better-auth
 		const invitations = await ctx.db.query("teamInvitations").collect();
 
-		// Filter pending invitations (we don't have email index yet)
-		// This is a temporary solution
-		return invitations.filter((inv) => inv.status === "pending");
+		// Filter pending invitations and add team name
+		const pendingInvitations = invitations.filter(
+			(inv) => inv.status === "pending",
+		);
+
+		// Fetch team names for each invitation
+		const invitationsWithTeamName = await Promise.all(
+			pendingInvitations.map(async (invitation) => {
+				const team = await ctx.db.get(invitation.teamId);
+				return {
+					...invitation,
+					teamName: team?.name || "Unknown Team",
+				};
+			}),
+		);
+
+		return invitationsWithTeamName;
 	},
 });
 

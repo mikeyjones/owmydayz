@@ -22,6 +22,21 @@ export default defineSchema({
 	}).index("by_userId", ["userId"]),
 
 	// =====================================================
+	// Clockify Integration
+	// =====================================================
+	clockifyConnections: defineTable({
+		userId: v.string(), // References better-auth user ID
+		workspaceId: v.string(), // Clockify workspace ID
+		workspaceName: v.string(),
+		apiKey: v.string(), // Encrypted Clockify API key
+		isActive: v.boolean(),
+		createdAt: v.number(),
+		updatedAt: v.number(),
+	})
+		.index("by_userId", ["userId"])
+		.index("by_userId_workspaceId", ["userId", "workspaceId"]),
+
+	// =====================================================
 	// Kanban Board Tables (Personal)
 	// =====================================================
 	kanbanBoards: defineTable({
@@ -29,6 +44,8 @@ export default defineSchema({
 		description: v.optional(v.string()),
 		userId: v.string(), // References better-auth user ID
 		focusMode: v.boolean(),
+		clockifyDefaultProjectId: v.optional(v.string()), // Default Clockify project for new items
+		clockifyDefaultClientId: v.optional(v.string()), // Default Clockify client for new items
 		createdAt: v.number(),
 		updatedAt: v.number(),
 	}).index("by_userId", ["userId"]),
@@ -52,6 +69,13 @@ export default defineSchema({
 		tags: v.array(v.string()),
 		position: v.number(),
 		completedAt: v.optional(v.number()),
+		// Clockify timer integration fields
+		clockifyProjectId: v.optional(v.string()), // Clockify project ID for this item
+		clockifyClientId: v.optional(v.string()), // Clockify client ID for this item
+		clockifyTimeEntryId: v.optional(v.string()), // Active Clockify time entry ID
+		timerStartedAt: v.optional(v.number()), // Timestamp when timer was started
+		timerTotalSeconds: v.optional(v.number()), // Total accumulated time in seconds
+		lastTimerSync: v.optional(v.number()), // Last time we synced with Clockify
 		createdAt: v.number(),
 		updatedAt: v.number(),
 	})

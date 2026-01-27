@@ -4,6 +4,20 @@ import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 import { useCurrentUser } from "./useCurrentUser";
 
+// Helper to normalize Convex data (_id -> id)
+function normalizeItem<T extends { _id: any }>(
+	item: T | null | undefined,
+): (T & { id: string }) | null | undefined {
+	if (!item || typeof item !== "object") return item as null | undefined;
+	return { ...item, id: item._id };
+}
+
+function normalizeArray<T extends { _id: any }>(
+	items: T[] | undefined,
+): (T & { id: string })[] | undefined {
+	return items?.map((item) => ({ ...item, id: item._id }));
+}
+
 // =====================================================
 // Team Hooks
 // =====================================================
@@ -12,12 +26,12 @@ export function useTeams(enabled = true) {
 	const { userId } = useCurrentUser();
 
 	const teams = useQuery(
-		enabled && userId ? api.teams.getTeams : "skip",
-		userId ? { userId } : "skip",
+		api.teams.getTeams,
+		!enabled || !userId ? "skip" : { userId },
 	);
 
 	return {
-		data: teams,
+		data: normalizeArray(teams),
 		isLoading: teams === undefined && enabled && !!userId,
 		error: null,
 	};
@@ -27,14 +41,14 @@ export function useTeam(teamId: string, enabled = true) {
 	const { userId } = useCurrentUser();
 
 	const team = useQuery(
-		enabled && teamId && userId ? api.teams.getTeamById : "skip",
-		enabled && teamId && userId
-			? { id: teamId as Id<"teams">, userId }
-			: "skip",
+		api.teams.getTeamById,
+		!enabled || !teamId || !userId
+			? "skip"
+			: { id: teamId as Id<"teams">, userId },
 	);
 
 	return {
-		data: team,
+		data: normalizeItem(team),
 		isLoading: team === undefined && enabled && !!teamId && !!userId,
 		error: null,
 	};
@@ -154,14 +168,14 @@ export function useTeamMembers(teamId: string, enabled = true) {
 	const { userId } = useCurrentUser();
 
 	const members = useQuery(
-		enabled && teamId && userId ? api.teams.getTeamMembers : "skip",
-		enabled && teamId && userId
-			? { teamId: teamId as Id<"teams">, userId }
-			: "skip",
+		api.teams.getTeamMembers,
+		!enabled || !teamId || !userId
+			? "skip"
+			: { teamId: teamId as Id<"teams">, userId },
 	);
 
 	return {
-		data: members,
+		data: normalizeArray(members),
 		isLoading: members === undefined && enabled && !!teamId && !!userId,
 		error: null,
 	};
@@ -245,14 +259,14 @@ export function useTeamInvitations(teamId: string, enabled = true) {
 	const { userId } = useCurrentUser();
 
 	const invitations = useQuery(
-		enabled && teamId && userId ? api.teams.getTeamInvitations : "skip",
-		enabled && teamId && userId
-			? { teamId: teamId as Id<"teams">, userId }
-			: "skip",
+		api.teams.getTeamInvitations,
+		!enabled || !teamId || !userId
+			? "skip"
+			: { teamId: teamId as Id<"teams">, userId },
 	);
 
 	return {
-		data: invitations,
+		data: normalizeArray(invitations),
 		isLoading: invitations === undefined && enabled && !!teamId && !!userId,
 		error: null,
 	};
@@ -262,12 +276,12 @@ export function useMyPendingInvitations(enabled = true) {
 	const { userId } = useCurrentUser();
 
 	const invitations = useQuery(
-		enabled && userId ? api.teams.getPendingInvitationsForUser : "skip",
-		userId ? { userId } : "skip",
+		api.teams.getPendingInvitationsForUser,
+		!enabled || !userId ? "skip" : { userId },
 	);
 
 	return {
-		data: invitations,
+		data: normalizeArray(invitations),
 		isLoading: invitations === undefined && enabled && !!userId,
 		error: null,
 	};
@@ -404,10 +418,10 @@ export function useIsTeamMember(teamId: string, enabled = true) {
 	const { userId } = useCurrentUser();
 
 	const isMember = useQuery(
-		enabled && teamId && userId ? api.teams.isTeamMember : "skip",
-		enabled && teamId && userId
-			? { teamId: teamId as Id<"teams">, userId }
-			: "skip",
+		api.teams.isTeamMember,
+		!enabled || !teamId || !userId
+			? "skip"
+			: { teamId: teamId as Id<"teams">, userId },
 	);
 
 	return {
@@ -424,10 +438,10 @@ export function useHasTeamRole(
 	const { userId } = useCurrentUser();
 
 	const hasRole = useQuery(
-		enabled && teamId && userId ? api.teams.hasTeamRole : "skip",
-		enabled && teamId && userId
-			? { teamId: teamId as Id<"teams">, requiredRole, userId }
-			: "skip",
+		api.teams.hasTeamRole,
+		!enabled || !teamId || !userId
+			? "skip"
+			: { teamId: teamId as Id<"teams">, requiredRole, userId },
 	);
 
 	return {

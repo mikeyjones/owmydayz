@@ -3,7 +3,7 @@
 
 export function useConversations() {
 	return {
-		data: [],
+		data: [] as any[],
 		isLoading: false,
 		error: null,
 	};

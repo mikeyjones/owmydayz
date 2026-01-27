@@ -20,7 +20,7 @@ export function PostLikeButton({
 	const toggleReaction = useTogglePostReaction();
 
 	const handleToggle = () => {
-		toggleReaction.mutate(postId);
+		toggleReaction.mutate();
 	};
 
 	return (

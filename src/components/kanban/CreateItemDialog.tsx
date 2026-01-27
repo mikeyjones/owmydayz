@@ -35,6 +35,10 @@ export function CreateItemDialog({
 				importance: data.importance,
 				effort: data.effort,
 				tags: data.tags,
+				clockifyProjectId:
+					!data.clockifyProjectId || data.clockifyProjectId === "__none__"
+						? undefined
+						: data.clockifyProjectId,
 			},
 			{
 				onSuccess: () => {

@@ -9,6 +9,8 @@
  */
 
 import type * as auth from "../auth.js";
+import type * as clockify from "../clockify.js";
+import type * as clockifyEncryption from "../clockifyEncryption.js";
 import type * as http from "../http.js";
 import type * as kanban from "../kanban.js";
 import type * as teamBoards from "../teamBoards.js";
@@ -23,6 +25,8 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
+  clockify: typeof clockify;
+  clockifyEncryption: typeof clockifyEncryption;
   http: typeof http;
   kanban: typeof kanban;
   teamBoards: typeof teamBoards;

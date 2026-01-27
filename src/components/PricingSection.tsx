@@ -38,16 +38,12 @@ export function PricingSection({ showTitle = true }: PricingSectionProps) {
 		if (plan) {
 			setLoadingPlan(plan.plan);
 		}
-		checkoutMutation.mutate(
-			{ data: { priceId } },
-			{
-				onSettled: () => setLoadingPlan(null),
-			},
-		);
+		checkoutMutation.mutate();
+		setLoadingPlan(null);
 	};
 
 	// Get current plan, defaulting to 'free' for logged out users or loading state
-	const currentPlan = (userPlan?.data?.plan || "free") as SubscriptionPlan;
+	const currentPlan = (userPlan?.plan || "free") as SubscriptionPlan;
 	const isLoadingState = sessionLoading || planLoading;
 
 	const handleManagePlans = () => {

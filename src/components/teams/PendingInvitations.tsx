@@ -35,7 +35,7 @@ export function PendingInvitations() {
 			</CardHeader>
 			<CardContent className="space-y-3">
 				{invitations.map(
-					(invitation: { id: string; teamName: string; role: string }) => (
+					(invitation) => (
 						<div
 							key={invitation.id}
 							className="flex items-center justify-between p-3 bg-background rounded-lg border"

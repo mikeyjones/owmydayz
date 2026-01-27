@@ -31,7 +31,7 @@ export function MessageList({ conversationId }: MessageListProps) {
 			!hasMarkedAsRead.current
 		) {
 			hasMarkedAsRead.current = true;
-			markAsRead.mutate(conversationId);
+			markAsRead.mutate();
 		}
 	}, [conversationId, data?.messages, markAsRead.mutate]);
 

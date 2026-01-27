@@ -1,6 +1,5 @@
 import { createMiddleware } from "@tanstack/react-start";
 import { getRequest } from "@tanstack/react-start/server";
-import { isUserAdmin } from "~/data-access/users";
 
 /**
  * Get the authenticated user ID from request headers.
@@ -40,17 +39,18 @@ export const authenticatedMiddleware = createMiddleware({
 	});
 });
 
-export const assertAdminMiddleware = createMiddleware({
-	type: "function",
-}).server(async ({ next }) => {
-	const userId = await getAuthenticatedUserId();
-
-	const adminCheck = await isUserAdmin(userId);
-	if (!adminCheck) {
-		throw new Error("Unauthorized: Only admins can perform this action");
-	}
-
-	return next({
-		context: { userId },
-	});
-});
+// Admin middleware removed - isUserAdmin not implemented yet
+// export const assertAdminMiddleware = createMiddleware({
+// 	type: "function",
+// }).server(async ({ next }) => {
+// 	const userId = await getAuthenticatedUserId();
+//
+// 	const adminCheck = await isUserAdmin(userId);
+// 	if (!adminCheck) {
+// 		throw new Error("Unauthorized: Only admins can perform this action");
+// 	}
+//
+// 	return next({
+// 		context: { userId },
+// 	});
+// });

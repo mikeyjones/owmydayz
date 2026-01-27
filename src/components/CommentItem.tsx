@@ -32,7 +32,7 @@ export function CommentItem({
 	maxDepth = 3,
 }: CommentItemProps) {
 	const [showReplyForm, setShowReplyForm] = useState(false);
-	const [showReplies, _setShowReplies] = useState(true);
+	const [_showReplies, _setShowReplies] = useState(true);
 	const [editDialogOpen, setEditDialogOpen] = useState(false);
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 

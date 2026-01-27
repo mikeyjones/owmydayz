@@ -15,11 +15,11 @@ export const Route = createFileRoute("/dashboard/teams/$teamId")({
 
 function TeamLayout() {
 	const { teamId } = Route.useParams();
-	const { data: team, isPending, error } = useTeam(teamId);
+	const { data: team, isLoading, error } = useTeam(teamId);
 	const routerState = useRouterState();
 	const currentPath = routerState.location.pathname;
 
-	if (isPending) {
+	if (isLoading) {
 		return (
 			<div className="flex items-center justify-center py-12">
 				<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />

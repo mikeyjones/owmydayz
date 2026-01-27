@@ -3,7 +3,7 @@
 
 export function useMessages(_conversationId: string) {
 	return {
-		data: { messages: [] },
+		data: { messages: [] as any[] },
 		isLoading: false,
 		error: null,
 	};

@@ -32,11 +32,13 @@ export function BoardList() {
 		setDeletingBoard(board);
 	};
 
-	const confirmDelete = () => {
+	const confirmDelete = async () => {
 		if (deletingBoard) {
-			deleteBoardMutation.mutate(deletingBoard._id, {
-				onSettled: () => setDeletingBoard(null),
-			});
+			try {
+				await deleteBoardMutation.mutate(deletingBoard._id);
+			} finally {
+				setDeletingBoard(null);
+			}
 		}
 	};
 

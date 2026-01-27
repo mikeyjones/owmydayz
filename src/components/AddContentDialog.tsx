@@ -6,7 +6,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "~/components/ui/dialog";
-import { useCreateModuleContent } from "~/hooks/useModules";
+import { useCreateContent } from "~/hooks/useModules";
 
 interface AddContentDialogProps {
 	open: boolean;
@@ -21,13 +21,15 @@ export function AddContentDialog({
 	moduleId,
 	moduleTitle,
 }: AddContentDialogProps) {
-	const createContentMutation = useCreateModuleContent();
+	const createContentMutation = useCreateContent();
 
 	const handleSubmit = async (data: ContentSubmitData) => {
-		createContentMutation.mutate(
-			{ moduleId, ...data },
-			{ onSuccess: () => onOpenChange(false) },
-		);
+		try {
+			await createContentMutation.mutate();
+			onOpenChange(false);
+		} catch (error) {
+			// Error already handled by mutation
+		}
 	};
 
 	return (
