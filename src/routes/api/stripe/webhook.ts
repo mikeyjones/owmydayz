@@ -1,6 +1,7 @@
 // Stripe webhook - TODO: Implement via Convex HTTP actions
 // This is a stub that will need to be reimplemented for Convex
 
+import type Stripe from "stripe";
 import { createFileRoute } from "@tanstack/react-router";
 import { privateEnv } from "~/config/privateEnv";
 import { getPlanByPriceId } from "~/lib/plans";
@@ -12,6 +13,13 @@ export const Route = createFileRoute("/api/stripe/webhook")({
 	server: {
 		handlers: {
 			POST: async ({ request }) => {
+				if (!stripe) {
+					return Response.json(
+						{ received: false, disabled: true },
+						{ status: 503 },
+					);
+				}
+
 				const body = await request.text();
 				const sig = request.headers.get("stripe-signature");
 
@@ -40,16 +48,16 @@ export const Route = createFileRoute("/api/stripe/webhook")({
 				try {
 					switch (event.type) {
 						case "checkout.session.completed":
-							await handleCheckoutCompleted(event.data.object);
+							await handleCheckoutCompleted(stripe, event.data.object);
 							break;
 
 						case "customer.subscription.created":
 						case "customer.subscription.updated":
-							await handleSubscriptionChange(event.data.object);
+							await handleSubscriptionChange(stripe, event.data.object);
 							break;
 
 						case "customer.subscription.deleted":
-							await handleSubscriptionDeleted(event.data.object);
+							await handleSubscriptionDeleted(stripe, event.data.object);
 							break;
 
 						default:
@@ -69,10 +77,13 @@ export const Route = createFileRoute("/api/stripe/webhook")({
 	},
 });
 
-async function handleCheckoutCompleted(session: any) {
+async function handleCheckoutCompleted(
+	client: Stripe,
+	session: any,
+) {
 	console.log("Handling checkout completed:", session.id);
 
-	const subscription = await stripe.subscriptions.retrieve(
+	const subscription = await client.subscriptions.retrieve(
 		session.subscription,
 	);
 
@@ -100,7 +111,10 @@ async function handleCheckoutCompleted(session: any) {
 	console.log(`Checkout completed for user ${session.metadata.userId}`);
 }
 
-async function handleSubscriptionChange(subscription: any) {
+async function handleSubscriptionChange(
+	_client: Stripe,
+	subscription: any,
+) {
 	console.log("Handling subscription change:", subscription.id);
 
 	const priceId = subscription.items.data[0]?.price.id;
@@ -115,7 +129,10 @@ async function handleSubscriptionChange(subscription: any) {
 	console.warn("Subscription change handling not yet implemented in Convex");
 }
 
-async function handleSubscriptionDeleted(subscription: any) {
+async function handleSubscriptionDeleted(
+	_client: Stripe,
+	subscription: any,
+) {
 	console.log("Handling subscription deleted:", subscription.id);
 
 	// TODO: Look up user by Stripe customer ID in Convex and update
