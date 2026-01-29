@@ -306,6 +306,10 @@ export const protectedFunction = createServerFn()
    - In development, cookies may not work cross-origin over HTTP
    - Use the Convex site URL directly or deploy to HTTPS
 
+4. **404 on `/api/auth/get-session` when deployed (e.g. Vercel)**
+   - Auth runs on Convex HTTP, not on your app server. If `VITE_CONVEX_SITE_URL` is not set in your host’s environment, the client falls back to the app origin and requests hit your app, which has no auth routes → 404.
+   - **Fix:** In your host (e.g. Vercel), set `VITE_CONVEX_SITE_URL` to your Convex HTTP URL (e.g. `https://your-deployment.convex.site`). Use the same value as in Convex Dashboard → Settings → URL (replace `.cloud` with `.site`). Rebuild and redeploy after adding the variable.
+
 4. **Session not persisting**
    - Check that `credentials: "include"` is set in authClient
    - Verify cookie settings in `convex/auth.ts`

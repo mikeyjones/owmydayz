@@ -14,7 +14,8 @@ authComponent.registerRoutes(http, createAuth, {
 			"http://localhost:3001",
 			"http://localhost:3002",
 			"http://localhost:3003",
-			// Add production URL here when deploying
+			// Production (Vercel) – add your custom domain too if you use one
+			"https://owmydayz-872h.vercel.app",
 		],
 		allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
 		exposedHeaders: ["Set-Cookie"],
