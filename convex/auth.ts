@@ -48,13 +48,16 @@ export const createAuth = (
 			enabled: true,
 		},
 		...(Object.keys(socialProviders).length > 0 ? { socialProviders } : {}),
-		// Trusted origins for CORS - add your frontend URLs here
+		// Trusted origins for CSRF – request Origin must match one of these
 		trustedOrigins: [
 			"http://localhost:3000",
 			"http://localhost:3001",
 			"http://localhost:3002",
 			"http://localhost:3003",
-			// Add your production domain here
+			// Production (Vercel) – add custom domain if you use one
+			"https://owmydayz-872h.vercel.app",
+			// Vercel preview deployments (e.g. PR previews)
+			"https://*.vercel.app",
 			process.env.SITE_URL || "",
 		].filter(Boolean),
 		// Advanced configuration for cross-origin cookies
