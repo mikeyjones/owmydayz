@@ -152,9 +152,23 @@ export function EditItemDialog({
 		return () => subscription.unsubscribe();
 	}, [form, debouncedSave]);
 
+	// Handle dialog close - flush any pending saves
+	const handleOpenChange = useCallback(
+		(newOpen: boolean) => {
+			if (!newOpen) {
+				// Dialog is closing - flush any pending saves immediately
+				debouncedSave.flush();
+			}
+			onOpenChange(newOpen);
+		},
+		[onOpenChange, debouncedSave],
+	);
+
 	// Reset form when item changes
 	useEffect(() => {
 		if (item) {
+			// Set BEFORE reset so the watch callback that fires during reset is skipped
+			isInitialMount.current = true;
 			form.reset({
 				name: item.name || "",
 				description: item.description || "",
@@ -171,7 +185,6 @@ export function EditItemDialog({
 						: "__none__",
 			});
 			setSelectedClientId(item.clockifyClientId || "__none__");
-			isInitialMount.current = true;
 		}
 	}, [item, form]);
 
@@ -221,7 +234,7 @@ export function EditItemDialog({
 	const currentUserId = session?.user?.id || "";
 
 	return (
-		<Dialog open={open} onOpenChange={onOpenChange}>
+		<Dialog open={open} onOpenChange={handleOpenChange}>
 			<DialogContent className="sm:max-w-[600px] max-h-[85vh] flex flex-col">
 				<DialogHeader>
 					<div className="flex items-center justify-between">

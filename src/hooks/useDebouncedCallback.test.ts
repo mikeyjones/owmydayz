@@ -97,4 +97,64 @@ describe("useDebouncedCallback", () => {
 		expect(callback1).not.toHaveBeenCalled();
 		expect(callback2).toHaveBeenCalledTimes(1);
 	});
+
+	test("flush should immediately execute pending callback", () => {
+		const callback = vi.fn();
+		const { result } = renderHook(() => useDebouncedCallback(callback, 500));
+
+		result.current("test-arg");
+
+		// Callback should not be called yet
+		expect(callback).not.toHaveBeenCalled();
+
+		// Flush pending callback
+		result.current.flush();
+
+		// Callback should be called immediately with the arguments
+		expect(callback).toHaveBeenCalledTimes(1);
+		expect(callback).toHaveBeenCalledWith("test-arg");
+
+		// Advancing time should not call again
+		vi.advanceTimersByTime(500);
+		expect(callback).toHaveBeenCalledTimes(1);
+	});
+
+	test("flush should do nothing if no pending callback", () => {
+		const callback = vi.fn();
+		const { result } = renderHook(() => useDebouncedCallback(callback, 500));
+
+		// Flush without any pending call
+		result.current.flush();
+
+		expect(callback).not.toHaveBeenCalled();
+	});
+
+	test("cancel should prevent pending callback from executing", () => {
+		const callback = vi.fn();
+		const { result } = renderHook(() => useDebouncedCallback(callback, 500));
+
+		result.current("test-arg");
+
+		// Cancel pending callback
+		result.current.cancel();
+
+		// Advancing time should not call the callback
+		vi.advanceTimersByTime(500);
+		expect(callback).not.toHaveBeenCalled();
+	});
+
+	test("flush should use latest arguments from most recent call", () => {
+		const callback = vi.fn();
+		const { result } = renderHook(() => useDebouncedCallback(callback, 500));
+
+		result.current("first");
+		result.current("second");
+		result.current("third");
+
+		result.current.flush();
+
+		// Should be called with the last arguments
+		expect(callback).toHaveBeenCalledTimes(1);
+		expect(callback).toHaveBeenCalledWith("third");
+	});
 });
