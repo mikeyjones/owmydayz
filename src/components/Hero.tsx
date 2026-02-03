@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Play, Rocket } from "lucide-react";
+import { CheckCircle, Rocket } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { FadeIn } from "~/components/ui/fade-in";
 
@@ -14,7 +14,7 @@ export function Hero() {
 							<span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
 							<span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
 						</span>
-						New Cohort Starting Soon
+						Focus on What Matters Today
 					</div>
 				</FadeIn>
 
@@ -23,19 +23,17 @@ export function Hero() {
 					<div className="space-y-6">
 						<FadeIn delay={100}>
 							<h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight text-foreground mb-6 leading-[1.1]">
-								Transform Your Career: <br />
-								Become a{" "}
+								Get More Done: <br />
 								<span className="text-gradient-primary">
-									Full Stack Engineer
+									Day Done
 								</span>
 							</h1>
 						</FadeIn>
 						<FadeIn delay={200}>
 							<p className="mt-6 max-w-2xl mx-auto text-lg md:text-xl text-muted-foreground mb-10 font-light leading-relaxed">
-								Master frontend and backend development, build real-world
-								projects, and launch your software engineering career. Join
-								thousands learning full stack development in our supportive
-								community.
+								The todo app that helps you focus on what matters most. Stop
+								drowning in endless lists and start conquering your day, one
+								task at a time. Manage the jobs you need to get done today.
 							</p>
 						</FadeIn>
 					</div>
@@ -58,8 +56,8 @@ export function Hero() {
 								className="w-full sm:w-auto h-14 px-8 rounded-full border border-border bg-background/50 text-foreground font-medium hover:bg-accent hover:text-accent-foreground transition-all text-base backdrop-blur-sm"
 								asChild
 							>
-								<a href="#curriculum">
-									<Play className="mr-2 h-4 w-4" />
+								<a href="#how-it-works">
+									<CheckCircle className="mr-2 h-4 w-4" />
 									See How it Works
 								</a>
 							</Button>

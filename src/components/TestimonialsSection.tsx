@@ -1,65 +1,59 @@
-import { Quote, Star } from "lucide-react";
+import { Quote, Skull, Star } from "lucide-react";
 import { FadeIn } from "~/components/ui/fade-in";
 
 const testimonials = [
 	{
-		name: "Sarah Chen",
-		role: "Full Stack Engineer at Google",
-		before: "Marketing Manager",
-		after: "$145k/year",
-		image: "SC",
+		name: "Julius Caesar",
+		role: "Roman Emperor (deceased 44 BC)",
+		badge: "Conquered Gaul ✓",
+		image: "JC",
 		quote:
-			"I transitioned from marketing to full stack engineering in 8 months. The community support and structured curriculum made all the difference. Now I'm building products used by millions.",
+			"Veni, vidi, vici... my to-do list. Before Day Done, I kept forgetting to beware the Ides of March. One star off because the mobile app wasn't available in 44 BC.",
+		rating: 4,
+	},
+	{
+		name: "Leonardo da Vinci",
+		role: "Renaissance Polymath (deceased 1519)",
+		badge: "14 unfinished paintings",
+		image: "LV",
+		quote:
+			"Finally, an app that understands I need to track 'invent helicopter', 'paint mysterious woman smiling', and 'study anatomy' all in the same day. My only regret is not finishing more tasks before dying.",
 		rating: 5,
 	},
 	{
-		name: "Marcus Johnson",
-		role: "Senior Full Stack Developer at Stripe",
-		before: "Retail Worker",
-		after: "$160k/year",
-		image: "MJ",
+		name: "Cleopatra VII",
+		role: "Queen of Egypt (deceased 30 BC)",
+		badge: "Ruled the Nile ✓",
+		image: "C7",
 		quote:
-			"No CS degree, no problem. This community taught me everything I needed. The real-world projects gave me confidence, and the portfolio I built landed me multiple offers.",
+			"Managing a kingdom, two Roman generals, and an asp situation is a lot. Day Done helped me prioritize. Would have given 5 stars but the snake task did not go as planned.",
+		rating: 4,
+	},
+	{
+		name: "William Shakespeare",
+		role: "Playwright (deceased 1616)",
+		badge: "37 plays completed",
+		image: "WS",
+		quote:
+			"To do, or not to do, that is no longer the question. With Day Done, I finished Hamlet AND remembered to pick up milk. Forsooth, 'tis the finest productivity app in all the realm!",
 		rating: 5,
 	},
 	{
-		name: "Emily Rodriguez",
-		role: "Full Stack Engineer at Airbnb",
-		before: "Teacher",
-		after: "$135k/year",
-		image: "ER",
+		name: "Napoleon Bonaparte",
+		role: "French Emperor (deceased 1821)",
+		badge: "Conquered Europe ✓",
+		image: "NB",
 		quote:
-			"Best career decision I ever made. The mentorship and peer learning accelerated my growth. I went from zero coding experience to a full stack engineer in less than a year.",
+			"Day Done helped me organize the invasion of Russia. The app worked perfectly; my planning, less so. Still, I blame the winter, not the todo list. Magnifique!",
 		rating: 5,
 	},
 	{
-		name: "David Kim",
-		role: "Full Stack Developer at Netflix",
-		before: "Customer Service",
-		after: "$150k/year",
-		image: "DK",
+		name: "Benjamin Franklin",
+		role: "Founding Father (deceased 1790)",
+		badge: "Discovered electricity ✓",
+		image: "BF",
 		quote:
-			"The structured learning path eliminated all the guesswork. I knew exactly what to learn and in what order. The community helped me through every challenge.",
-		rating: 5,
-	},
-	{
-		name: "Jessica Martinez",
-		role: "Full Stack Engineer at Microsoft",
-		before: "Graphic Designer",
-		after: "$140k/year",
-		image: "JM",
-		quote:
-			"I loved the practical approach. Instead of just watching tutorials, I built real applications. That experience was invaluable in interviews.",
-		rating: 5,
-	},
-	{
-		name: "Alex Thompson",
-		role: "Full Stack Developer at Amazon",
-		before: "Sales Rep",
-		after: "$155k/year",
-		image: "AT",
-		quote:
-			"The career support was incredible. Resume reviews, mock interviews, and networking events helped me land my dream job. Worth every penny.",
+			"Early to bed, early to rise, and check off your tasks makes a man healthy, wealthy, and wise. I added 'fly kite in thunderstorm' as a task and the rest is history. Highly recommend!",
 		rating: 5,
 	},
 ];
@@ -80,15 +74,17 @@ export function TestimonialsSection() {
 				<FadeIn>
 					<div className="flex flex-col items-center text-center mb-20">
 						<div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-yellow-500/10 text-yellow-600 dark:text-yellow-500 text-xs font-bold uppercase tracking-wide mb-6 border border-yellow-500/20">
-							<Star className="h-3 w-3 fill-current" />
-							Trusted by Developers
+							<Skull className="h-3 w-3" />
+							Totally Real Reviews*
 						</div>
 						<h2 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-6xl mb-6 text-foreground">
-							Success <span className="text-gradient-primary">Stories</span>
+							What History's{" "}
+							<span className="text-gradient-primary">Greatest</span> Say
 						</h2>
 						<p className="text-lg text-muted-foreground sm:text-xl max-w-2xl leading-relaxed">
-							Don't just take our word for it. Here's what our community has
-							achieved.
+							*These are obviously not real reviews. We just launched and don't
+							have testimonials yet. But if these legends could use Day Done,
+							here's what they might say.
 						</p>
 					</div>
 				</FadeIn>
@@ -134,9 +130,9 @@ export function TestimonialsSection() {
 									</div>
 								</div>
 
-								{/* Salary Badge */}
-								<div className="absolute -bottom-3 right-6 bg-green-500/10 border border-green-500/20 text-green-600 dark:text-green-400 text-xs font-bold px-3 py-1 rounded-full backdrop-blur-md">
-									Now: {testimonial.after}
+								{/* Achievement Badge */}
+								<div className="absolute -bottom-3 right-6 bg-purple-500/10 border border-purple-500/20 text-purple-600 dark:text-purple-400 text-xs font-bold px-3 py-1 rounded-full backdrop-blur-md">
+									{testimonial.badge}
 								</div>
 							</div>
 						</FadeIn>

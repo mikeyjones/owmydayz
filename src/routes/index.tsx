@@ -21,30 +21,12 @@ function Home() {
 		// Add structured data for SEO
 		const structuredData = {
 			"@context": "https://schema.org",
-			"@type": "EducationalOrganization",
-			name: "Full Stack Campus",
+			"@type": "SoftwareApplication",
+			name: "Day Done",
 			description:
-				"Online community and training platform for aspiring full stack engineers",
+				"A todo app that helps you focus on managing the jobs you need to get done today",
 			url: typeof window !== "undefined" ? window.location.origin : "",
-		};
-
-		const courseStructuredData = {
-			"@context": "https://schema.org",
-			"@type": "Course",
-			name: "Full Stack Engineer Training Program",
-			description:
-				"Comprehensive training program to become a full stack engineer, covering frontend and backend technologies",
-			provider: {
-				"@type": "Organization",
-				name: "Full Stack Campus",
-			},
-			teaches: [
-				"Full Stack Development",
-				"Frontend Development",
-				"Backend Development",
-				"Web Development",
-				"Software Engineering",
-			],
+			applicationCategory: "ProductivityApplication",
 		};
 
 		const faqStructuredData = {
@@ -53,26 +35,26 @@ function Home() {
 			mainEntity: [
 				{
 					"@type": "Question",
-					name: "How long does it take to become a full stack engineer?",
+					name: "How does Day Done help me be more productive?",
 					acceptedAnswer: {
 						"@type": "Answer",
-						text: "Most members land their first full stack engineer role within 6-12 months of starting our program.",
+						text: "Day Done focuses on what matters today. Instead of overwhelming you with endless lists, it helps you prioritize and complete the tasks that need to get done now.",
 					},
 				},
 				{
 					"@type": "Question",
-					name: "What is the average salary of a full stack engineer?",
+					name: "Can I use Day Done for free?",
 					acceptedAnswer: {
 						"@type": "Answer",
-						text: "According to Glassdoor, Indeed, and Payscale, the average full stack engineer salary in the United States ranges from $115,000 to $150,000 per year.",
+						text: "Yes! Day Done offers a free tier that includes all the essential features you need to manage your daily tasks effectively.",
 					},
 				},
 				{
 					"@type": "Question",
-					name: "Do I need a computer science degree to become a full stack engineer?",
+					name: "What makes Day Done different from other todo apps?",
 					acceptedAnswer: {
 						"@type": "Answer",
-						text: "No, you don't need a computer science degree to become a full stack engineer. Many successful full stack engineers are self-taught or have completed bootcamps and online courses.",
+						text: "Day Done is designed around a today-first philosophy. We help you focus on the work that needs to happen now, reducing overwhelm and increasing your daily productivity.",
 					},
 				},
 			],
@@ -95,7 +77,6 @@ function Home() {
 		};
 
 		addScript(structuredData);
-		addScript(courseStructuredData);
 		addScript(faqStructuredData);
 
 		return () => {

@@ -3,11 +3,11 @@
 import type { QueryClient } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import {
-	createRootRouteWithContext,
-	HeadContent,
-	Outlet,
-	Scripts,
-	useRouterState,
+  createRootRouteWithContext,
+  HeadContent,
+  Outlet,
+  Scripts,
+  useRouterState,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import NProgress from "nprogress";
@@ -24,97 +24,97 @@ import { ConvexClientProvider } from "~/components/ConvexClientProvider";
 import { Footer } from "~/components/Footer";
 
 export const Route = createRootRouteWithContext<{
-	queryClient: QueryClient;
+  queryClient: QueryClient;
 }>()({
-	head: () => ({
-		meta: [
-			{
-				charSet: "utf-8",
-			},
-			{
-				name: "viewport",
-				content: "width=device-width, initial-scale=1",
-			},
-			...seo({
-				title:
-					"Become a Full Stack Engineer | Full Stack Developer Training & Community",
-				description: `Join our online community and learn how to become a full stack engineer. Master frontend and backend development, build real projects, and launch your software engineering career. Average full stack engineer salary: $115k-$150k.`,
-				keywords:
-					"full stack engineer, full stack developer, software engineer, web developer, full stack developer training, learn full stack development, full stack engineer salary, how to become a full stack engineer, full stack developer career path, software engineering bootcamp, web development courses",
-			}),
-		],
-		links: [
-			{
-				rel: "stylesheet",
-				href: "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap",
-			},
-			{ rel: "stylesheet", href: appCss },
-			{
-				rel: "apple-touch-icon",
-				sizes: "180x180",
-				href: "/apple-touch-icon.png",
-			},
-			{
-				rel: "icon",
-				type: "image/png",
-				sizes: "32x32",
-				href: "/favicon-32x32.png",
-			},
-			{
-				rel: "icon",
-				type: "image/png",
-				sizes: "16x16",
-				href: "/favicon-16x16.png",
-			},
-			{ rel: "manifest", href: "/site.webmanifest", color: "#fffff" },
-			{ rel: "icon", href: "/favicon.ico" },
-		],
-	}),
-	errorComponent: (props) => {
-		return (
-			<RootDocument>
-				<DefaultCatchBoundary {...props} />
-			</RootDocument>
-		);
-	},
-	notFoundComponent: () => <NotFound />,
-	component: RootComponent,
+  head: () => ({
+    meta: [
+      {
+        charSet: "utf-8",
+      },
+      {
+        name: "viewport",
+        content: "width=device-width, initial-scale=1",
+      },
+      ...seo({
+        title:
+          "Become a Full Stack Engineer | Full Stack Developer Training & Community",
+        description: `Join our online community and learn how to become a full stack engineer. Master frontend and backend development, build real projects, and launch your software engineering career. Average full stack engineer salary: $115k-$150k.`,
+        keywords:
+          "full stack engineer, full stack developer, software engineer, web developer, full stack developer training, learn full stack development, full stack engineer salary, how to become a full stack engineer, full stack developer career path, software engineering bootcamp, web development courses",
+      }),
+    ],
+    links: [
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap",
+      },
+      { rel: "stylesheet", href: appCss },
+      {
+        rel: "apple-touch-icon",
+        sizes: "180x180",
+        href: "/apple-touch-icon.png",
+      },
+      {
+        rel: "icon",
+        type: "image/png",
+        sizes: "32x32",
+        href: "/favicon-32x32.png",
+      },
+      {
+        rel: "icon",
+        type: "image/png",
+        sizes: "16x16",
+        href: "/favicon-16x16.png",
+      },
+      { rel: "manifest", href: "/site.webmanifest", color: "#fffff" },
+      { rel: "icon", href: "/favicon.ico" },
+    ],
+  }),
+  errorComponent: (props) => {
+    return (
+      <RootDocument>
+        <DefaultCatchBoundary {...props} />
+      </RootDocument>
+    );
+  },
+  notFoundComponent: () => <NotFound />,
+  component: RootComponent,
 });
 
 function RootComponent() {
-	return (
-		<RootDocument>
-			<Outlet />
-		</RootDocument>
-	);
+  return (
+    <RootDocument>
+      <Outlet />
+    </RootDocument>
+  );
 }
 
 function RootDocument({ children }: { children: React.ReactNode }) {
-	const routerState = useRouterState();
-	const prevPathnameRef = React.useRef("");
+  const routerState = useRouterState();
+  const prevPathnameRef = React.useRef("");
 
-	React.useEffect(() => {
-		const currentPathname = routerState.location.pathname;
-		const pathnameChanged = prevPathnameRef.current !== currentPathname;
+  React.useEffect(() => {
+    const currentPathname = routerState.location.pathname;
+    const pathnameChanged = prevPathnameRef.current !== currentPathname;
 
-		if (pathnameChanged && routerState.status === "pending") {
-			NProgress.start();
-			prevPathnameRef.current = currentPathname;
-		}
+    if (pathnameChanged && routerState.status === "pending") {
+      NProgress.start();
+      prevPathnameRef.current = currentPathname;
+    }
 
-		if (routerState.status === "idle") {
-			NProgress.done();
-		}
-	}, [routerState.status, routerState.location.pathname]);
+    if (routerState.status === "idle") {
+      NProgress.done();
+    }
+  }, [routerState.status, routerState.location.pathname]);
 
-	return (
-		<html lang="en" suppressHydrationWarning>
-			<head>
-				<HeadContent />
-				<script
-					// biome-ignore lint/security/noDangerouslySetInnerHtml: Required for theme initialization
-					dangerouslySetInnerHTML={{
-						__html: `
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <HeadContent />
+        <script
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: Required for theme initialization
+          dangerouslySetInnerHTML={{
+            __html: `
               (function() {
                 // Constants (must match ThemeProvider.tsx)
                 const THEME_COOKIE_NAME = 'ui-theme';
@@ -152,9 +152,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
                 root.setAttribute('data-resolved-theme', resolvedTheme);
               })();
             `,
-					}}
-				/>
-				<style>{`
+          }}
+        />
+        <style>{`
           #nprogress .bar {
             background: var(--primary) !important;
             height: 3px;
@@ -166,22 +166,22 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             display: none;
           }
         `}</style>
-			</head>
-			<body>
-				<ConvexClientProvider>
-					<ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
-						<div className="min-h-screen bg-background pb-20">
-							<Header />
-							<main>{children}</main>
-							<Footer />
-						</div>
-						<TanStackRouterDevtools position="bottom-right" />
-						<ReactQueryDevtools buttonPosition="bottom-left" />
-						<Toaster />
-						<Scripts />
-					</ThemeProvider>
-				</ConvexClientProvider>
-			</body>
-		</html>
-	);
+      </head>
+      <body>
+        <ConvexClientProvider>
+          <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
+            <div className="min-h-screen bg-background pb-20">
+              <Header />
+              <main>{children}</main>
+              <Footer />
+            </div>
+            <TanStackRouterDevtools position="bottom-right" />
+            <ReactQueryDevtools buttonPosition="bottom-left" />
+            <Toaster />
+            <Scripts />
+          </ThemeProvider>
+        </ConvexClientProvider>
+      </body>
+    </html>
+  );
 }
