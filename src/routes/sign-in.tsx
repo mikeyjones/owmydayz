@@ -249,7 +249,7 @@ function RouteComponent() {
 												<div className="flex items-center justify-between">
 													<FormLabel>Password</FormLabel>
 													<Link
-														to="/"
+														to="/forgot-password"
 														className="text-xs text-muted-foreground hover:text-primary transition-colors"
 													>
 														Forgot password?
