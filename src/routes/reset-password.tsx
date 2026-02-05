@@ -209,6 +209,7 @@ function RouteComponent() {
 						<div className="text-center text-sm text-muted-foreground">
 							<Link
 								to="/sign-in"
+								search={{ redirect: undefined }}
 								className="underline underline-offset-4 hover:text-primary"
 							>
 								Return to sign in

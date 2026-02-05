@@ -164,6 +164,7 @@ function RouteComponent() {
               Remembered your password?{" "}
               <Link
                 to="/sign-in"
+                search={{ redirect: undefined }}
                 className="underline underline-offset-4 hover:text-primary"
               >
                 Back to sign in
